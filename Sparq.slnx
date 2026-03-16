@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Sparq.DataAccess/Sparq.DataAccess.csproj" />
   <Project Path="Sparq.WebApi/Sparq.WebApi.csproj" />
 </Solution>
