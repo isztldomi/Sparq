@@ -15,10 +15,8 @@ namespace Sparq.DataAccess.Models
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-
-        public int TotalPlays { get; set; }
         public bool IsActive { get; set; }
 
-        public ICollection<QuizVersion> Versions { get; set; }
+        public ICollection<Version> Versions { get; set; }
     }
 }

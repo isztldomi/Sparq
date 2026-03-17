@@ -13,13 +13,13 @@ namespace Sparq.DataAccess.Models
 
         public string DisplayName { get; set; }
 
-        public int QuizSessionId { get; set; }
-        public QuizSession QuizSession { get; set; }
+        public int SessionId { get; set; }
+        public Session Session { get; set; }
 
         public int Score { get; set; }
 
         public bool IsFinished { get; set; }
 
-        public ICollection<ParticipantAnswer> Answers { get; set; }
+        public ICollection<ParticipantAnswer> ParticipantAnswers { get; set; }
     }
 }

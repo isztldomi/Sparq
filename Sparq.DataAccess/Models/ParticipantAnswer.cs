@@ -14,8 +14,8 @@ namespace Sparq.DataAccess.Models
         public int QuestionId { get; set; }
         public Question Question { get; set; }
 
-        public int AnswerOptionId { get; set; }
-        public AnswerOption AnswerOption { get; set; }
+        public int AnswerId { get; set; }
+        public Answer Answer { get; set; }
 
         public DateTime AnsweredAt { get; set; }
 

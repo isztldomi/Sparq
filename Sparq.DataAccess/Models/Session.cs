@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Sparq.DataAccess.Models
 {
-    public class QuizSession
+    public class Session
     {
         public int Id { get; set; }
 
-        public int QuizVersionId { get; set; }
-        public QuizVersion QuizVersion { get; set; }
+        public int VersionId { get; set; }
+        public Version Version { get; set; }
 
         public DateTime StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }

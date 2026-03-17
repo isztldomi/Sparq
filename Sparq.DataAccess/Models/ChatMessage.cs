@@ -8,8 +8,8 @@ namespace Sparq.DataAccess.Models
     {
         public int Id { get; set; }
 
-        public int QuizSessionId { get; set; }
-        public QuizSession QuizSession { get; set; }
+        public int SessionId { get; set; }
+        public Session Session { get; set; }
 
         public int ParticipantId { get; set; }
         public Participant Participant { get; set; }
@@ -17,7 +17,7 @@ namespace Sparq.DataAccess.Models
         public int? QuestionId { get; set; }
         public Question Question { get; set; }
 
-        public string MessageText { get; set; }
+        public string Text { get; set; }
 
         public DateTime SentAt { get; set; }
     }

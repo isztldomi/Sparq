@@ -8,17 +8,17 @@ namespace Sparq.DataAccess.Models
     {
         public int Id { get; set; }
 
-        public int QuizVersionId { get; set; }
-        public QuizVersion QuizVersion { get; set; }
+        public int VersionId { get; set; }
+        public Version Version { get; set; }
 
-        public string QuestionTitle { get; set; }
-        public string QuestionText { get; set; }
+        public string Title { get; set; }
+        public string Text { get; set; }
 
-        public string? QuestionMediaUrl { get; set; }
+        public string? MediaUrl { get; set; }
 
-        public int QuestionTimeLimit { get; set; }
-        public int QuestionPoint { get; set; }
+        public int TimeLimit { get; set; }
+        public int Point { get; set; }
 
-        public ICollection<AnswerOption> AnswerOptions { get; set; }
+        public ICollection<Answer> Answers { get; set; }
     }
 }
