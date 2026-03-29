@@ -1,0 +1,93 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Sparq.DataAccess.Models;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Sparq.DataAccess.Services
+{
+    public class SessionService : ISessionService
+    {
+        private readonly SparqDbContext _context;
+
+        public SessionService(SparqDbContext context)
+        {
+            _context = context;
+        }
+
+        // CREATE
+        public async Task<Session> CreateAsync(Session session)
+        {
+            _context.Sessions.Add(session);
+            await _context.SaveChangesAsync();
+
+            return session;
+        }
+
+        // READ by id
+        public async Task<Session?> GetByIdAsync(int id)
+        {
+            return await _context.Sessions
+                .Include(s => s.Snapshot)
+                .Include(s => s.Participants)
+                .Include(s => s.Messages)
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        // READ all
+        public async Task<IReadOnlyCollection<Session>> GetAllAsync()
+        {
+            return await _context.Sessions
+                .Include(s => s.Snapshot)
+                .ToListAsync();
+        }
+
+        // UPDATE
+        public async Task<Session?> UpdateAsync(int id, Session updatedSession)
+        {
+            var existing = await _context.Sessions
+                .Include(s => s.Participants)
+                .Include(s => s.Messages)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (existing == null)
+                return null;
+
+            // Snapshot kapcsolat
+            existing.SnapshotId = updatedSession.SnapshotId;
+
+            // runtime state mezők
+            existing.StartedAt = updatedSession.StartedAt;
+            existing.EndedAt = updatedSession.EndedAt;
+            existing.CurrentQuestionId = updatedSession.CurrentQuestionId;
+            existing.PinCode = updatedSession.PinCode;
+            existing.IsWaiting = updatedSession.IsWaiting;
+            existing.IsRunning = updatedSession.IsRunning;
+
+            // navigation property
+            existing.Snapshot = updatedSession.Snapshot;
+
+            // collections
+            existing.Participants = updatedSession.Participants;
+            existing.Messages = updatedSession.Messages;
+
+            await _context.SaveChangesAsync();
+
+            return existing;
+        }
+
+        // DELETE
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var session = await _context.Sessions.FindAsync(id);
+
+            if (session == null)
+                return false;
+
+            _context.Sessions.Remove(session);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+    }
+}

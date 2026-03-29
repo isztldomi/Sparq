@@ -1,0 +1,91 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Sparq.DataAccess.Models;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Sparq.DataAccess.Services
+{
+    internal class SnapshotService : ISnapshotService
+    {
+        private readonly SparqDbContext _context;
+
+        public SnapshotService(SparqDbContext context)
+        {
+            _context = context;
+        }
+
+        // CREATE
+        public async Task<Snapshot> CreateAsync(Snapshot snapshot)
+        {
+            snapshot.CreatedAt = DateTime.UtcNow;
+
+            _context.Snapshots.Add(snapshot);
+            await _context.SaveChangesAsync();
+
+            return snapshot;
+        }
+
+        // READ by id
+        public async Task<Snapshot?> GetByIdAsync(int id)
+        {
+            return await _context.Snapshots
+                .Include(v => v.Quiz)
+                .Include(v => v.Questions)
+                .Include(v => v.Sessions)
+                .FirstOrDefaultAsync(v => v.Id == id);
+        }
+
+        // READ all
+        public async Task<IReadOnlyCollection<Snapshot>> GetAllAsync()
+        {
+            return await _context.Snapshots
+                .Include(v => v.Quiz)
+                .ToListAsync();
+        }
+
+        // UPDATE
+        public async Task<Snapshot?> UpdateAsync(int id, Snapshot updatedSnapshot)
+        {
+            var existing = await _context.Snapshots
+                .Include(v => v.Questions)
+                .Include(v => v.Sessions)
+                .FirstOrDefaultAsync(v => v.Id == id);
+
+            if (existing == null)
+                return null;
+
+            // egyszerű mezők
+            existing.QuizId = updatedSnapshot.QuizId;
+            existing.SnapshotNumber = updatedSnapshot.SnapshotNumber;
+            existing.Title = updatedSnapshot.Title;
+            existing.Description = updatedSnapshot.Description;
+            existing.TimeLimit = updatedSnapshot.TimeLimit;
+
+            // navigation property-k
+            existing.Quiz = updatedSnapshot.Quiz;
+
+            // egyszerű csere (nem mindig safe)
+            existing.Questions = updatedSnapshot.Questions;
+            existing.Sessions = updatedSnapshot.Sessions;
+
+            await _context.SaveChangesAsync();
+
+            return existing;
+        }
+
+        // DELETE
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var snapshot = await _context.Snapshots.FindAsync(id);
+
+            if (snapshot == null)
+                return false;
+
+            _context.Snapshots.Remove(snapshot);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+    }
+}
