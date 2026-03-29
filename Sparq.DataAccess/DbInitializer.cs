@@ -1,10 +1,15 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Sparq.DataAccess
 {
-    internal class DbInitializer
+    public static class DbInitializer
     {
+        public static void Initialize(SparqDbContext context)
+        {
+            context.Database.Migrate();
+        }
     }
 }
