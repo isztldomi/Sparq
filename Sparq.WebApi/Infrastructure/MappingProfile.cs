@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Sparq.DataAccess.Models;
+using Sparq.Shared.Models;
 
 namespace Sparq.WebApi.Infrastructure
 {
@@ -13,6 +15,8 @@ namespace Sparq.WebApi.Infrastructure
         public MappingProfile()
         {
             // Example mappings:
+            CreateMap<User, UserResponseDto>();
+            CreateMap<UserRequestDto, User>();
             // CreateMap<Book, BookResponseDto>();
             // CreateMap<BookRequestDto, Book>();
 
