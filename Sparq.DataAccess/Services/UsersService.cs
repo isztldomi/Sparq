@@ -32,6 +32,7 @@ namespace Sparq.DataAccess.Services
 
         public async Task AddUserAsync(User user, string password)
         {
+            user.UserName = user.Email;
             user.RefreshToken = Guid.NewGuid();
 
             var result = await _userManager.CreateAsync(user, password);

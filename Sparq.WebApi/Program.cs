@@ -14,8 +14,6 @@ using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
-// ideglenes
-builder.Configuration.AddUserSecrets<Program>();
 
 // Add services to the container.
 

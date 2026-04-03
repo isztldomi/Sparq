@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Sparq.DataAccess.Models;
@@ -8,9 +9,8 @@ using System.Text;
 
 namespace Sparq.DataAccess
 {
-    public class SparqDbContext : DbContext
+    public class SparqDbContext : IdentityDbContext<User, UserRole, string>
     {
-        public DbSet<User> Users { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Snapshot> Snapshots { get; set; }
         public DbSet<Question> Questions { get; set; }
@@ -23,6 +23,11 @@ namespace Sparq.DataAccess
 
         public SparqDbContext(DbContextOptions<SparqDbContext> options) : base(options)
         {
-        } 
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

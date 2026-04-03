@@ -8,17 +8,32 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sparq.WebApi.Controllers
 {
+    /// <summary>
+    /// Controller responsible for user-related operations.
+    /// </summary>
     [ApiController]
     [Route("/users")]
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
         private readonly IMapper _mapper;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsersController"/> class.
+        /// </summary>
+        /// <param name="mapper">Mapper instance for DTO-entity conversions.</param>
+        /// <param name="usersService">Service handling user business logic.</param>
         public UsersController(IMapper mapper, IUsersService usersService)
         {
             _mapper = mapper;
             _usersService = usersService;
         }
+
+        /// <summary>
+        /// Creates a new user.
+        /// </summary>
+        /// <param name="userRequestDto">User creation request data.</param>
+        /// <returns>The created user.</returns>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(UserResponseDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -33,6 +48,12 @@ namespace Sparq.WebApi.Controllers
 
             return StatusCode(StatusCodes.Status201Created, userResponseDto);
         }
+
+        /// <summary>
+        /// Login.
+        /// </summary>
+        /// <param name="loginRequestDto">Login credentials.</param>
+        /// <returns>Authentication and refresh tokens.</returns>
         [HttpPost]
         [Route("login")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserResponseDto))]
@@ -51,6 +72,11 @@ namespace Sparq.WebApi.Controllers
 
             return Ok(loginResponseDto);
         }
+
+        /// <summary>
+        /// Logout.
+        /// </summary>
+        /// <returns>No content.</returns>
         [HttpPost]
         [Route("logout")]
         [Authorize]
@@ -62,6 +88,12 @@ namespace Sparq.WebApi.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Redeems a refresh token and returns new tokens.
+        /// </summary>
+        /// <param name="refreshToken">Refresh token.</param>
+        /// <returns>New authentication and refresh tokens.</returns>
         [HttpPost]
         [Route("refresh")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserResponseDto))]
@@ -79,6 +111,12 @@ namespace Sparq.WebApi.Controllers
 
             return Ok(loginResponseDto);
         }
+
+        /// <summary>
+        /// User by ID.
+        /// </summary>
+        /// <param name="id">User identifier.</param>
+        /// <returns>User data.</returns>
         [HttpGet]
         [Route("{id}")]
         [Authorize]
