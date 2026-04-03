@@ -12,7 +12,7 @@ namespace Sparq.DataAccess.Models
         public int Id { get; set; }
         public required int SnapshotId { get; set; }
         [ForeignKey("SnapshotId")]
-        public required Snapshot Snapshot { get; set; }
+        public virtual required Snapshot Snapshot { get; set; }
         public required string Title { get; set; }
         public required string Text { get; set; }
         public string? MediaUrl { get; set; }
