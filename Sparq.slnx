@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Sparq.DataAccess/Sparq.DataAccess.csproj" />
+  <Project Path="Sparq.Shared/Sparq.Shared.csproj" Id="e1dd25e6-df36-4ccc-b531-3e1cd737b7ea" />
   <Project Path="Sparq.WebApi/Sparq.WebApi.csproj" />
 </Solution>

@@ -12,7 +12,7 @@ namespace Sparq.DataAccess.Models
         public int Id { get; set; }
         public required string OwnerId { get; set; }
         [ForeignKey("OwnerId")]
-        public required User Owner { get; set; }
+        public virtual required User Owner { get; set; }
         public bool IsPublic { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
