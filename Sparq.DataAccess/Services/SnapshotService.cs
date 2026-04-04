@@ -18,13 +18,34 @@ namespace Sparq.DataAccess.Services
         // CREATE
         public async Task<Snapshot> CreateAsync(Snapshot snapshot)
         {
+            var quiz = await _context.Quizzes.FindAsync(snapshot.QuizId);
+            if (quiz == null)
+                throw new Exception("Quiz not found");
+
+            var lastSnapshotNumber = await _context.Snapshots
+                .Where(s => s.QuizId == snapshot.QuizId)
+                .MaxAsync(s => (int?)s.SnapshotNumber) ?? 0;
+
+            snapshot.SnapshotNumber = lastSnapshotNumber + 1;
             snapshot.CreatedAt = DateTime.UtcNow;
 
             _context.Snapshots.Add(snapshot);
+
+            quiz.LastSnapshot = snapshot;
+
             await _context.SaveChangesAsync();
 
             return snapshot;
         }
+        //public async Task<Snapshot> CreateAsync(Snapshot snapshot)
+        //{
+        //    snapshot.CreatedAt = DateTime.UtcNow;
+        //
+        //    _context.Snapshots.Add(snapshot);
+        //    await _context.SaveChangesAsync();
+        //
+        //    return snapshot;
+        //}
 
         // READ by id
         public async Task<Snapshot?> GetByIdAsync(int id)
