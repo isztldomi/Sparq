@@ -12,8 +12,8 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    [Migration("20260404120121_Init_without_required")]
-    partial class Init_without_required
+    [Migration("20260404210256_Init_again")]
+    partial class Init_again
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,6 +176,7 @@ namespace Sparq.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -198,6 +199,7 @@ namespace Sparq.DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsFinished")
@@ -209,7 +211,7 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<int>("Score")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("SessionId")
+                    b.Property<int>("SessionId")
                         .HasColumnType("integer");
 
                     b.Property<string>("UserId")
@@ -232,7 +234,7 @@ namespace Sparq.DataAccess.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AnswerId")
+                    b.Property<int>("AnswerId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("AnsweredAt")
@@ -241,13 +243,13 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("ParticipantId")
+                    b.Property<int>("ParticipantId")
                         .HasColumnType("integer");
 
                     b.Property<int>("PointsEarned")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("QuestionId")
+                    b.Property<int>("QuestionId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -275,7 +277,7 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<int>("Point")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("SnapshotId")
+                    b.Property<int>("SnapshotId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
@@ -311,6 +313,9 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
+                    b.Property<int?>("LastSnapshotId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("OwnerId")
                         .HasColumnType("text");
 
@@ -318,6 +323,8 @@ namespace Sparq.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LastSnapshotId");
 
                     b.HasIndex("OwnerId");
 
@@ -347,7 +354,7 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<string>("PinCode")
                         .HasColumnType("text");
 
-                    b.Property<int?>("SnapshotId")
+                    b.Property<int>("SnapshotId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("StartedAt")
@@ -553,7 +560,8 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Question", "Question")
                         .WithMany("Answers")
-                        .HasForeignKey("QuestionId");
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Question");
                 });
@@ -583,7 +591,9 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Session", "Session")
                         .WithMany("Participants")
-                        .HasForeignKey("SessionId");
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sparq.DataAccess.Models.User", "User")
                         .WithMany("Participants")
@@ -598,15 +608,21 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Answer", "Answer")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("AnswerId");
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sparq.DataAccess.Models.Participant", "Participant")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("ParticipantId");
+                        .HasForeignKey("ParticipantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sparq.DataAccess.Models.Question", "Question")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("QuestionId");
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Answer");
 
@@ -619,16 +635,24 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Snapshot", "Snapshot")
                         .WithMany("Questions")
-                        .HasForeignKey("SnapshotId");
+                        .HasForeignKey("SnapshotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Snapshot");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Quiz", b =>
                 {
+                    b.HasOne("Sparq.DataAccess.Models.Snapshot", "LastSnapshot")
+                        .WithMany()
+                        .HasForeignKey("LastSnapshotId");
+
                     b.HasOne("Sparq.DataAccess.Models.User", "Owner")
                         .WithMany("Quizzes")
                         .HasForeignKey("OwnerId");
+
+                    b.Navigation("LastSnapshot");
 
                     b.Navigation("Owner");
                 });
@@ -637,7 +661,9 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Snapshot", "Snapshot")
                         .WithMany("Sessions")
-                        .HasForeignKey("SnapshotId");
+                        .HasForeignKey("SnapshotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Snapshot");
                 });
@@ -646,7 +672,8 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Quiz", "Quiz")
                         .WithMany("Snapshots")
-                        .HasForeignKey("QuizId");
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Quiz");
                 });

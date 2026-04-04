@@ -12,8 +12,8 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    [Migration("20260404114603_quiz_ownerId_not_required")]
-    partial class quiz_ownerId_not_required
+    [Migration("20260404201644_Init_revert")]
+    partial class Init_revert
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -316,6 +316,9 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
+                    b.Property<int?>("LastSnapshotId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("OwnerId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -324,6 +327,8 @@ namespace Sparq.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LastSnapshotId");
 
                     b.HasIndex("OwnerId");
 
@@ -648,11 +653,18 @@ namespace Sparq.DataAccess.Migrations
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Quiz", b =>
                 {
+                    b.HasOne("Sparq.DataAccess.Models.Snapshot", "LastSnapshot")
+                        .WithMany()
+                        .HasForeignKey("LastSnapshotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Sparq.DataAccess.Models.User", "Owner")
                         .WithMany("Quizzes")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("LastSnapshot");
 
                     b.Navigation("Owner");
                 });

@@ -8,10 +8,6 @@ using System.Security.Claims;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>
-    /// API controller responsible for managing quizzes.
-    /// Provides endpoints for creating, reading, updating, and deleting quizzes.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class QuizController : ControllerBase
@@ -19,105 +15,54 @@ namespace Sparq.WebApi.Controllers
         private readonly IQuizService _quizService;
         private readonly IMapper _mapper;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QuizController"/> class.
-        /// </summary>
-        /// <param name="mapper">AutoMapper instance used for mapping between entities and DTOs.</param>
-        /// <param name="quizService">Service handling quiz-related business logic.</param>
-        public QuizController(IMapper mapper, IQuizService quizService)
+        public QuizController(IQuizService quizService, IMapper mapper)
         {
-            _mapper = mapper;
             _quizService = quizService;
+            _mapper = mapper;
         }
 
-        /// <summary>
-        /// Retrieves all quizzes from the system.
-        /// </summary>
-        /// <returns>A collection of quiz response DTOs.</returns>
-        [HttpGet]
-        public async Task<ActionResult<IReadOnlyCollection<Quiz>>> GetAll()
-        {
-            var quizzes = await _quizService.GetAllAsync();
-            var quizResponseDto = _mapper.Map<IReadOnlyCollection<QuizResponseDto>>(quizzes);
-
-            return Ok(quizResponseDto);
-        }
-
-        /// <summary>
-        /// Retrieves a specific quiz by its identifier.
-        /// </summary>
-        /// <param name="id">The unique identifier of the quiz.</param>
-        /// <returns>The requested quiz if found; otherwise, NotFound.</returns>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Quiz>> GetById(int id)
-        {
-            var quiz = await _quizService.GetByIdAsync(id);
-
-            if (quiz == null)
-                return NotFound();
-
-            var quizResponseDto = _mapper.Map<QuizResponseDto>(quiz);
-            return Ok(quizResponseDto);
-        }
-
-        /// <summary>
-        /// Creates a new quiz for the currently authenticated user.
-        /// </summary>
-        /// <param name="quizRequestDto">The quiz creation data.</param>
-        /// <returns>The created quiz.</returns>
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<QuizResponseDto>> Create(QuizRequestDto quizRequestDto)
+        public async Task<IActionResult> Create([FromBody] QuizCreateRequestDto quizCreateRequestDto)
         {
-            var quiz = _mapper.Map<Quiz>(quizRequestDto);
-            // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userId = User.FindFirstValue("id");
-            quiz.OwnerId = userId;
-            await _quizService.CreateAsync(quiz);
-            var quizResponseDto = _mapper.Map<QuizResponseDto>(quiz);
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = quiz.Id },
-                quizResponseDto
-            );
+            if (userId is null) return Unauthorized();
+
+            var quiz = _mapper.Map<Quiz>(quizCreateRequestDto);
+
+            Console.WriteLine("Snapshots in mapped object: " + (quiz.Snapshots?.Count ?? 0));
+            quiz.OwnerId = userId!;
+
+            foreach (var snapshot in quiz.Snapshots!)
+            {
+                snapshot.CreatedAt = DateTime.UtcNow;
+            }
+
+            var savedQuiz = await _quizService.CreateAsync(quiz);
+
+            var quizResponseDto = _mapper.Map<QuizResponseDto>(savedQuiz);
+
+            return CreatedAtAction(nameof(GetById), new { id = quizResponseDto.Id }, quizResponseDto);
         }
 
-        /// <summary>
-        /// Updates an existing quiz.
-        /// </summary>
-        /// <param name="id">The ID of the quiz to update.</param>
-        /// <param name="quiz">The updated quiz data.</param>
-        /// <returns>The updated quiz if successful; otherwise NotFound.</returns>
-        [HttpPut("{id}")]
-        [Authorize]
-        // Csak a quiz tulajdonosa vagy admin frissítheti a quizt
-        public async Task<ActionResult<Quiz>> Update(int id, [FromBody] Quiz quiz)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            var updatedQuiz = await _quizService.UpdateAsync(id, quiz);
+            var quizEntity = await _quizService.GetByIdAsync(id);
 
-            if (updatedQuiz == null)
+            if (quizEntity == null)
                 return NotFound();
 
-            var quizResponseDto = _mapper.Map<QuizResponseDto>(updatedQuiz);
-            return Ok(updatedQuiz);
+            var response = _mapper.Map<QuizResponseDto>(quizEntity);
+
+            return Ok(response);
         }
-
-        /// <summary>
-        /// Deletes a quiz by its identifier.
-        /// </summary>
-        /// <param name="id">The ID of the quiz to delete.</param>
-        /// <returns>No content if deletion was successful; otherwise NotFound.</returns>
-        [HttpDelete("{id}")]
-        [Authorize]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            var success = await _quizService.DeleteAsync(id);
-
-            if (!success)
-                return NotFound();
-
-            return NoContent();
+            var quizEntities = await _quizService.GetAllAsync();
+            var response = _mapper.Map<List<QuizResponseDto>>(quizEntities);
+            return Ok(response);
         }
     }
 }

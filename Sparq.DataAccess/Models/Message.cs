@@ -19,7 +19,7 @@ namespace Sparq.DataAccess.Models
         public int? QuestionId { get; set; }
         [ForeignKey("QuestionId")]
         public virtual Question? Question { get; set; }
-        public string? Text { get; set; }
+        public string Text { get; set; } = string.Empty;
         public DateTime SentAt { get; set; }
     }
 }

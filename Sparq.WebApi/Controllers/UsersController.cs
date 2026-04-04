@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
+using Sparq.Shared.Models;
 using Sparq.Shared.Models.LoginDto;
 using Sparq.Shared.Models.UserDto;
 using System.ComponentModel.DataAnnotations;

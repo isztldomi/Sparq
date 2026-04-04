@@ -5,14 +5,13 @@ using System.Text;
 
 namespace Sparq.Shared.Models.QuestionDto
 {
-    public class QuestionCreateDto
+    public class QuestionResponseDto
     {
+        public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Text { get; set; } = string.Empty;
-        public string? MediaUrl { get; set; }
-
+        public string MediaUrl { get; set; } = string.Empty;
         public int Point { get; set; }
-
-        public List<AnswerCreateDto> Answers { get; set; } = new();
+        public List<AnswerResponseDto> Answers { get; set; } = new();
     }
 }

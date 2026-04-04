@@ -10,13 +10,13 @@ namespace Sparq.DataAccess.Models
     {
         [Key]
         public int Id { get; set; }
-        public int? ParticipantId { get; set; }
+        public int ParticipantId { get; set; }
         [ForeignKey("ParticipantId")]
         public virtual Participant? Participant { get; set; }
-        public int? QuestionId { get; set; }
+        public int QuestionId { get; set; }
         [ForeignKey("QuestionId")]
         public virtual Question? Question { get; set; }
-        public int? AnswerId { get; set; }
+        public int AnswerId { get; set; }
         [ForeignKey("AnswerId")]
         public virtual Answer? Answer { get; set; }
         public DateTime AnsweredAt { get; set; }

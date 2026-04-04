@@ -5,7 +5,7 @@
 namespace Sparq.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class quiz_ownerId_not_required : Migration
+    public partial class with_virtual : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

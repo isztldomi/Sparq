@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sparq.DataAccess;
@@ -11,9 +12,11 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    partial class SparqDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260404205811_Init_without_required_and_virtual")]
+    partial class Init_without_required_and_virtual
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -557,8 +560,7 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Question", "Question")
                         .WithMany("Answers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("QuestionId");
 
                     b.Navigation("Question");
                 });
@@ -643,7 +645,8 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Snapshot", "LastSnapshot")
                         .WithMany()
-                        .HasForeignKey("LastSnapshotId");
+                        .HasForeignKey("LastSnapshotId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Sparq.DataAccess.Models.User", "Owner")
                         .WithMany("Quizzes")
@@ -669,8 +672,7 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Quiz", "Quiz")
                         .WithMany("Snapshots")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("QuizId");
 
                     b.Navigation("Quiz");
                 });

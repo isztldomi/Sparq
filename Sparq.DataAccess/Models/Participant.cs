@@ -13,8 +13,8 @@ namespace Sparq.DataAccess.Models
         public string? UserId { get; set; }
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }
-        public string? DisplayName { get; set; }
-        public int? SessionId { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+        public int SessionId { get; set; }
         [ForeignKey("SessionId")]
         public virtual Session? Session { get; set; }
         public int Score { get; set; }
