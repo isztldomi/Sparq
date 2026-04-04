@@ -28,6 +28,18 @@ namespace Sparq.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            // Snapshot → Quiz (normál)
+            modelBuilder.Entity<Snapshot>()
+                .HasOne(s => s.Quiz)
+                .WithMany(q => q.Snapshots)
+                .HasForeignKey(s => s.QuizId);
+
+            // Quiz → LastSnapshot (speciális)
+            modelBuilder.Entity<Quiz>()
+                .HasOne(q => q.LastSnapshot)
+                .WithMany() // nincs visszanavigáció
+                .HasForeignKey(q => q.LastSnapshotId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

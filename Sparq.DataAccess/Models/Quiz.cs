@@ -17,6 +17,9 @@ namespace Sparq.DataAccess.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsActive { get; set; }
+        public int? LastSnapshotId { get; set; }
+        [ForeignKey("LastSnapshotId")]
+        public virtual Snapshot? LastSnapshot { get; set; }
         public virtual ICollection<Snapshot> Snapshots { get; set; } = new List<Snapshot>();
     }
 }
