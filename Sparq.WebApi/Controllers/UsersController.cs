@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
-using Sparq.Shared.Models;
+using Sparq.Shared.Models.LoginDto;
+using Sparq.Shared.Models.UserDto;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sparq.WebApi.Controllers
@@ -12,7 +13,7 @@ namespace Sparq.WebApi.Controllers
     /// Controller responsible for user-related operations.
     /// </summary>
     [ApiController]
-    [Route("/users")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;

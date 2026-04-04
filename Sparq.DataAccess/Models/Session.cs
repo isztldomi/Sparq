@@ -10,9 +10,9 @@ namespace Sparq.DataAccess.Models
     {
         [Key]
         public int Id { get; set; }
-        public required int SnapshotId { get; set; }
+        public int? SnapshotId { get; set; }
         [ForeignKey("SnapshotId")]
-        public virtual required Snapshot Snapshot { get; set; }
+        public virtual Snapshot? Snapshot { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }
         public int? CurrentQuestionId { get; set; }

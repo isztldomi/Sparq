@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sparq.Shared.Models
+namespace Sparq.Shared.Models.LoginDto
 {
     public class LoginResponseDto
     {
