@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sparq.DataAccess.Models;
-
-using System.Security.Claims;
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,7 +17,6 @@ namespace Sparq.DataAccess.Services
         // CREATE
         public async Task<Quiz> CreateAsync(Quiz quiz)
         {
-            quiz.IsActive = true;
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.UpdatedAt = DateTime.UtcNow;
 

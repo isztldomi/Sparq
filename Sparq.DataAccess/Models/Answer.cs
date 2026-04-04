@@ -10,11 +10,11 @@ namespace Sparq.DataAccess.Models
     {
         [Key]
         public int Id { get; set; }
-        public int? QuestionId { get; set; }
+        public required int QuestionId { get; set; }
         [ForeignKey("QuestionId")]
-        public virtual Question? Question { get; set; }
-        public string? Text { get; set; }
-        public bool IsCorrect { get; set; }
+        public virtual required Question Question { get; set; }
+        public required string Text { get; set; }
+        public required bool IsCorrect { get; set; }
         public virtual ICollection<ParticipantAnswer> ParticipantAnswers { get; set; } = new List<ParticipantAnswer>();
     }
 }

@@ -10,9 +10,9 @@ namespace Sparq.DataAccess.Models
     {
         [Key]
         public int Id { get; set; }
-        public int? QuizId { get; set; }
+        public required int QuizId { get; set; }
         [ForeignKey("QuizId")]
-        public virtual Quiz? Quiz { get; set; }
+        public virtual required Quiz Quiz { get; set; }
         public int SnapshotNumber { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
