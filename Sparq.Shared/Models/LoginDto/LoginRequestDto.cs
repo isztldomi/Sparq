@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Sparq.Shared.Models
+namespace Sparq.Shared.Models.LoginDto
 {
     public class LoginRequestDto
     {

@@ -91,6 +91,7 @@ namespace Sparq.DataAccess.Services
 
         public string? GetCurrentUserId()
         {
+            //var id = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var id = _httpContextAccessor.HttpContext?.User.FindFirstValue("id");
             if (id == null)
                 return null;
@@ -117,6 +118,7 @@ namespace Sparq.DataAccess.Services
         {
             new(JwtRegisteredClaimNames.Sub, user.Email!),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            //new(ClaimTypes.NameIdentifier, user.Id),
             new("id", user.Id),
             new("username", user.UserName!),
         };

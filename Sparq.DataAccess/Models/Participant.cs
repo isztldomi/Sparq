@@ -13,10 +13,10 @@ namespace Sparq.DataAccess.Models
         public string? UserId { get; set; }
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }
-        public required string DisplayName { get; set; }
-        public required int SessionId { get; set; }
+        public string? DisplayName { get; set; }
+        public int? SessionId { get; set; }
         [ForeignKey("SessionId")]
-        public virtual required Session Session { get; set; }
+        public virtual Session? Session { get; set; }
         public int Score { get; set; }
         public int Rank { get; set; }
         public bool IsFinished { get; set; }
