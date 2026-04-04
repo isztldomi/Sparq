@@ -21,6 +21,7 @@ namespace Sparq.DataAccess.Services
             quiz.UpdatedAt = DateTime.UtcNow;
 
             _context.Quizzes.Add(quiz);
+
             await _context.SaveChangesAsync();
 
             return quiz;

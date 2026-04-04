@@ -10,16 +10,16 @@ namespace Sparq.DataAccess.Models
     {
         [Key]
         public int Id { get; set; }
-        public required int SessionId { get; set; }
+        public int? SessionId { get; set; }
         [ForeignKey("SessionId")]
-        public virtual required Session Session { get; set; }
-        public required int ParticipantId { get; set; }
+        public virtual Session? Session { get; set; }
+        public int? ParticipantId { get; set; }
         [ForeignKey("ParticipantId")]
-        public virtual required Participant Participant { get; set; }
+        public virtual Participant? Participant { get; set; }
         public int? QuestionId { get; set; }
         [ForeignKey("QuestionId")]
         public virtual Question? Question { get; set; }
-        public required string Text { get; set; }
+        public string Text { get; set; } = string.Empty;
         public DateTime SentAt { get; set; }
     }
 }
