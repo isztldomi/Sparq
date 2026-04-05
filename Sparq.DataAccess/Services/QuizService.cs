@@ -19,15 +19,15 @@ namespace Sparq.DataAccess.Services
         {
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.UpdatedAt = DateTime.UtcNow;
-            if (quiz.Snapshots != null && quiz.Snapshots.Any())
+            foreach (var snapshot in quiz.Snapshots)
             {
-                foreach (var snapshot in quiz.Snapshots)
-                {
-                    snapshot.SnapshotNumber = 1;
-                }
+                snapshot.SnapshotNumber = 1;
             }
             _context.Quizzes.Add(quiz);
-
+            
+            await _context.SaveChangesAsync();
+            var snapshotID = quiz.Snapshots.FirstOrDefault()?.Id;
+            quiz.LastSnapshotId = snapshotID;
             await _context.SaveChangesAsync();
 
             return quiz;
