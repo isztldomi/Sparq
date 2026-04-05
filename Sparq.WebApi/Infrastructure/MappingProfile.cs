@@ -21,12 +21,17 @@ namespace Sparq.WebApi.Infrastructure
             // Example mappings:
             CreateMap<User, UserResponseDto>(MemberList.Destination);
             CreateMap<UserRequestDto, User>(MemberList.Destination);
+
             CreateMap<Quiz, QuizResponseDto>(MemberList.Destination);
             CreateMap<QuizCreateRequestDto, Quiz>(MemberList.Destination);
+
             CreateMap<Snapshot, SnapshotResponseDto>(MemberList.Destination);
+            CreateMap<SnapshotCreateFromQuizRequestDto, Snapshot>(MemberList.Destination);
             CreateMap<SnapshotCreateRequestDto, Snapshot>(MemberList.Destination);
+
             CreateMap<Question, QuestionResponseDto>(MemberList.Destination);
             CreateMap<QuestionCreateRequestDto, Question>(MemberList.Destination);
+
             CreateMap<Answer, AnswerResponseDto>(MemberList.Destination);
             CreateMap<AnswerCreateRequestDto, Answer>(MemberList.Destination);
         }

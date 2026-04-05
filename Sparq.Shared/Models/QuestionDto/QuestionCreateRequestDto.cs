@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sparq.Shared.Models.QuestionDto
 {
-    public class QuestionCreateRequestDto
+    public class QuestionCreateRequestDto : IValidatableObject
     {
         [Required(ErrorMessage = "Title is required.")]
         [StringLength(255, MinimumLength = 3, ErrorMessage = "Title must be between 3 and 255 characters.")]
@@ -26,6 +26,27 @@ namespace Sparq.Shared.Models.QuestionDto
 
         [Required(ErrorMessage = "At least one answer is required.")]
         [MinLength(1, ErrorMessage = "At least one answer must be provided.")]
+        [MaxLength(10, ErrorMessage = "A maximum of 10 answers is allowed.")]
         public List<AnswerCreateRequestDto> Answers { get; set; } = new();
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Answers == null || !Answers.Any())
+            {
+                yield return new ValidationResult(
+                    "At least one answer is required.",
+                    new[] { nameof(Answers) });
+                yield break;
+            }
+
+            var correctCount = Answers.Count(a => a.IsCorrect);
+
+            if (correctCount != 1)
+            {
+                yield return new ValidationResult(
+                    "Exactly one correct answer is required.",
+                    new[] { nameof(Answers) });
+            }
+        }
     }
 }

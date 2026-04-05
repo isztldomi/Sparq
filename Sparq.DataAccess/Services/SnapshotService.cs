@@ -37,17 +37,7 @@ namespace Sparq.DataAccess.Services
 
             return snapshot;
         }
-        //public async Task<Snapshot> CreateAsync(Snapshot snapshot)
-        //{
-        //    snapshot.CreatedAt = DateTime.UtcNow;
-        //
-        //    _context.Snapshots.Add(snapshot);
-        //    await _context.SaveChangesAsync();
-        //
-        //    return snapshot;
-        //}
 
-        // READ by id
         public async Task<Snapshot?> GetByIdAsync(int id)
         {
             return await _context.Snapshots

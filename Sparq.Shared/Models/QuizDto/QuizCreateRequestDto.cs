@@ -1,4 +1,5 @@
 ﻿using Sparq.Shared.Models.SnapshotDto;
+using Sparq.Shared.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sparq.Shared.Models.QuizDto
@@ -9,7 +10,7 @@ namespace Sparq.Shared.Models.QuizDto
         public bool IsPublic { get; set; }
 
         [Required(ErrorMessage = "At least one snapshot is required.")]
-        [MinLength(1, ErrorMessage = "At least one snapshot must be provided.")]
-        public List<SnapshotCreateRequestDto> Snapshots { get; set; } = new();
+        [ExactLength(1, ErrorMessage = "Exactly one snapshot is required.")]
+        public List<SnapshotCreateFromQuizRequestDto> Snapshots { get; set; } = new();
     }
 }
