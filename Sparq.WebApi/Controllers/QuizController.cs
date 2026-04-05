@@ -85,6 +85,7 @@ namespace Sparq.WebApi.Controllers
 
             Console.WriteLine("Snapshots in mapped object: " + (quiz.Snapshots?.Count ?? 0));
             quiz.OwnerId = userId!;
+            quiz.IsActive = true;
 
             foreach (var snapshot in quiz.Snapshots!)
             {
