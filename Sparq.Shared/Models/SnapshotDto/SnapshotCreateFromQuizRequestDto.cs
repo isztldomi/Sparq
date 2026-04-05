@@ -1,15 +1,10 @@
 ﻿using Sparq.Shared.Models.QuestionDto;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Sparq.Shared.Models.SnapshotDto
 {
-    public class SnapshotCreateRequestDto
+    public class SnapshotCreateFromQuizRequestDto
     {
-        [Required(ErrorMessage = "QuizId is required.")]
-        public int QuizId { get; set; }
         [Required(ErrorMessage = "Title is required.")]
         [StringLength(255, MinimumLength = 3, ErrorMessage = "Title must be between 3 and 255 characters.")]
         public string Title { get; set; } = string.Empty;

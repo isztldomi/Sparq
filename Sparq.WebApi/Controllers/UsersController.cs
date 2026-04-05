@@ -5,6 +5,7 @@ using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models;
 using Sparq.Shared.Models.LoginDto;
+using Sparq.Shared.Models.TokenDto;
 using Sparq.Shared.Models.UserDto;
 using System.ComponentModel.DataAnnotations;
 
@@ -32,7 +33,27 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// Creates a new user.
+        /// User by ID
+        /// </summary>
+        /// <param name="id">User identifier.</param>
+        /// <returns>User data.</returns>
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserResponseDto))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetUser([FromRoute] string id)
+        {
+            var user = await _usersService.GetUserByIdAsync(id);
+            var userResponseDto = _mapper.Map<UserResponseDto>(user);
+
+            return Ok(userResponseDto);
+        }
+
+        /// <summary>
+        /// Create
         /// </summary>
         /// <param name="userRequestDto">User creation request data.</param>
         /// <returns>The created user.</returns>
@@ -52,7 +73,7 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// Login.
+        /// Login
         /// </summary>
         /// <param name="loginRequestDto">Login credentials.</param>
         /// <returns>Authentication and refresh tokens.</returns>
@@ -76,32 +97,18 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// Logout.
+        /// Token
         /// </summary>
-        /// <returns>No content.</returns>
-        [HttpPost]
-        [Route("logout")]
-        [Authorize]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Logout()
-        {
-            await _usersService.LogoutAsync();
-
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Redeems a refresh token and returns new tokens.
-        /// </summary>
-        /// <param name="refreshToken">Refresh token.</param>
+        /// <param name="redeemRefreshTokenRequestDto"></param>
         /// <returns>New authentication and refresh tokens.</returns>
         [HttpPost]
         [Route("refresh")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserResponseDto))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> RedeemRefreshToken([FromBody] string refreshToken)
+        public async Task<IActionResult> RedeemRefreshToken([FromBody] RedeemRefreshTokenRequestDto redeemRefreshTokenRequestDto)
         {
+            var refreshToken = redeemRefreshTokenRequestDto.RefreshToken;
+
             var (authToken, newRefreshToken, userId) = await _usersService.RedeemRefreshTokenAsync(refreshToken);
 
             var loginResponseDto = new LoginResponseDto
@@ -115,23 +122,19 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// User by ID.
+        /// Logout
         /// </summary>
-        /// <param name="id">User identifier.</param>
-        /// <returns>User data.</returns>
-        [HttpGet]
-        [Route("{id}")]
+        /// <returns>No content.</returns>
+        [HttpPost]
+        [Route("logout")]
         [Authorize]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserResponseDto))]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUser([FromRoute][Required] string id)
+        public async Task<IActionResult> Logout()
         {
-            var user = await _usersService.GetUserByIdAsync(id);
-            var userResponseDto = _mapper.Map<UserResponseDto>(user);
+            await _usersService.LogoutAsync();
 
-            return Ok(userResponseDto);
+            return NoContent();
         }
     }
 }
