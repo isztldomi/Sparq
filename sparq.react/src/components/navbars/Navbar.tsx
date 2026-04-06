@@ -10,7 +10,7 @@ export function Navbar() {
       className={`
         flex flex-col transition-all duration-300
         ${styles.navbar}
-        ${collapsed ? "w-16" : "w-56"}
+        ${collapsed ? "w-16 min-w-16" : "w-56 min-w-56"}
       `}
     >
       {/* NAV ITEMS */}

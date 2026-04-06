@@ -13,11 +13,13 @@ export function NavbarLink({ to, icon, label, collapsed }: Props) {
     <NavLink
       to={to}
       className={({ isActive }) => `
-        flex items-center gap-3 px-3 py-2 rounded-md
-        transition-all
+        flex items-center rounded-md transition-all
 
+        px-3 py-2
+
+        ${collapsed ? "justify-center" : "gap-3"}
         ${styles.navItem}
-        ${!isActive ? styles.navItemHover : styles.navItemActive}
+        ${isActive ? styles.navItemActive : styles.navItemHover}
       `}
     >
       <span className="text-lg">{icon}</span>

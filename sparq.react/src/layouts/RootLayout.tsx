@@ -7,13 +7,13 @@ export function RootLayout() {
   return (
     <>
       <Header />
-      <div className="flex flex-1">
+
+      <div className="pt-[var(--header-height)] grid grid-cols-[240px_1fr] min-h-screen">
         <Navbar />
-        <main className="flex-1">
-          <Container>
-            <Outlet />
-          </Container>
-        </main>
+
+        <Container>
+          <Outlet />
+        </Container>
       </div>
     </>
   );
