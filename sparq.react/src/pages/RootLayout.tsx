@@ -21,7 +21,7 @@ export function RootLayout() {
         </header>
 
         {/* Content */}
-        <main className="flex-1 px-4 py-4 border border-red-500">
+        <main className="flex-1 p-4">
           <Outlet />
         </main>
       </div>
