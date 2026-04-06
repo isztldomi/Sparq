@@ -21,16 +21,25 @@
   --color-text-muted: #71717a;
 
   /* Success */
-  --color-success-text: #22c55e;
-  --color-success-bg: #052e16;
+  /* --color-success-text: #22c55e; */
+  /* --color-success-bg: #052e16; */
+  --color-success-bg: #22c55e;
+  --color-success-text: #052e16;
+  --color-success-border: #052e16;
 
   /* Error */
-  --color-error-text: #f43f5e;
-  --color-error-bg: #4c0519;
+  /* --color-error-text: #f43f5e; */
+  /* --color-error-bg: #4c0519; */
+  --color-error-bg: #f43f5e;
+  --color-error-text: #4c0519;
+  --color-error-border: #4c0519;
 
   /* Warning */
-  --color-warning-text: #facc15;
-  --color-warning-bg: #422006;
+  /* --color-warning-text: #facc15; */
+  /* --color-warning-bg: #422006; */
+  --color-warning-bg: #facc15;
+  --color-warning-text: #422006;
+  --color-warning-border: #422006;
 
   /* Fonts */
   --sans: system-ui, "Segoe UI", Roboto, sans-serif;
@@ -60,10 +69,8 @@ body {
 ========================= */
 
 #root {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
-  padding: 1rem;
 }
 
 /* =========================
