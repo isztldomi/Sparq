@@ -6,9 +6,13 @@ export function SimpleLayout() {
   return (
     <>
       <Header />
-      <Container className="my-4">
-        <Outlet />
-      </Container>
+      <div className="flex flex-1">
+        <main className="flex-1">
+          <Container>
+            <Outlet />
+          </Container>
+        </main>
+      </div>
     </>
   );
 }

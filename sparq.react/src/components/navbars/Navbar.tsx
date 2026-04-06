@@ -1,13 +1,42 @@
+import { useState } from "react";
+import styles from "./Navbar.module.css";
 import { NavbarLink } from "@/components/navbars/NavbarLink";
 
 export function Navbar() {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <nav className="w-full border-b bg-white">
-      <div className="mx-auto flex h-12 max-w-6xl items-center gap-6 px-4">
-        <NavbarLink to="/">Home</NavbarLink>
-        <NavbarLink to="/dashboard">Dashboard</NavbarLink>
-        <NavbarLink to="/about">About</NavbarLink>
-      </div>
-    </nav>
+    <aside
+      className={`
+        flex flex-col transition-all duration-300
+        ${styles.navbar}
+        ${collapsed ? "w-16" : "w-56"}
+      `}
+    >
+      {/* NAV ITEMS */}
+      <nav className="flex flex-col gap-1 p-3 flex-1">
+        <NavbarLink to="/" icon="🏠" label="Home" collapsed={collapsed} />
+
+        <NavbarLink
+          to="/dashboard"
+          icon="📊"
+          label="Dashboard"
+          collapsed={collapsed}
+        />
+
+        <NavbarLink to="/about" icon="ℹ️" label="About" collapsed={collapsed} />
+      </nav>
+
+      {/* TOGGLE */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className={`
+          p-3 text-sm transition
+          ${styles.toggleButton}
+        `}
+      >
+        {collapsed ? "➡️" : "⬅️ Collapse"}
+      </button>
+    </aside>
   );
 }

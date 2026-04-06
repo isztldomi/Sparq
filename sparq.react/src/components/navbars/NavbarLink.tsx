@@ -1,21 +1,28 @@
 import { NavLink } from "react-router-dom";
+import styles from "./Navbar.module.css";
 
 interface Props {
   to: string;
-  children: React.ReactNode;
+  icon: React.ReactNode;
+  label: string;
+  collapsed?: boolean;
 }
 
-export function NavbarLink({ to, children }: Props) {
+export function NavbarLink({ to, icon, label, collapsed }: Props) {
   return (
     <NavLink
       to={to}
-      className={({ isActive }) =>
-        isActive
-          ? "text-blue-600 font-semibold"
-          : "text-gray-600 hover:text-blue-500 transition-colors"
-      }
+      className={({ isActive }) => `
+        flex items-center gap-3 px-3 py-2 rounded-md
+        transition-all
+
+        ${styles.navItem}
+        ${!isActive ? styles.navItemHover : styles.navItemActive}
+      `}
     >
-      {children}
+      <span className="text-lg">{icon}</span>
+
+      {!collapsed && <span className="text-sm">{label}</span>}
     </NavLink>
   );
 }

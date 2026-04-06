@@ -7,10 +7,14 @@ export function RootLayout() {
   return (
     <>
       <Header />
-      <Navbar />
-      <Container className="my-4">
-        <Outlet />
-      </Container>
+      <div className="flex flex-1">
+        <Navbar />
+        <main className="flex-1">
+          <Container>
+            <Outlet />
+          </Container>
+        </main>
+      </div>
     </>
   );
 }
