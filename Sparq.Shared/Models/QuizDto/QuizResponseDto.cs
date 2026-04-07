@@ -6,6 +6,7 @@ namespace Sparq.Shared.Models.QuizDto
     {
         public int Id { get; set; }
         public bool IsPublic { get; set; }
+        public SnapshotResponseDto? LastSnapshot { get; set; }
         public List<SnapshotResponseDto> Snapshots { get; set; } = new();
     }
 }

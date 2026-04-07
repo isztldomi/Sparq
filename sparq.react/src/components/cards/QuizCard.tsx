@@ -1,15 +1,13 @@
-type Quiz = {
-  id: string;
-  title: string;
-  description: string;
-};
+import type { QuizResponseDto } from "@/api/models/quizDto/QuizResponseDto";
 
-export function QuizCard({ quiz }: { quiz: Quiz }) {
+export function QuizCard({ quiz }: { quiz: QuizResponseDto }) {
   return (
     <div className="card">
-      <h2>{quiz.title}</h2>
+      <h2>{quiz.lastSnapshot.title}</h2>
 
-      <p style={{ color: "var(--color-text-secondary)" }}>{quiz.description}</p>
+      <p style={{ color: "var(--color-text-secondary)" }}>
+        {quiz.lastSnapshot.description}
+      </p>
 
       <div
         style={{

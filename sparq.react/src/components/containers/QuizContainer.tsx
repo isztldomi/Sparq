@@ -1,12 +1,7 @@
 import { QuizCard } from "@/components/cards/QuizCard";
+import type { QuizResponseDto } from "@/api/models/quizDto/QuizResponseDto";
 
-type Quiz = {
-  id: string;
-  title: string;
-  description: string;
-};
-
-export function QuizContainer({ quizzes }: { quizzes: Quiz[] }) {
+export function QuizContainer({ quizzes }: { quizzes: QuizResponseDto[] }) {
   return (
     <div style={{ display: "grid", gap: "1rem" }}>
       {quizzes.map((quiz) => (
