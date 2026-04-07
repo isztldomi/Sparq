@@ -14,7 +14,7 @@ export function NavbarLink({ to, icon, label, collapsed }: Props) {
       to={to}
       className={({ isActive }) => `
         flex items-center rounded-md transition-all
-
+        no-underline
         px-3 py-2
 
         ${collapsed ? "justify-center" : "gap-3"}

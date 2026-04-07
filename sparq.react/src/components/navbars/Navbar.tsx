@@ -8,9 +8,14 @@ export function Navbar() {
   return (
     <aside
       className={`
-        flex flex-col transition-all duration-300
-        ${styles.navbar}
-        ${collapsed ? "w-16 min-w-16" : "w-56 min-w-56"}
+      flex flex-col transition-all duration-300
+      overflow-hidden shrink-0
+      ${styles.navbar}
+      ${
+        collapsed
+          ? "w-16 min-w-16 max-w-16"
+          : "w-[120px] min-w-[120px] max-w-[120px]"
+      }
       `}
     >
       {/* NAV ITEMS */}
@@ -18,9 +23,9 @@ export function Navbar() {
         <NavbarLink to="/" icon="🏠" label="Home" collapsed={collapsed} />
 
         <NavbarLink
-          to="/dashboard"
+          to="/quizzes"
           icon="📊"
-          label="Dashboard"
+          label="Quizzes"
           collapsed={collapsed}
         />
 
@@ -35,7 +40,7 @@ export function Navbar() {
           ${styles.toggleButton}
         `}
       >
-        {collapsed ? "➡️" : "⬅️ Collapse"}
+        {collapsed ? "➡️" : "⬅️"}
       </button>
     </aside>
   );

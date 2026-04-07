@@ -8,7 +8,7 @@ export function RootLayout() {
     <>
       <Header />
 
-      <div className="pt-[var(--header-height)] grid grid-cols-[240px_1fr] min-h-screen">
+      <div className="flex min-h-screen pt-[var(--header-height)]">
         <Navbar />
 
         <Container>
