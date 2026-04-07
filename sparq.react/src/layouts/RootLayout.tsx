@@ -11,9 +11,11 @@ export function RootLayout() {
       <div className="flex min-h-screen pt-[var(--header-height)]">
         <Navbar />
 
-        <Container>
-          <Outlet />
-        </Container>
+        <main className="flex-1 pl-6">
+          <Container>
+            <Outlet />
+          </Container>
+        </main>
       </div>
     </>
   );
