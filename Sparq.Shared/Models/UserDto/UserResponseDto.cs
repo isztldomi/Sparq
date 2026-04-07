@@ -7,6 +7,7 @@ namespace Sparq.Shared.Models.UserDto
 {
     public class UserResponseDto
     {
+        public required string Id { get; init; }
         public required string FirstName { get; init; }
         public required string LastName { get; init; }
         public required string NickName { get; init; }
