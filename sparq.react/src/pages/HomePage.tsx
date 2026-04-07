@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { LoadingIndicator } from "@/components/LoadingIndicator";
 
 export function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -12,17 +13,7 @@ export function HomePage() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div
-        style={{
-          color: "var(--color-text-secondary)",
-          textAlign: "center",
-          marginTop: "2rem",
-        }}
-      >
-        Loading...
-      </div>
-    );
+    return <LoadingIndicator />;
   }
 
   return (
