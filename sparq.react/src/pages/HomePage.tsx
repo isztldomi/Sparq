@@ -50,6 +50,7 @@ export function HomePage() {
             background: "var(--color-success-bg)",
             padding: "0.25rem 0.5rem",
             borderRadius: "0.5rem",
+            border: "1px solid var(--color-success-border)",
           }}
         >
           Success
@@ -61,6 +62,7 @@ export function HomePage() {
             background: "var(--color-error-bg)",
             padding: "0.25rem 0.5rem",
             borderRadius: "0.5rem",
+            border: "1px solid var(--color-error-border)",
           }}
         >
           Error
@@ -72,6 +74,7 @@ export function HomePage() {
             background: "var(--color-warning-bg)",
             padding: "0.25rem 0.5rem",
             borderRadius: "0.5rem",
+            border: "1px solid var(--color-warning-border)",
           }}
         >
           Warning

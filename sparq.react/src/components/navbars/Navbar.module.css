@@ -1,0 +1,38 @@
+/* Navbar.module.css */
+
+.navbar {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+
+  height: calc(100vh - var(--header-height));
+  position: sticky;
+  top: var(--header-height);
+
+  overflow-y: auto;
+}
+
+.navItem {
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.navItemHover:hover {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.navItemActive {
+  background-color: var(--color-brand);
+  color: white;
+}
+
+.toggleButton {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--color-text-secondary);
+}
+
+.toggleButton:hover {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}

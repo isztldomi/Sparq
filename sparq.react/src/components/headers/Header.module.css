@@ -1,0 +1,27 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
+  border-bottom: 1px solid var(--color-brand-light);
+  background: var(--color-brand-light);
+  z-index: 50;
+}
+
+.inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.title {
+  color: var(--color-brand-dark);
+  font-family: var(--sans);
+  text-rendering: optimizeLegibility;
+  font-weight: 700; /* félkövér */
+}
