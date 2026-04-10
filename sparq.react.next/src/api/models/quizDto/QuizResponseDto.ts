@@ -4,5 +4,5 @@ export interface QuizResponseDto {
   id: number;
   isPublic: boolean;
   lastSnapshot: SnapshotResponseDto;
-  Snapshots: SnapshotResponseDto[];
+  snapshots: SnapshotResponseDto[];
 }
