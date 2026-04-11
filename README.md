@@ -24,11 +24,11 @@ A projekt PostgreSQL-t használ Entity Framework Core-on keresztül:
 <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
 ```
 
-A projekt érzékeny beállításai User Secrets segítségével vannak kezelve.
+A projekt érzékeny beállításai User Secrets segítségével vannak kezelve. (A user-t és a password-t írd át a sajátodra)
 
 ```bash
 dotnet user-secrets init --project Sparq.WebApi
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=SparqDB;Username=postgresUser;Password=0000" --project Sparq.WebApi
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=SparqDB;Username=postgres;Password=0000" --project Sparq.WebApi
 dotnet user-secrets set "JwtSettings:SecretKey" "DEV_ONLY_SUPER_SECRET_KEY" --project Sparq.WebApi
 dotnet user-secrets set "JwtSettings:Audience" "SparqClient" --project Sparq.WebApi
 dotnet user-secrets set "JwtSettings:Issuer" "SparqApi" --project Sparq.WebApi
@@ -50,6 +50,8 @@ Végső file struktúra:
   }
 }
 ```
+
+Adatbázis létrehozása parancssorból
 
 Indítás
 
