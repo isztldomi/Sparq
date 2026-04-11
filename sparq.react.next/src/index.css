@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+:root {
+  /* =========================
+     BASE PALETTE (NYERS SZÍNEK)
+     Ezek a TE színeid – ne használd közvetlenül komponensekben
+     ========================= */
+
+  --color-bg-main: #121212;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-tertiary: #1e1e1e;
+  --color-bg-quaternary: #242424;
+  --color-bg-quinary: #2a2a2a;
+  --color-bg-senary: #303030;
+
+  --color-text-primary: #ffffff;
+  --color-text-heading: #f8fafc;
+
+  --color-gray: #6b7280;
+
+  --color-success-bg: #052e16;
+  --color-success-text: #22c55e;
+
+  --color-error-bg: #4c0519;
+  --color-error-text: #f43f5e;
+
+  --color-warning-bg: #422006;
+  --color-warning-text: #facc15;
+
+  /* =========================
+     SEMANTIC TOKENS (EZT HASZNÁLD!)
+     ========================= */
+
+  /* Alap oldal */
+  --surface-1: var(--color-bg-main);
+  --surface-2: var(--color-bg-secondary);
+  --surface-3: var(--color-bg-tertiary);
+  --surface-4: var(--color-bg-quaternary);
+  --surface-5: var(--color-bg-quinary);
+  --surface-6: var(--color-bg-senary);
+
+  /* Header Text color */
+  --header-text: #3b82f6;
+  --navLink: #f8fafc;
+
+  /* Navbar icon color */
+  --nav-icon-1: #a855f7;
+  --nav-icon-2: #ef4444;
+  --nav-icon-3: #facc15;
+  --nav-icon-4: #22c55e;
+
+  /* Gombok */
+  --quiz-btn-bg: var(--color-gray);
+
+  /* Szöveg */
+  --text: var(--color-text-primary);
+  --text-h: var(--color-text-heading);
+
+  /* Halványabb szöveg (későbbre előkészítve) */
+  --text-muted: #9ca3af;
+
+  /* Border (auto generált a palettából) */
+  --border: #2a2a2a;
+
+  /* Accent / primary action */
+  --accent: var(--color-gray);
+
+  /* Állapot színek */
+  --success-bg: var(--color-success-bg);
+  --success-text: var(--color-success-text);
+
+  --error-bg: var(--color-error-bg);
+  --error-text: var(--color-error-text);
+
+  --warning-bg: var(--color-warning-bg);
+  --warning-text: var(--color-warning-text);
+
+  /* =========================
+     FONTS
+     ========================= */
+
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  /* =========================
+     🌍 GLOBAL BASE
+     ========================= */
+
+  font: 18px/1.45 var(--sans);
+
+  color: var(--text);
+  background: var(--surface-1);
+
+  color-scheme: dark;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+/* =========================
+   🔧 RESET
+   ========================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+/* =========================
+   TYPO
+   ========================= */
+
+h2 {
+  font-family: var(--heading);
+  color: var(--text-h);
+  margin: 0;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.h2-style {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem; /* mb-4 */
+  padding-bottom: 1rem; /* pb-4 */
+}
+
+p {
+  margin: 0;
+}
+
+/* =========================
+   CODE
+   ========================= */
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+
+  background: var(--surface-2);
+  color: var(--text-h);
+}
+
+/* =========================
+   LOADING INDICATOR ANIMATION
+   ========================= */
+
+@keyframes navColorCycle {
+  0% {
+    color: var(--nav-icon-1);
+  }
+  20% {
+    color: var(--nav-icon-2);
+  }
+  40% {
+    color: var(--nav-icon-3);
+  }
+  60% {
+    color: var(--nav-icon-4);
+  }
+  80% {
+    color: var(--header-text);
+  }
+  100% {
+    color: var(--nav-icon-1);
+  }
+}
+
+.loader-anim {
+  animation: navColorCycle 1s linear infinite;
+}

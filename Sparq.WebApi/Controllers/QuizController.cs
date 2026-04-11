@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.QuizDto;
@@ -71,20 +72,47 @@ namespace Sparq.WebApi.Controllers
         /// The owner of the quiz is automatically assigned from the authenticated user context.
         /// Each snapshot is initialized with a creation timestamp.
         /// </remarks>
+        //[HttpPost]
+        //[Authorize]
+        //[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(QuizResponseDto))]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //public async Task<IActionResult> Create([FromBody] QuizCreateRequestDto quizCreateRequestDto)
+        //{
+        //    var userId = User.FindFirstValue("id");
+        //    if (userId is null) return Unauthorized();
+        //
+        //    var quiz = _mapper.Map<Quiz>(quizCreateRequestDto);
+        //
+        //    Console.WriteLine("Snapshots in mapped object: " + (quiz.Snapshots?.Count ?? 0));
+        //    quiz.OwnerId = userId!;
+        //    quiz.IsActive = true;
+        //
+        //    foreach (var snapshot in quiz.Snapshots!)
+        //    {
+        //        snapshot.CreatedAt = DateTime.UtcNow;
+        //    }
+        //
+        //    var savedQuiz = await _quizService.CreateAsync(quiz);
+        //
+        //    var quizResponseDto = _mapper.Map<QuizResponseDto>(savedQuiz);
+        //
+        //    return CreatedAtAction(nameof(GetById), new { id = quizResponseDto.Id }, quizResponseDto);
+        //}
         [HttpPost]
-        [Authorize]
+        // [Authorize] kikapcsolva
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(QuizResponseDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Create([FromBody] QuizCreateRequestDto quizCreateRequestDto)
         {
-            var userId = User.FindFirstValue("id");
-            if (userId is null) return Unauthorized();
 
             var quiz = _mapper.Map<Quiz>(quizCreateRequestDto);
 
             Console.WriteLine("Snapshots in mapped object: " + (quiz.Snapshots?.Count ?? 0));
-            quiz.OwnerId = userId!;
+
+            // fix userId
+
+            quiz.OwnerId = "teszt_user_id";
             quiz.IsActive = true;
 
             foreach (var snapshot in quiz.Snapshots!)

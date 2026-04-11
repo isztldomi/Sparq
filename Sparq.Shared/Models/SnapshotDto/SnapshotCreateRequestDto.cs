@@ -1,4 +1,5 @@
 ﻿using Sparq.Shared.Models.QuestionDto;
+using Sparq.Shared.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +22,9 @@ namespace Sparq.Shared.Models.SnapshotDto
         [Required(ErrorMessage = "Time limit is required.")]
         [Range(10, 7200, ErrorMessage = "Time limit must be between 10 seconds and 7200 seconds (2 hours).")]
         public int TimeLimit { get; set; }
+        [Required(ErrorMessage = "Pin code is required.")]
+        [ExactLength(4, ErrorMessage = "Exactly 4 characters are required.")]
+        public string? PinCode { get; set; }
 
         [Required(ErrorMessage = "At least one question is required.")]
         [MinLength(1, ErrorMessage = "At least one question must be provided.")]
