@@ -6,6 +6,7 @@ import { QuizzesPage } from "@/pages/QuizzesPage";
 import { SnapshotPage } from "@/pages/SnapshotPage";
 import { MyQuizzesPage } from "@/pages/MyQuizzesPage";
 import { QuizCreatePage } from "@/pages/QuizCreatePage";
+import { TempAnswerPage } from "@/pages/temp/TempAnswerPage";
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -27,6 +28,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/quiz/create",
     element: <QuizCreatePage />,
+  },
+  {
+    path: "/demo/snapshot/:snapshotId",
+    element: <TempAnswerPage />,
   },
   {
     path: "*",

@@ -10,6 +10,8 @@
   --color-bg-secondary: #1a1a1a;
   --color-bg-tertiary: #1e1e1e;
   --color-bg-quaternary: #242424;
+  --color-bg-quinary: #2a2a2a;
+  --color-bg-senary: #303030;
 
   --color-text-primary: #ffffff;
   --color-text-heading: #f8fafc;
@@ -34,6 +36,8 @@
   --surface-2: var(--color-bg-secondary);
   --surface-3: var(--color-bg-tertiary);
   --surface-4: var(--color-bg-quaternary);
+  --surface-5: var(--color-bg-quinary);
+  --surface-6: var(--color-bg-senary);
 
   /* Header Text color */
   --header-text: #3b82f6;

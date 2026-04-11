@@ -11,6 +11,7 @@ namespace Sparq.Shared.Models.SnapshotDto
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int TimeLimit { get; set; }
+        public string PinCode { get; set; } = string.Empty;
         public List<QuestionResponseDto> Questions { get; set; } = new();
     }
 }

@@ -21,7 +21,7 @@ namespace Sparq.Shared.Models.QuestionDto
         public int TimeLimit { get; set; }
 
         [Required(ErrorMessage = "Point value is required.")]
-        [Range(1, 10, ErrorMessage = "Point value must be between 1 and 10.")]
+        [Range(0, 10, ErrorMessage = "Point value must be between 1 and 10.")]
         public int Point { get; set; }
 
         [Required(ErrorMessage = "At least one answer is required.")]

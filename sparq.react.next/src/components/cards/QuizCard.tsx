@@ -13,7 +13,7 @@ type QuizCardProps = {
 export function QuizCard({ lastSnapshot }: QuizCardProps) {
   const navigate = useNavigate();
   const handleClick = () => {
-    navigate(`/snapshot/${lastSnapshot.id}`);
+    navigate(`/demo/snapshot/${lastSnapshot.id}`);
   };
   return (
     <div

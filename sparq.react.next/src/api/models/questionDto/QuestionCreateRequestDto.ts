@@ -4,7 +4,7 @@ export interface QuestionCreateRequestDto {
   title: string;
   text: string;
   mediaUrl: string | null;
-  TimeLimit: number;
+  timeLimit: number;
   point: number;
   answers: AnswerCreateRequestDto[];
 }

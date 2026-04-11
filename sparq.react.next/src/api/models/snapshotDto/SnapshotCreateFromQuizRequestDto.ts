@@ -3,6 +3,7 @@ import type { QuestionCreateRequestDto } from "@/api/models/questionDto/Question
 export interface SnapshotCreateFromQuizRequestDto {
   title: string;
   description: string;
-  TimeLimit: number;
+  timeLimit: number;
+  pinCode: string;
   questions: QuestionCreateRequestDto[];
 }
