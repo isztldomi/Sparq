@@ -51,6 +51,12 @@ Végső file struktúra:
 }
 ```
 
+Indítás
+
+```bash
+dotnet run --project Sparq.WebApi --urls "https://localhost:7218;http://localhost:5200"
+```
+
 ---
 
 ## 🖥️ 3. Frontend (sparq.react.next)
