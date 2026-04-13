@@ -11,14 +11,14 @@ namespace Sparq.DataAccess
 {
     public class SparqDbContext : IdentityDbContext<User, UserRole, string>
     {
-        public DbSet<Quiz> Quizzes { get; set; }
-        public DbSet<Snapshot> Snapshots { get; set; }
-        public DbSet<Question> Questions { get; set; }
-        public DbSet<Session> Sessions { get; set; }
-        public DbSet<Answer> Answers { get; set; }
-        public DbSet<Participant> Participants { get; set; }
-        public DbSet<ParticipantAnswer> ParticipantAnswers { get; set; }
-        public DbSet<Message> Messages { get; set; }
+        public DbSet<Quiz> Quizzes { get; set; } = null!;
+        public DbSet<Snapshot> Snapshots { get; set; } = null!;
+        public DbSet<Question> Questions { get; set; } = null!;
+        public DbSet<Session> Sessions { get; set; } = null!;
+        public DbSet<Answer> Answers { get; set; } = null!;
+        public DbSet<Participant> Participants { get; set; } = null!;
+        public DbSet<ParticipantAnswer> ParticipantAnswers { get; set; } = null!;
+        public DbSet<Message> Messages { get; set; } = null!;
 
 
         public SparqDbContext(DbContextOptions<SparqDbContext> options) : base(options)
