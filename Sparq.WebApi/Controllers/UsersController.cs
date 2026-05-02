@@ -33,6 +33,29 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
+        /// Get current logged-in user from token
+        /// </summary>
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponseDto))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var dto = _mapper.Map<UserResponseDto>(user);
+
+            return Ok(dto);
+        }
+
+        /// <summary>
         /// User by ID
         /// </summary>
         /// <param name="id">User identifier.</param>
@@ -58,18 +81,20 @@ namespace Sparq.WebApi.Controllers
         /// <param name="userRequestDto">User creation request data.</param>
         /// <returns>The created user.</returns>
         [HttpPost]
-        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(UserResponseDto))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateUser([FromBody] UserRequestDto userRequestDto)
         {
             var user = _mapper.Map<User>(userRequestDto);
 
-            await _usersService.AddUserAsync(user, userRequestDto.Password);
+            var result = await _usersService.AddUserAsync(user, userRequestDto.Password);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
 
             var userResponseDto = _mapper.Map<UserResponseDto>(user);
 
-            return StatusCode(StatusCodes.Status201Created, userResponseDto);
+            return CreatedAtAction(nameof(CreateUser), userResponseDto);
         }
 
         /// <summary>
@@ -79,21 +104,24 @@ namespace Sparq.WebApi.Controllers
         /// <returns>Authentication and refresh tokens.</returns>
         [HttpPost]
         [Route("login")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserResponseDto))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDto))]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Login(LoginRequestDto dto)
         {
-            var (authToken, refreshToken, userId) = await _usersService.LoginAsync(loginRequestDto.Email, loginRequestDto.Password);
+            var (token, refreshToken, userId, error) =
+                await _usersService.LoginAsync(dto.Email, dto.Password);
 
-            var loginResponseDto = new LoginResponseDto
+            if (error != null)
             {
-                UserId = userId,
-                AuthToken = authToken,
-                RefreshToken = refreshToken,
-            };
+                return Unauthorized(error);
+            }
 
-            return Ok(loginResponseDto);
+            return Ok(new LoginResponseDto
+            {
+                UserId = userId!,
+                AuthToken = token!,
+                RefreshToken = refreshToken!
+            });
         }
 
         /// <summary>
@@ -103,7 +131,7 @@ namespace Sparq.WebApi.Controllers
         /// <returns>New authentication and refresh tokens.</returns>
         [HttpPost]
         [Route("refresh")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserResponseDto))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(LoginResponseDto))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> RedeemRefreshToken([FromBody] RedeemRefreshTokenRequestDto redeemRefreshTokenRequestDto)
         {
