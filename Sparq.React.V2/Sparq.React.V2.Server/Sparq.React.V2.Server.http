@@ -1,6 +1,0 @@
-@Sparq.React.V2.Server_HostAddress = http://localhost:5249
-
-GET {{Sparq.React.V2.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
