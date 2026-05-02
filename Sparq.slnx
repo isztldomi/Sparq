@@ -1,5 +1,9 @@
 <Solution>
   <Project Path="Sparq.DataAccess/Sparq.DataAccess.csproj" />
+  <Project Path="Sparq.React.V2/sparq.react.v2.esproj" DisplayName="Sparq.React.V2">
+    <Build />
+    <Deploy />
+  </Project>
   <Project Path="Sparq.Shared/Sparq.Shared.csproj" Id="e1dd25e6-df36-4ccc-b531-3e1cd737b7ea" />
   <Project Path="Sparq.WebApi/Sparq.WebApi.csproj" />
 </Solution>
