@@ -1,15 +1,10 @@
 <Solution>
   <Project Path="Sparq.DataAccess/Sparq.DataAccess.csproj" />
-  <!--
-  <Project Path="Sparq.React.Next/sparq.react.next.esproj">
+  <Project Path="Sparq.React.V2/sparq.react.v2.client/sparq.react.v2.client.esproj">
     <Build />
     <Deploy />
   </Project>
-  <Project Path="Sparq.React/sparq.react.esproj">
-    <Build />
-    <Deploy />
-  </Project>
-  -->
+  <Project Path="Sparq.React.V2/Sparq.React.V2.Server/Sparq.React.V2.Server.csproj" Id="f3a5efa8-f556-43e6-9079-ab493becb9c5" />
   <Project Path="Sparq.Shared/Sparq.Shared.csproj" Id="e1dd25e6-df36-4ccc-b531-3e1cd737b7ea" />
   <Project Path="Sparq.WebApi/Sparq.WebApi.csproj" />
 </Solution>
