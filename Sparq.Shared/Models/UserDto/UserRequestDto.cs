@@ -8,15 +8,15 @@ namespace Sparq.Shared.Models.UserDto
     public class UserRequestDto
     {
         [Required]
-        [StringLength(255, MinimumLength = 3, ErrorMessage = "First name must be between 2 and 255 characters")]
+        [StringLength(10, MinimumLength = 3, ErrorMessage = "First name must be between 3 and 10 characters")]
         public required string FirstName { get; init; }
 
         [Required]
-        [StringLength(255, MinimumLength = 3, ErrorMessage = "Last name must be between 2 and 255 characters")]
+        [StringLength(10, MinimumLength = 3, ErrorMessage = "Last name must be between 3 and 10 characters")]
         public required string LastName { get; init; }
 
         [Required]
-        [StringLength(255, MinimumLength = 3, ErrorMessage = "Nickname must be between 2 and 255 characters")]
+        [StringLength(10, MinimumLength = 3, ErrorMessage = "Nickname must be between 3 and 10 characters")]
         public required string NickName { get; init; }
 
         [Required]

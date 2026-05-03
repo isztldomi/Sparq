@@ -19,3 +19,11 @@ export async function post<TReq, TRes>(
 export async function del(url: string): Promise<void> {
   await apiClient.delete(url);
 }
+
+export async function patch<TReq, TRes>(
+  url: string,
+  body?: TReq,
+): Promise<TRes> {
+  const res = await apiClient.patch<TRes>(url, body);
+  return res.data;
+}

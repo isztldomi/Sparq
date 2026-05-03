@@ -1,16 +1,32 @@
-import { HttpError } from "@/api/errors/HttpError";
+type NormalizedError = {
+  status: number;
+  message: string;
+  errors?: Record<string, string[]>;
+};
 
-export function normalizeError(e: unknown) {
-  if (e instanceof HttpError) {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+export function normalizeError(e: unknown): NormalizedError {
+  if (!isRecord(e)) {
     return {
-      status: e.status,
-      message: e.message,
-      errors: e.errors,
+      status: 0,
+      message: "Unknown error",
     };
   }
 
+  const status = typeof e.status === "number" ? e.status : 0;
+
+  const message = typeof e.message === "string" ? e.message : "Unknown error";
+
+  const errors = isRecord(e.errors)
+    ? (e.errors as Record<string, string[]>)
+    : undefined;
+
   return {
-    status: 0,
-    message: "Unknown error",
+    status,
+    message,
+    errors,
   };
 }
