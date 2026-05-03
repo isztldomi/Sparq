@@ -86,6 +86,12 @@ export function LoginPage() {
             <GreenButton type="submit" className="w-full py-2 text-lg">
               Login
             </GreenButton>
+            <GreenButton
+              className="w-full py-2 text-lg"
+              onClick={() => navigate("/register")}
+            >
+              Registration
+            </GreenButton>
           </form>
         </div>
       </div>
