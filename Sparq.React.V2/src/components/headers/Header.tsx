@@ -10,10 +10,8 @@ export function Header() {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // lefelé scroll → elrejt
         setHidden(true);
       } else {
-        // felfelé scroll → azonnal vissza
         setHidden(false);
       }
 

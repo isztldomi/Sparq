@@ -31,7 +31,6 @@ export function ProfilePage() {
 
     try {
       await dispatch(nickNameUpdate({ nickName })).unwrap();
-      //console.log("SUCCESS");
     } catch (err: unknown) {
       const error = err as ProblemDetails;
 
