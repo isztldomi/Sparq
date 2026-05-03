@@ -51,25 +51,6 @@ export function RegistrationPage() {
     }
   };
 
-  //const onSubmit = async (data: RegisterFormData) => {
-  //  setErrors([]);
-  //
-  //  try {
-  //    await dispatch(register(data)).unwrap();
-  //
-  //    await dispatch(
-  //      login({
-  //        email: data.email,
-  //        password: data.password,
-  //      }),
-  //    ).unwrap();
-  //
-  //    navigate("/profile");
-  //  } catch (err: unknown) {
-  //    if (err instanceof HttpError) setErrors(flattenErrors(err.errors));
-  //  }
-  //};
-
   return (
     <div className="min-h-screen justify-center p-4">
       <h1>Registration</h1>
@@ -96,7 +77,6 @@ export function RegistrationPage() {
               )}
             </div>
 
-            {/* LAST NAME */}
             <div>
               <label className="block mb-1">Last Name</label>
               <input
@@ -110,7 +90,6 @@ export function RegistrationPage() {
               )}
             </div>
 
-            {/* NICKNAME */}
             <div>
               <label className="block mb-1">Nick Name</label>
               <input
@@ -124,7 +103,6 @@ export function RegistrationPage() {
               )}
             </div>
 
-            {/* EMAIL */}
             <div>
               <label className="block mb-1">Email</label>
               <input
@@ -139,7 +117,6 @@ export function RegistrationPage() {
               )}
             </div>
 
-            {/* PASSWORD */}
             <div>
               <label className="block mb-1">Password</label>
               <input

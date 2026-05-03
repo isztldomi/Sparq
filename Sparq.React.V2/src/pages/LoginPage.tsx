@@ -15,12 +15,10 @@ export function LoginPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // 👉 server errors marad külön
   const [errors, setErrors] = useState<{ field: string; message: string }[]>(
     [],
   );
 
-  // 👉 react-hook-form
   const {
     register,
     handleSubmit,
@@ -28,18 +26,6 @@ export function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-
-  // 👉 submit
-  //const onSubmit = async (data: LoginFormData) => {
-  //  setErrors([]);
-  //
-  //  try {
-  //    await dispatch(login(data)).unwrap();
-  //    navigate("/profile");
-  //  } catch (err: unknown) {
-  //    if (err instanceof HttpError) setErrors(flattenErrors(err.errors));
-  //  }
-  //};
 
   const onSubmit = async (data: LoginFormData) => {
     setErrors([]);
@@ -58,7 +44,6 @@ export function LoginPage() {
     <div className="min-h-screen justify-center p-4">
       <h1>Login</h1>
 
-      {/* 🔥 SERVER ERRORS */}
       <ErrorsContainer errors={errors} />
 
       <div className="flex justify-center pt-30">
@@ -83,7 +68,6 @@ export function LoginPage() {
               )}
             </div>
 
-            {/* PASSWORD */}
             <div>
               <label className="block mb-1">Password</label>
               <input
