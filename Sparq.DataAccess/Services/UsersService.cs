@@ -30,31 +30,32 @@ namespace Sparq.DataAccess.Services
             _signInManager = signInManager;
         }
 
-        public async Task AddUserAsync(User user, string password)
+        public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
             user.UserName = user.Email;
             user.RefreshToken = Guid.NewGuid();
 
             var result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-                throw new InvalidDataException($"User creation failed: {result.Errors.First().Description}");
+            //if (!result.Succeeded)
+            //    throw new InvalidDataException($"User creation failed: {result.Errors.First().Description}");
+            return result;
         }
 
-        public async Task<(string authToken, string refreshToken, string userId)> LoginAsync(string email, string password)
+        public async Task<(string? authToken, string? refreshToken, string? userId, string? error)> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                throw new AccessViolationException("Email or password is invalid");
 
-            var result = await _signInManager.PasswordSignInAsync(user.UserName!, password, false, true);
-            if (result.IsLockedOut)
-                throw new AccessViolationException("Too many failed attempt. User is locked out");
-            if (!result.Succeeded)
-                throw new AccessViolationException("Email or password is invalid");
+            if (user == null)
+                return (null, null, null, "Invalid email or password");
+
+            var passwordValid = await _userManager.CheckPasswordAsync(user, password);
+
+            if (!passwordValid)
+                return (null, null, null, "Invalid email or password");
 
             var accessToken = await GenerateJwtTokenAsync(user);
 
-            return (accessToken, user.RefreshToken.ToString()!, user.Id);
+            return (accessToken, user.RefreshToken?.ToString(), user.Id, null);
         }
 
         public async Task<(string authToken, string refreshToken, string userId)> RedeemRefreshTokenAsync(string refreshToken)
