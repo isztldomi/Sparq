@@ -178,5 +178,22 @@ namespace Sparq.WebApi.Controllers
 
             return NoContent();
         }
+
+        [HttpPatch("nickname")]
+        [Authorize]
+        public async Task<IActionResult> UpdateNickName([FromBody] NickNameUpdateRequestDto dto)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            var updatedUser = await _usersService.UpdateNickNameAsync(user!.Id, dto.NickName);
+
+            if (updatedUser == null)
+                return NotFound();
+
+            var userResponseDto = _mapper.Map<UserResponseDto>(updatedUser);
+
+            return Ok(userResponseDto);
+        }
+
     }
 }

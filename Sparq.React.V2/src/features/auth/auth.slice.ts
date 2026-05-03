@@ -1,9 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { AuthState } from "@/features/auth/auth.types";
-import { login, fetchProfile } from "@/features/auth/auth.thunks";
+import type { AuthStateDto } from "@/features/auth/auth.types";
+import { login } from "@/features/auth/auth.thunks";
 
-const initialState: AuthState = {
-  user: null,
+const initialState: AuthStateDto = {
   token: null,
   refreshToken: null,
   loading: false,
@@ -14,7 +13,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout(state) {
-      state.user = null;
       state.token = null;
       state.refreshToken = null;
       state.loading = false;
@@ -36,14 +34,6 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state) => {
         state.loading = false;
-      })
-
-      // PROFILE
-      .addCase(fetchProfile.fulfilled, (state, action) => {
-        state.user = action.payload;
-      })
-      .addCase(fetchProfile.rejected, (state) => {
-        state.user = null;
       });
   },
 });

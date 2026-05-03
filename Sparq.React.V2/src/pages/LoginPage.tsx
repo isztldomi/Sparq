@@ -5,7 +5,7 @@ import { useAppDispatch } from "@/app/hooks";
 import { login } from "@/features/auth/auth.thunks";
 import { flattenErrors } from "@/api/errors/flattenErrors";
 import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
-import { HttpError } from "@/api/errors/HttpError";
+import type { ProblemDetails } from "@/api/models/ProblemDetails";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +30,17 @@ export function LoginPage() {
   });
 
   // 👉 submit
+  //const onSubmit = async (data: LoginFormData) => {
+  //  setErrors([]);
+  //
+  //  try {
+  //    await dispatch(login(data)).unwrap();
+  //    navigate("/profile");
+  //  } catch (err: unknown) {
+  //    if (err instanceof HttpError) setErrors(flattenErrors(err.errors));
+  //  }
+  //};
+
   const onSubmit = async (data: LoginFormData) => {
     setErrors([]);
 
@@ -37,7 +48,9 @@ export function LoginPage() {
       await dispatch(login(data)).unwrap();
       navigate("/profile");
     } catch (err: unknown) {
-      if (err instanceof HttpError) setErrors(flattenErrors(err.errors));
+      const error = err as ProblemDetails;
+
+      setErrors(flattenErrors(error.errors));
     }
   };
 

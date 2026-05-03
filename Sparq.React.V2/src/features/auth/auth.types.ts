@@ -1,20 +1,10 @@
-import type { User } from "@/shared/types/user";
-
-export type AuthState = {
-  user: User | null;
+export type AuthStateDto = {
   token: string | null;
   refreshToken: string | null;
   loading: boolean;
 };
 
-export type UserResponseDto = {
-  firstName: string;
-  lastName: string;
-  nickName: string;
-  email: string;
-};
-
-export type LoginRequest = {
+export type LoginRequestDto = {
   email: string;
   password: string;
 };
@@ -25,7 +15,7 @@ export type LoginResponseDto = {
   refreshToken: string;
 };
 
-export type RegisterRequest = {
+export type RegisterRequestDto = {
   firstName: string;
   lastName: string;
   nickName: string;

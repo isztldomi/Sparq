@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import { fetchProfile } from "@/features/auth/auth.thunks";
+import { fetchProfile } from "@/features/user/user.thunks";
 
 export function AppBootstrap() {
   const dispatch = useAppDispatch();

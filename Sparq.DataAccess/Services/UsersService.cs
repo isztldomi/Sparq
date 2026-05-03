@@ -115,12 +115,12 @@ namespace Sparq.DataAccess.Services
         private async Task<string> GenerateJwtTokenAsync(User user)
         {
             var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Email!),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("id", user.Id),
-            new("username", user.UserName!),
-        };
+            {
+                new(JwtRegisteredClaimNames.Sub, user.Email!),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new("id", user.Id),
+                new("username", user.UserName!),
+            };
 
             var userRoles = await _userManager.GetRolesAsync(user);
             foreach (var userRole in userRoles)
@@ -140,6 +140,25 @@ namespace Sparq.DataAccess.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<User> UpdateNickNameAsync(string id, string nickname)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            user!.NickName = nickname;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                var error = result.Errors.FirstOrDefault()?.Description
+                            ?? "Failed to update nickname";
+
+                throw new InvalidOperationException(error);
+            }
+
+            return user;
         }
     }
 }

@@ -15,5 +15,6 @@ namespace Sparq.DataAccess.Services
         Task<User?> GetCurrentUserAsync();
         string? GetCurrentUserId();
         Task<User> GetUserByIdAsync(string id);
+        Task<User> UpdateNickNameAsync(string id, string nickname);
     }
 }
