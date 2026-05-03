@@ -89,7 +89,12 @@ namespace Sparq.WebApi.Controllers
 
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new ValidationProblemDetails(
+                    new Dictionary<string, string[]>
+                    {
+            { "User", result.Errors.Select(e => e.Description).ToArray() }
+                    }
+                ));
             }
 
             var userResponseDto = _mapper.Map<UserResponseDto>(user);
@@ -105,7 +110,7 @@ namespace Sparq.WebApi.Controllers
         [HttpPost]
         [Route("login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDto))]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login(LoginRequestDto dto)
         {
             var (token, refreshToken, userId, error) =
@@ -113,7 +118,16 @@ namespace Sparq.WebApi.Controllers
 
             if (error != null)
             {
-                return Unauthorized(error);
+                return Unauthorized(new ValidationProblemDetails(
+                    new Dictionary<string, string[]>
+                    {
+                { "User", new[] { error } }
+                    }
+                )
+                {
+                    Title = "Authentication failed",
+                    Status = StatusCodes.Status401Unauthorized
+                });
             }
 
             return Ok(new LoginResponseDto

@@ -12,10 +12,13 @@ export function ProfilePage() {
     <div className="min-h-screen justify-center p-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl">Profile</h1>
-
-        <RedButton className="w-30 h-10" onClick={() => navigate("/logout")}>
-          Logout
-        </RedButton>
+        {user ? (
+          <RedButton className="w-30 h-10" onClick={() => navigate("/logout")}>
+            Logout
+          </RedButton>
+        ) : (
+          <></>
+        )}
       </div>
 
       {!user ? (

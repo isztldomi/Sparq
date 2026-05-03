@@ -36,8 +36,8 @@ namespace Sparq.DataAccess.Services
             user.RefreshToken = Guid.NewGuid();
 
             var result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-                throw new InvalidDataException($"User creation failed: {result.Errors.First().Description}");
+            //if (!result.Succeeded)
+            //    throw new InvalidDataException($"User creation failed: {result.Errors.First().Description}");
             return result;
         }
 

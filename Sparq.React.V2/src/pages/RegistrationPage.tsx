@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { GreenButton } from "@/components/buttons/greenButton";
 import { useAppDispatch } from "@/app/hooks";
 import { login, register } from "@/features/auth/auth.thunks";
+import { flattenErrors } from "@/api/errors/flattenErrors";
+import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
 
 export function RegistrationPage() {
   const navigate = useNavigate();
@@ -14,8 +16,14 @@ export function RegistrationPage() {
   const [lastName, setLastName] = useState("");
   const [nickName, setNickName] = useState("");
 
+  const [errors, setErrors] = useState<{ field: string; message: string }[]>(
+    [],
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    setErrors([]);
 
     dispatch(
       register({
@@ -28,12 +36,14 @@ export function RegistrationPage() {
     )
       .unwrap()
       .then(() => {
-        dispatch(login({ email: email, password: password }))
+        dispatch(login({ email, password }))
           .unwrap()
           .then(() => navigate("/profile"));
       })
       .catch((err) => {
-        console.log("Login failed:", err);
+        if (err?.errors) {
+          setErrors(flattenErrors(err.errors));
+        }
       });
   };
 
@@ -43,7 +53,9 @@ export function RegistrationPage() {
         <h1 className="">Registration</h1>
       </div>
 
-      <div className="flex justify-center pt-30">
+      <ErrorsContainer errors={errors} />
+
+      <div className="flex justify-center">
         <div className="sm:min-w-[200px] md:min-w-[400px] bg-[var(--surface-4)] p-6 rounded-lg shadow-md">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 ">
             <div>

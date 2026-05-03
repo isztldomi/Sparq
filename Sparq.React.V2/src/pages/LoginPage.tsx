@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { GreenButton } from "@/components/buttons/greenButton";
 import { useAppDispatch } from "@/app/hooks";
 import { login } from "@/features/auth/auth.thunks";
+import { flattenErrors } from "@/api/errors/flattenErrors";
+import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
 
 export function LoginPage() {
   const dispatch = useAppDispatch();
@@ -11,21 +13,23 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [errors, setErrors] = useState<{ field: string; message: string }[]>(
+    [],
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      await dispatch(
-        login({
-          email,
-          password,
-        }),
-      ).unwrap();
+    setErrors([]); // reset
 
-      navigate("/profile");
-    } catch (err) {
-      console.error("Login failed:", err);
-    }
+    dispatch(login({ email, password }))
+      .unwrap()
+      .then(() => navigate("/profile"))
+      .catch((err) => {
+        if (err?.errors) {
+          setErrors(flattenErrors(err.errors));
+        }
+      });
   };
 
   return (
@@ -33,6 +37,8 @@ export function LoginPage() {
       <div>
         <h1 className="">Login</h1>
       </div>
+
+      <ErrorsContainer errors={errors} />
 
       <div className="flex justify-center pt-30">
         <div className="sm:min-w-[200px] md:min-w-[400px] bg-[var(--surface-4)] p-6 rounded-lg shadow-md">

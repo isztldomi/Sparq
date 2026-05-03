@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { loginApi, registerApi } from "@/api/services/authService";
 import { getProfileApi } from "@/api/services/userService";
 import { mapUser } from "@/features/auth/auth.mapper";
+import { normalizeError } from "@/api/errors/handleAxiosError";
 import type { LoginRequest, RegisterRequest } from "@/features/auth/auth.types";
 
 export const fetchProfile = createAsyncThunk(
@@ -11,7 +12,7 @@ export const fetchProfile = createAsyncThunk(
       const dto = await getProfileApi();
       return mapUser(dto);
     } catch (e) {
-      return rejectWithValue("Failed to load user\n" + e);
+      return rejectWithValue(e);
     }
   },
 );
@@ -29,12 +30,11 @@ export const login = createAsyncThunk(
 
       localStorage.setItem("auth", JSON.stringify(payload));
 
-      // fontos: unwrap-safe flow
       await dispatch(fetchProfile()).unwrap();
 
       return payload;
     } catch (e) {
-      return rejectWithValue("Login failed\n" + e);
+      return rejectWithValue(e);
     }
   },
 );
@@ -45,7 +45,7 @@ export const register = createAsyncThunk(
     try {
       return await registerApi(data);
     } catch (e) {
-      return rejectWithValue("Registration failed\n" + e);
+      return rejectWithValue(normalizeError(e));
     }
   },
 );
