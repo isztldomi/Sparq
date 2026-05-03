@@ -44,7 +44,7 @@ export function RegistrationPage() {
       </div>
 
       <div className="flex justify-center pt-30">
-        <div className="min-w-[400px] bg-[var(--surface-4)] p-6 rounded-lg shadow-md">
+        <div className="sm:min-w-[200px] md:min-w-[400px] bg-[var(--surface-4)] p-6 rounded-lg shadow-md">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 ">
             <div>
               <label className="block mb-1">Fisrt Name</label>
@@ -96,7 +96,9 @@ export function RegistrationPage() {
               />
             </div>
 
-            <GreenButton className="w-full py-2 text-lg">Login</GreenButton>
+            <GreenButton type="submit" className="w-full py-2 text-lg">
+              Registration
+            </GreenButton>
           </form>
         </div>
       </div>

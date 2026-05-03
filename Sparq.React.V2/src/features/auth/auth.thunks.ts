@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getProfile, loginApi, registerApi } from "@/api/auth.api";
+import { loginApi, registerApi } from "@/api/services/authService";
+import { getProfileApi } from "@/api/services/userService";
 import { mapUser } from "@/features/auth/auth.mapper";
 import type { LoginRequest, RegisterRequest } from "@/features/auth/auth.types";
 
@@ -7,7 +8,7 @@ export const fetchProfile = createAsyncThunk(
   "auth/fetchUser",
   async (_, { rejectWithValue }) => {
     try {
-      const dto = await getProfile();
+      const dto = await getProfileApi();
       return mapUser(dto);
     } catch (e) {
       return rejectWithValue("Failed to load user\n" + e);
@@ -17,20 +18,24 @@ export const fetchProfile = createAsyncThunk(
 
 export const login = createAsyncThunk(
   "auth/login",
-  async (data: LoginRequest, { dispatch }) => {
-    const res = await loginApi(data);
+  async (data: LoginRequest, { dispatch, rejectWithValue }) => {
+    try {
+      const res = await loginApi(data);
 
-    // tokeneket visszaadjuk
-    const payload = {
-      token: res.authToken,
-      refreshToken: res.refreshToken,
-      userId: res.userId,
-    };
+      const payload = {
+        token: res.authToken,
+        refreshToken: res.refreshToken,
+      };
 
-    // profile betöltése login után
-    dispatch(fetchProfile());
+      localStorage.setItem("auth", JSON.stringify(payload));
 
-    return payload;
+      // fontos: unwrap-safe flow
+      await dispatch(fetchProfile()).unwrap();
+
+      return payload;
+    } catch (e) {
+      return rejectWithValue("Login failed\n" + e);
+    }
   },
 );
 
@@ -38,8 +43,7 @@ export const register = createAsyncThunk(
   "auth/register",
   async (data: RegisterRequest, { rejectWithValue }) => {
     try {
-      const res = await registerApi(data);
-      return res;
+      return await registerApi(data);
     } catch (e) {
       return rejectWithValue("Registration failed\n" + e);
     }

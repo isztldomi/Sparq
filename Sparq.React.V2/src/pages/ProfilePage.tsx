@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/app/hooks";
 import { selectUser } from "@/features/auth/auth.selectors";
 import { GreenButton } from "@/components/buttons/greenButton";
+import { RedButton } from "@/components/buttons/redButton";
 
 export function ProfilePage() {
   const user = useAppSelector(selectUser);
@@ -9,8 +10,12 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen justify-center p-4">
-      <div>
-        <h1 className="">Profile</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-xl">Profile</h1>
+
+        <RedButton className="w-30 h-10" onClick={() => navigate("/logout")}>
+          Logout
+        </RedButton>
       </div>
 
       {!user ? (
