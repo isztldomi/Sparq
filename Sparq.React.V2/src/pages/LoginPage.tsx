@@ -54,19 +54,6 @@ export function LoginPage() {
     }
   };
 
-  //  const onSubmit = async (data: LoginFormData) => {
-  //    setErrors([]);
-  //
-  //    try {
-  //      await dispatch(login(data)).unwrap();
-  //      navigate("/profile");
-  //    } catch (err: unknown) {
-  //      const error = err as ProblemDetails;
-  //
-  //      setErrors(flattenErrors(error.errors));
-  //    }
-  //  };
-
   return (
     <div className="min-h-screen justify-center p-4">
       <h1>Login</h1>

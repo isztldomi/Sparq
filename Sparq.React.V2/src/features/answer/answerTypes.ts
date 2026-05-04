@@ -8,3 +8,7 @@ export interface AnswerCreateRequestDto {
   text: string;
   isCorrect: boolean;
 }
+
+export type AnswerUI = AnswerCreateRequestDto & {
+  id: string;
+};

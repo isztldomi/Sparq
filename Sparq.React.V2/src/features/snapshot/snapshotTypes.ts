@@ -1,6 +1,7 @@
 import type {
   QuestionResponseDto,
   QuestionCreateRequestDto,
+  QuestionUI,
 } from "@/features/question/questionTypes";
 
 export interface SnapshotResponseDto {
@@ -18,3 +19,7 @@ export interface SnapshotCreateFromQuizRequestDto {
   pinCode: string;
   questions: QuestionCreateRequestDto[];
 }
+
+export type SnapshotUI = Omit<SnapshotCreateFromQuizRequestDto, "questions"> & {
+  questions: QuestionUI[];
+};

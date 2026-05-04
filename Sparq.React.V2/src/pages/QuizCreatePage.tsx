@@ -1,20 +1,19 @@
 import { useState } from "react";
-import { GreenButton } from "@/components/buttons/greenButton";
+
 import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
-import type { SnapshotCreateFromQuizRequestDto } from "@/features/snapshot/snapshotTypes";
-import type { QuizCreateRequestDto } from "@/features/quiz/quizTypes";
-import { QuizCreatePublicCheckbox } from "@/components/checkbox/QuizCreatePublicCheckbox";
-import { QuizCreateTimeLimitInput } from "@/components/input_number/QuizCreateTimeLimitInput";
-import { QuizCreatePinCodeInput } from "@/components/input_str/QuizCreatePinCodeInput";
-import { QuizCreateTitleInput } from "@/components/input_str/QuizCreateTitleInput";
-import { QuizCreateDescriptionInput } from "@/components/input_str/QuizCreateDescriptionInput";
+import { GreenButton } from "@/components/buttons/greenButton";
+
+import type { SnapshotUI } from "@/features/snapshot/snapshotTypes";
+import type { QuizUI } from "@/features/quiz/quizTypes";
+import type { QuestionUI } from "@/features/question/questionTypes";
+
+import { QuestionsDndContainer } from "@/components/containers/QuestionsDndContainer";
+import { arrayMove } from "@dnd-kit/sortable";
 
 export function QuizCreatePage() {
-  const [serverErrors, setServerErrors] = useState<
-    { field: string; message: string }[]
-  >([]);
+  const [serverErrors] = useState<{ field: string; message: string }[]>([]);
 
-  const initialSnapshot: SnapshotCreateFromQuizRequestDto = {
+  const initialSnapshot: SnapshotUI = {
     title: "",
     description: "",
     timeLimit: 10,
@@ -22,7 +21,8 @@ export function QuizCreatePage() {
     questions: [],
   };
 
-  const [formData, setFormData] = useState<QuizCreateRequestDto>({
+  const [nextId, setNextId] = useState(1);
+  const [formData, setFormData] = useState<QuizUI>({
     isPublic: false,
     snapshots: [initialSnapshot],
   });
@@ -32,124 +32,127 @@ export function QuizCreatePage() {
   // ---------------------------
   // SNAPSHOT UPDATE
   // ---------------------------
-  function updateSnapshot(field: string, value: any) {
-    const updated = { ...snapshot, [field]: value };
-
+  function updateQuestions(questions: QuestionUI[]) {
     setFormData((prev) => ({
       ...prev,
-      snapshots: [updated],
+      snapshots: [
+        {
+          ...prev.snapshots[0],
+          questions,
+        },
+      ],
+    }));
+  }
+
+  function updateQuestion(id: string, field: string, value: any) {
+    setFormData((prev) => {
+      const questions = prev.snapshots[0].questions.map((q) =>
+        q.id === id ? { ...q, [field]: value } : q,
+      );
+
+      return {
+        ...prev,
+        snapshots: [
+          {
+            ...prev.snapshots[0],
+            questions,
+          },
+        ],
+      };
+    });
+  }
+
+  // ---------------------------
+  // ADD QUESTION
+  //  alert(snapshot.questions.length);
+  //  console.log(snapshot.questions.length);
+  // ---------------------------
+  function addQuestion() {
+    setFormData((prev) => {
+      const newQuestion: QuestionUI = {
+        id: String(nextId),
+        isOpen: false,
+        title: "",
+        text: "",
+        mediaUrl: "",
+        timeLimit: 10,
+        point: 0,
+        answers: [],
+      };
+
+      return {
+        ...prev,
+        snapshots: [
+          {
+            ...prev.snapshots[0],
+            questions: [...prev.snapshots[0].questions, newQuestion],
+          },
+        ],
+      };
+    });
+
+    setNextId((prev) => prev + 1);
+  }
+
+  function removeQuestion(id: string) {
+    setFormData((prev) => ({
+      ...prev,
+      snapshots: [
+        {
+          ...prev.snapshots[0],
+          questions: prev.snapshots[0].questions.filter((q) => q.id !== id),
+        },
+      ],
     }));
   }
 
   // ---------------------------
-  // QUESTION
+  // TOGGLE OPEN
   // ---------------------------
-  // function addQuestion() {
-  //   const newQuestion: QuestionCreateRequestDto = {
-  //     title: "",
-  //     text: "",
-  //     mediaUrl: "",
-  //     timeLimit: 10,
-  //     point: 0,
-  //     answers: [],
-  //   };
-  //
-  //   updateSnapshot("questions", [...(snapshot.questions ?? []), newQuestion]);
-  // }
-
-  // function updateQuestion(index: number, field: string, value: any) {
-  //   const updatedQuestions = [...snapshot.questions];
-  //   updatedQuestions[index] = {
-  //     ...updatedQuestions[index],
-  //     [field]: value,
-  //   };
-  //
-  //   updateSnapshot("questions", updatedQuestions);
-  // }
-  //
-  // function removeQuestion(index: number) {
-  //   const updatedQuestions = snapshot.questions.filter((_, i) => i !== index);
-  //   updateSnapshot("questions", updatedQuestions);
-  // }
+  function toggleOpen(id: string) {
+    setFormData((prev) => ({
+      ...prev,
+      snapshots: [
+        {
+          ...prev.snapshots[0],
+          questions: prev.snapshots[0].questions.map((q) =>
+            q.id === id ? { ...q, isOpen: !q.isOpen } : q,
+          ),
+        },
+      ],
+    }));
+  }
 
   // ---------------------------
-  // ANSWER
+  // DRAG END
   // ---------------------------
-  // function addAnswer(questionIndex: number) {
-  //   const updatedQuestions = [...snapshot.questions];
-  //   const answers = updatedQuestions[questionIndex].answers;
-  //
-  //   if (answers.length >= 10) return;
-  //
-  //   answers.push({
-  //     text: "",
-  //     isCorrect: false,
-  //   } as AnswerCreateRequestDto);
-  //
-  //   updateSnapshot("questions", updatedQuestions);
-  // }
-  //
-  // function updateAnswer(
-  //   questionIndex: number,
-  //   answerIndex: number,
-  //   field: string,
-  //   value: any,
-  // ) {
-  //   const updatedQuestions = [...snapshot.questions];
-  //
-  //   updatedQuestions[questionIndex].answers[answerIndex] = {
-  //     ...updatedQuestions[questionIndex].answers[answerIndex],
-  //     [field]: value,
-  //   };
-  //
-  //   updateSnapshot("questions", updatedQuestions);
-  // }
-  //
-  // function setCorrectAnswer(questionIndex: number, answerIndex: number) {
-  //   const updatedQuestions = [...snapshot.questions];
-  //
-  //   updatedQuestions[questionIndex].answers = updatedQuestions[
-  //     questionIndex
-  //   ].answers.map((answer, i) => ({
-  //     ...answer,
-  //     isCorrect: i === answerIndex,
-  //   }));
-  //
-  //   updateSnapshot("questions", updatedQuestions);
-  // }
-  //
-  // function removeAnswer(questionIndex: number, answerIndex: number) {
-  //   const updatedQuestions = [...snapshot.questions];
-  //
-  //   updatedQuestions[questionIndex].answers = updatedQuestions[
-  //     questionIndex
-  //   ].answers.filter((_, i) => i !== answerIndex);
-  //
-  //   updateSnapshot("questions", updatedQuestions);
-  // }
+  function handleDragEnd(event: any) {
+    const { active, over } = event;
 
-  // ---------------------------
-  // SUBMIT
-  // ---------------------------
-  // async function handleSubmit(e: React.FormEvent) {
-  //   e.preventDefault();
-  //   setError(null);
-  //   setIsLoading(true);
-  //
-  //   try {
-  //     await createQuiz(formData);
-  //     navigate("/my-quizzes");
-  //   } catch (e) {
-  //     setError(
-  //       e instanceof HttpError ? e : new HttpError(500, "Unknown error"),
-  //     );
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
+    if (!over || active.id === over.id) return;
+
+    setFormData((prev) => {
+      const questions = prev.snapshots[0].questions;
+
+      const oldIndex = questions.findIndex((q) => q.id === active.id);
+      const newIndex = questions.findIndex((q) => q.id === over.id);
+
+      return {
+        ...prev,
+        snapshots: [
+          {
+            ...prev.snapshots[0],
+            questions: arrayMove(questions, oldIndex, newIndex),
+          },
+        ],
+      };
+    });
+  }
+
   return (
-    <div className="min-h-screen justify-center p-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="min-h-screen p-4 flex flex-col gap-6">
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
         <h1 className="text-xl">Quiz Create</h1>
 
         <GreenButton className="w-30 h-10">Done</GreenButton>
@@ -157,43 +160,20 @@ export function QuizCreatePage() {
 
       <ErrorsContainer serverErrors={serverErrors} />
 
-      {/* <form onSubmit={handleSubmit} className="flex flex-col gap-6"> */}
-      <div className="pt-4">
-        <form className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <QuizCreatePublicCheckbox
-              checked={formData.isPublic}
-              onChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  isPublic: value,
-                }))
-              }
-            />
-            <QuizCreateTimeLimitInput
-              value={snapshot.timeLimit}
-              onChange={(value) => updateSnapshot("timeLimit", value)}
-            />
-            <QuizCreatePinCodeInput
-              value={snapshot.pinCode}
-              onChange={(value) => updateSnapshot("pinCode", value)}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div>
-              <QuizCreateTitleInput
-                value={snapshot.title}
-                onChange={(value) => updateSnapshot("title", value)}
-              />
-            </div>
+      {/* QUESTIONS */}
+      <QuestionsDndContainer
+        questions={snapshot.questions}
+        onDragEnd={handleDragEnd}
+        onToggle={toggleOpen}
+        onDelete={removeQuestion}
+        onUpdate={updateQuestion}
+      />
 
-            <QuizCreateDescriptionInput
-              value={snapshot.description}
-              onChange={(value) => updateSnapshot("description", value)}
-            />
-          </div>
-          <div>{/* kép feltöltése */}</div>
-        </form>
+      {/* ADD */}
+      <div className="flex justify-center relative z-50">
+        <GreenButton onClick={addQuestion} className="w-40 h-10">
+          + Add question
+        </GreenButton>
       </div>
     </div>
   );

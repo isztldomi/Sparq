@@ -1,6 +1,7 @@
 import type {
   AnswerResponseDto,
   AnswerCreateRequestDto,
+  AnswerUI,
 } from "@/features/answer/answerTypes";
 
 export interface QuestionResponseDto {
@@ -20,3 +21,11 @@ export interface QuestionCreateRequestDto {
   point: number;
   answers: AnswerCreateRequestDto[];
 }
+
+export type QuestionUI = Omit<QuestionCreateRequestDto, "mediaUrl"> & {
+  id: string;
+  isOpen: boolean;
+  answers: AnswerUI[];
+  mediaFile: File | null;
+  mediaPreviewUrl: string | null;
+};
