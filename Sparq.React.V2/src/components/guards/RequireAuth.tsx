@@ -1,7 +1,6 @@
 import { type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-
-import { useAppSelector } from "@/app/hooks";
+import { useGetProfileQuery } from "@/features/user/userApi";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 
 type RequireAuthProps = {
@@ -15,24 +14,18 @@ export const RequireAuth = ({
 }: RequireAuthProps) => {
   const location = useLocation();
 
-  const auth = useAppSelector((state) => state.auth);
-  const user = useAppSelector((state) => state.user);
+  const { data: user, isLoading, isError } = useGetProfileQuery();
 
-  // DEBUG LOGS
-  //console.log("AUTH STATE:", auth);
-  //console.log("USER STATE:", user);
-
-  if (auth.loading) {
-    //console.log("AUTH: loading...");
+  // 1. még tölt → várunk
+  if (isLoading) {
     return <LoadingIndicator />;
   }
 
-  if (!user.user) {
-    //console.log("AUTH: no user → redirecting to login");
+  // 2. nincs user → nem auth
+  if (!user || isError) {
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
-  //console.log("AUTH: allowed -> rendering children");
-
+  // 3. minden oké
   return <>{children}</>;
 };

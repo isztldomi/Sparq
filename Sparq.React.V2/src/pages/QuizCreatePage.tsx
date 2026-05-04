@@ -15,7 +15,7 @@ export function QuizCreatePage() {
         <GreenButton className="w-30 h-10">Done</GreenButton>
       </div>
 
-      <ErrorsContainer errors={errors} />
+      <ErrorsContainer serverErrors={errors} />
     </div>
   );
 }

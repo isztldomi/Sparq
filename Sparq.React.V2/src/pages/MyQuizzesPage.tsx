@@ -23,7 +23,7 @@ export function MyQuizzesPage() {
         </GreenButton>
       </div>
 
-      <ErrorsContainer errors={errors} />
+      <ErrorsContainer serverErrors={errors} />
     </div>
   );
 }

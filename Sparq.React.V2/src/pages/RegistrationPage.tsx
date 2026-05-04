@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GreenButton } from "@/components/buttons/greenButton";
+import { useRegisterMutation, useLoginMutation } from "@/features/auth/authApi";
 import { useAppDispatch } from "@/app/hooks";
-import { login, register } from "@/features/auth/auth.thunks";
-import { flattenErrors } from "@/api/errors/flattenErrors";
+import { setAuth } from "@/features/auth/authSlice";
+import { flattenErrors } from "@/api/core/flattenErrors";
 import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
 import type { ProblemDetails } from "@/api/models/ProblemDetails";
 
@@ -12,11 +13,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   registerSchema,
   type RegisterFormData,
-} from "@/schemas/auth/register.schema";
+} from "@/schemas/auth/registerSchema";
 
 export function RegistrationPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  const [registerUser, { isLoading: isRegisterLoading }] =
+    useRegisterMutation();
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
+
+  const isLoading = isRegisterLoading || isLoginLoading;
 
   const [errors, setErrors] = useState<{ field: string; message: string }[]>(
     [],
@@ -34,20 +41,25 @@ export function RegistrationPage() {
     setErrors([]);
 
     try {
-      await dispatch(register(data)).unwrap();
+      await registerUser(data).unwrap();
 
-      await dispatch(
-        login({
-          email: data.email,
-          password: data.password,
-        }),
-      ).unwrap();
+      const res = await login({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
+
+      const payload = {
+        token: res.authToken,
+        refreshToken: res.refreshToken,
+      };
+
+      localStorage.setItem("auth", JSON.stringify(payload));
+      dispatch(setAuth(payload));
 
       navigate("/profile");
     } catch (err: unknown) {
-      const error = err as ProblemDetails;
-
-      setErrors(flattenErrors(error.errors));
+      const error = err as { data?: ProblemDetails };
+      setErrors(flattenErrors(error.data?.errors));
     }
   };
 
@@ -55,7 +67,7 @@ export function RegistrationPage() {
     <div className="min-h-screen justify-center p-4">
       <h1>Registration</h1>
 
-      <ErrorsContainer errors={errors} />
+      <ErrorsContainer serverErrors={errors} />
 
       <div className="flex justify-center">
         <div className="sm:min-w-[200px] md:min-w-[400px] bg-[var(--surface-4)] p-6 rounded-lg shadow-md">
@@ -63,7 +75,6 @@ export function RegistrationPage() {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            {/* FIRST NAME */}
             <div>
               <label className="block mb-1">First Name</label>
               <input
@@ -131,9 +142,14 @@ export function RegistrationPage() {
               )}
             </div>
 
-            <GreenButton type="submit" className="w-full py-2 text-lg">
-              Registration
+            <GreenButton
+              type="submit"
+              className="w-full py-2 text-lg"
+              disabled={isLoading}
+            >
+              {isLoading ? "Processing..." : "Registration"}
             </GreenButton>
+
             <GreenButton
               className="w-full py-2 text-lg"
               onClick={() => navigate("/login")}

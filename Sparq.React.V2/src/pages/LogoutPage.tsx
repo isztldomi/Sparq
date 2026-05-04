@@ -1,17 +1,31 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/app/hooks";
-import { resetUser } from "@/features/user/user.slice";
-import { logout } from "@/features/auth/auth.slice";
+import { logout } from "@/features/auth/authSlice";
+import { authApi } from "@/features/auth/authApi";
+import { userApi } from "@/features/user/userApi";
 
 export function LogoutPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(logout());
-    dispatch(resetUser());
-    navigate("/profile");
+    const run = async () => {
+      // 1. auth state
+      dispatch(logout());
+
+      // 2. cache cleanup
+      dispatch(authApi.util.resetApiState());
+      dispatch(userApi.util.resetApiState());
+
+      // 3. storage cleanup (extra biztonság)
+      localStorage.removeItem("auth");
+
+      // 4. redirect
+      navigate("/login", { replace: true });
+    };
+
+    run();
   }, [dispatch, navigate]);
 
   return (
