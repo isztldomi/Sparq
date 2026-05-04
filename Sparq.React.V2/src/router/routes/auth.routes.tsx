@@ -3,6 +3,7 @@ import { RequireAuth } from "@/components/guards/RequireAuth";
 
 import { HistoryPage } from "@/pages/HistoryPage";
 import { MyQuizzesPage } from "@/pages/MyQuizzesPage";
+import { QuizCreatePage } from "@/pages/QuizCreatePage";
 
 export const authRoutes: RouteObject[] = [
   {
@@ -10,6 +11,14 @@ export const authRoutes: RouteObject[] = [
     element: (
       <RequireAuth>
         <MyQuizzesPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/quiz/create",
+    element: (
+      <RequireAuth>
+        <QuizCreatePage />
       </RequireAuth>
     ),
   },

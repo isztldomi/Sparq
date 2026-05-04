@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { AuthStateDto } from "@/features/auth/auth.types";
+import type { AuthState } from "@/features/auth/auth.types";
 import { login } from "@/features/auth/auth.thunks";
 
-const initialState: AuthStateDto = {
+const initialState: AuthState = {
   token: null,
   refreshToken: null,
   loading: false,

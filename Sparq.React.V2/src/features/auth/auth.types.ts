@@ -1,4 +1,4 @@
-export type AuthStateDto = {
+export type AuthState = {
   token: string | null;
   refreshToken: string | null;
   loading: boolean;
