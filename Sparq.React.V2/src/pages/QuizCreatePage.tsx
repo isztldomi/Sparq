@@ -9,6 +9,8 @@ import type { QuestionUI } from "@/features/question/questionTypes";
 
 import { QuestionsDndContainer } from "@/components/containers/QuestionsDndContainer";
 import { arrayMove } from "@dnd-kit/sortable";
+import type { AnswerUI } from "@/features/answer/answerTypes";
+import { GreenRedCheckbox } from "@/components/checkbox/greenRedCheckbox";
 
 export function QuizCreatePage() {
   const [serverErrors] = useState<{ field: string; message: string }[]>([]);
@@ -21,7 +23,8 @@ export function QuizCreatePage() {
     questions: [],
   };
 
-  const [nextId, setNextId] = useState(1);
+  const [nextIdQuestion, setNextIdQuestion] = useState(1);
+  const [nextIdAnswer, setNextIdAnswer] = useState(1);
   const [formData, setFormData] = useState<QuizUI>({
     isPublic: false,
     snapshots: [initialSnapshot],
@@ -29,8 +32,20 @@ export function QuizCreatePage() {
 
   const snapshot = formData.snapshots[0];
 
+  function updateSnapshot(field: keyof SnapshotUI, value: any) {
+    setFormData((prev) => ({
+      ...prev,
+      snapshots: [
+        {
+          ...prev.snapshots[0],
+          [field]: value,
+        },
+      ],
+    }));
+  }
+
   // ---------------------------
-  // SNAPSHOT UPDATE
+  // QUESTION
   // ---------------------------
   function updateQuestions(questions: QuestionUI[]) {
     setFormData((prev) => ({
@@ -62,22 +77,18 @@ export function QuizCreatePage() {
     });
   }
 
-  // ---------------------------
-  // ADD QUESTION
-  //  alert(snapshot.questions.length);
-  //  console.log(snapshot.questions.length);
-  // ---------------------------
   function addQuestion() {
     setFormData((prev) => {
       const newQuestion: QuestionUI = {
-        id: String(nextId),
+        id: String(nextIdQuestion),
         isOpen: false,
         title: "",
         text: "",
-        mediaUrl: "",
         timeLimit: 10,
         point: 0,
         answers: [],
+        mediaFile: null,
+        mediaPreviewUrl: null,
       };
 
       return {
@@ -91,7 +102,7 @@ export function QuizCreatePage() {
       };
     });
 
-    setNextId((prev) => prev + 1);
+    setNextIdQuestion((prev) => prev + 1);
   }
 
   function removeQuestion(id: string) {
@@ -104,6 +115,97 @@ export function QuizCreatePage() {
         },
       ],
     }));
+  }
+
+  // ---------------------------
+  // ANSWER
+  // ---------------------------
+  function updateAnswers(questionId: string, answers: AnswerUI[]) {
+    setFormData((prev) => {
+      const questions = prev.snapshots[0].questions.map((q) =>
+        q.id === questionId ? { ...q, answers } : q,
+      );
+
+      return {
+        ...prev,
+        snapshots: [{ ...prev.snapshots[0], questions }],
+      };
+    });
+  }
+
+  function updateAnswer(
+    questionId: string,
+    answerId: string,
+    field: keyof AnswerUI,
+    value: any,
+  ) {
+    setFormData((prev) => {
+      const questions = prev.snapshots[0].questions.map((q) => {
+        if (q.id !== questionId) return q;
+
+        const answers = q.answers.map((a) => {
+          // ha ez az aktuális answer
+          if (a.id === answerId) {
+            return { ...a, [field]: value };
+          }
+
+          // 👇 EZ A LÉNYEG
+          // ha isCorrect-et állítunk true-ra, minden más legyen false
+          if (field === "isCorrect" && value === true) {
+            return { ...a, isCorrect: false };
+          }
+
+          return a;
+        });
+
+        return { ...q, answers };
+      });
+
+      return {
+        ...prev,
+        snapshots: [{ ...prev.snapshots[0], questions }],
+      };
+    });
+  }
+
+  function addAnswer(questionId: string) {
+    setFormData((prev) => {
+      const questions = prev.snapshots[0].questions.map((q) => {
+        if (q.id !== questionId) return q;
+
+        const newAnswer: AnswerUI = {
+          id: String(nextIdAnswer),
+          text: "",
+          isCorrect: false,
+        };
+
+        return { ...q, answers: [...q.answers, newAnswer] };
+      });
+
+      return {
+        ...prev,
+        snapshots: [{ ...prev.snapshots[0], questions }],
+      };
+    });
+    setNextIdAnswer((prev) => prev + 1);
+  }
+
+  function removeAnswer(questionId: string, answerId: string) {
+    setFormData((prev) => {
+      const questions = prev.snapshots[0].questions.map((q) => {
+        if (q.id !== questionId) return q;
+
+        return {
+          ...q,
+          answers: q.answers.filter((a) => a.id !== answerId),
+        };
+      });
+
+      return {
+        ...prev,
+        snapshots: [{ ...prev.snapshots[0], questions }],
+      };
+    });
   }
 
   // ---------------------------
@@ -126,7 +228,7 @@ export function QuizCreatePage() {
   // ---------------------------
   // DRAG END
   // ---------------------------
-  function handleDragEnd(event: any) {
+  function handleDragEndQuestion(event: any) {
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;
@@ -155,20 +257,98 @@ export function QuizCreatePage() {
       <div className="flex justify-between items-center">
         <h1 className="text-xl">Quiz Create</h1>
 
-        <GreenButton className="w-30 h-10">Done</GreenButton>
+        <GreenButton
+          className="w-30 h-10"
+          onClick={() => {
+            console.log("FORM DATA:", structuredClone(formData));
+          }}
+        >
+          Done
+        </GreenButton>
       </div>
-
       <ErrorsContainer serverErrors={serverErrors} />
+
+      <div className="flex flex-col gap-2 bg-[var(--surface-4)] p-2 rounded-lg">
+        <div className="flex flex-wrap gap-x-4 gap-y-2 w-full">
+          <GreenRedCheckbox
+            value={formData.isPublic}
+            onChange={(value) =>
+              setFormData((prev) => ({
+                ...prev,
+                isPublic: value,
+              }))
+            }
+            trueLabel="Public"
+            falseLabel="Private"
+            className="w-30 h-10"
+          />
+          {/* TIMELIMIT */}
+          <div className="flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)]">
+            <div className="whitespace-pre">Time Limit:</div>
+            <input
+              type="number"
+              value={snapshot.timeLimit}
+              onChange={(e) => updateSnapshot("timeLimit", e.target.value)}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="w-full text-right outline-none text-[var(--text-h)]"
+            />
+            <span className="text-[var(--text-h)] text-[var(--text-h)]">s</span>
+          </div>
+
+          {/* PINCODE */}
+          <div className="flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)]">
+            <div className="whitespace-pre">Pin Code:</div>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={snapshot.pinCode}
+              onChange={(e) => updateSnapshot("pinCode", e.target.value)}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="w-full text-right outline-none text-[var(--text-h)] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+            />
+          </div>
+        </div>
+
+        {/* TITLE INPUT */}
+        <input
+          value={snapshot.title}
+          onChange={(e) => updateSnapshot("title", e.target.value)}
+          onPointerDown={(e) => e.stopPropagation()}
+          placeholder="Quiz Title"
+          className="flex-1 min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none"
+        />
+
+        <textarea
+          placeholder="Quiz Description"
+          value={snapshot.description}
+          onChange={(e) => updateSnapshot("description", e.target.value)}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="
+            w-full 
+            min-h-[80px]
+            bg-[var(--surface-5)] 
+            text-[var(--text-h)]
+            border border-transparent
+            rounded-lg 
+            p-2 
+            outline-none
+          "
+        />
+      </div>
 
       {/* QUESTIONS */}
       <QuestionsDndContainer
         questions={snapshot.questions}
-        onDragEnd={handleDragEnd}
+        onDragEndQuestion={handleDragEndQuestion}
         onToggle={toggleOpen}
-        onDelete={removeQuestion}
-        onUpdate={updateQuestion}
+        onDeleteQuestion={removeQuestion}
+        onUpdateQuestion={updateQuestion}
+        onAddAnswer={addAnswer}
+        onUpdateAnswer={updateAnswer}
+        onDeleteAnswer={removeAnswer}
       />
-
       {/* ADD */}
       <div className="flex justify-center relative z-50">
         <GreenButton onClick={addQuestion} className="w-40 h-10">

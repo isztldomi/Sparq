@@ -13,36 +13,65 @@ import {
 
 import type { QuestionUI } from "@/features/question/questionTypes";
 import { SortableQuestionContainer } from "@/components/containers/SortableQuestionContainer";
+import { useState } from "react";
+import type { AnswerUI } from "@/features/answer/answerTypes";
 
 type QuestionsDndContainerProps = {
   questions: QuestionUI[];
-  onDragEnd: (event: any) => void;
+  onDragEndQuestion: (event: any) => void;
   onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
-  onUpdate: (id: string, field: string, value: any) => void;
+  onDeleteQuestion: (id: string) => void;
+  onUpdateQuestion: (id: string, field: string, value: any) => void;
+  onAddAnswer: (questionId: string) => void;
+  onUpdateAnswer: (
+    questionId: string,
+    answerId: string,
+    field: keyof AnswerUI,
+    value: any,
+  ) => void;
+  onDeleteAnswer: (questionId: string, answerId: string) => void;
 };
 
 export function QuestionsDndContainer({
   questions,
-  onDragEnd,
+  onDragEndQuestion,
   onToggle,
-  onDelete,
-  onUpdate,
+  onDeleteQuestion,
+  onUpdateQuestion,
+  onAddAnswer,
+  onUpdateAnswer,
+  onDeleteAnswer,
 }: QuestionsDndContainerProps) {
-  // 🔥 MOBIL FIX: sensor
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // mobilon is csak mozdítás után indul drag
+        distance: 8,
       },
     }),
   );
+
+  function handleDragStart(event: any) {
+    setDraggingId(event.active.id);
+  }
+
+  function handleDragEnd(event: any) {
+    setDraggingId(null);
+    onDragEndQuestion(event);
+  }
+
+  function handleDragCancel() {
+    setDraggingId(null);
+  }
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      onDragEnd={onDragEnd}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
     >
       <SortableContext
         items={questions.map((q) => q.id)}
@@ -53,11 +82,19 @@ export function QuestionsDndContainer({
             <SortableQuestionContainer
               key={q.id}
               question={q}
-              index={index}
-              total={questions.length}
+              indexQuestion={index}
+              totalQuestion={questions.length}
               onToggle={() => onToggle(q.id)}
-              onDelete={() => onDelete(q.id)}
-              onUpdate={(field, value) => onUpdate(q.id, field, value)}
+              onDeleteQuestion={() => onDeleteQuestion(q.id)}
+              onUpdateQuestion={(field, value) =>
+                onUpdateQuestion(q.id, field, value)
+              }
+              onAddAnswer={() => onAddAnswer(q.id)}
+              onUpdateAnswer={(answerId, field, value) =>
+                onUpdateAnswer(q.id, answerId, field, value)
+              }
+              onDeleteAnswer={(answerId) => onDeleteAnswer(q.id, answerId)}
+              draggingIdQuestion={draggingId}
             />
           ))}
         </div>
