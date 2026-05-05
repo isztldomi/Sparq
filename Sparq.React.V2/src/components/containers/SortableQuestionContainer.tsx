@@ -5,24 +5,35 @@ import { Grip } from "lucide-react";
 import type { QuestionUI } from "@/features/question/questionTypes";
 import { SortableQuestionCard } from "@/components/cards/SortableQuestionCard";
 import { ToggleButton } from "@/components/buttons/toggleButton";
+import type { AnswerUI } from "@/features/answer/answerTypes";
 
 type SortableQuestionContainerProps = {
   question: QuestionUI;
-  index: number;
-  total: number;
+  indexQuestion: number;
+  totalQuestion: number;
   onToggle: () => void;
-  onDelete: () => void;
-  onUpdate: (field: keyof QuestionUI, value: any) => void;
+  onDeleteQuestion: () => void;
+  onUpdateQuestion: (field: keyof QuestionUI, value: any) => void;
+  onAddAnswer: () => void;
+  onUpdateAnswer: (answerId: string, field: keyof AnswerUI, value: any) => void;
+  onDeleteAnswer: (answerId: string) => void;
+  draggingIdQuestion?: string | null;
 };
 
 export function SortableQuestionContainer({
   question,
-  index,
-  total,
+  indexQuestion,
+  totalQuestion,
   onToggle,
-  onDelete,
-  onUpdate,
+  onDeleteQuestion,
+  onUpdateQuestion,
+  onAddAnswer,
+  onUpdateAnswer,
+  onDeleteAnswer,
+  draggingIdQuestion,
 }: SortableQuestionContainerProps) {
+  const isDragging = draggingIdQuestion === question.id;
+
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: question.id,
@@ -37,7 +48,11 @@ export function SortableQuestionContainer({
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-[var(--surface-4)] rounded-lg pl-1 p-4 shadow-sm"
+      className={`
+        bg-[var(--surface-4)] rounded-lg pl-1 p-4 shadow-sm
+        transition-all duration-200
+        ${isDragging ? "opacity-40 scale-[0.98]" : ""}
+      `}
     >
       {/* ROW */}
       <div className="flex items-stretch gap-3 flex-wrap">
@@ -52,35 +67,43 @@ export function SortableQuestionContainer({
 
         {/* INDEX */}
         <div className="flex justify-center text-sm text-[var(--text-h)] bg-[var(--surface-5)] p-2 rounded-lg whitespace-nowrap">
-          {index + 1} / {total}
+          {indexQuestion + 1} / {totalQuestion}
         </div>
 
         {/* TITLE INPUT */}
         <input
           value={question.title}
-          onChange={(e) => onUpdate("title", e.target.value)}
+          onChange={(e) => onUpdateQuestion("title", e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
-          placeholder={`${index + 1} Question Title`}
+          placeholder={`${indexQuestion + 1} Question Title`}
           className="flex-1 min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none"
         />
 
-        {/* TIMELIMIT INPUT */}
-        <input
-          type="number"
-          value={question.timeLimit}
-          onChange={(e) => onUpdate("timeLimit", Number(e.target.value))}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="flex-1 min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] text-center outline-none"
-        />
+        {/* TIMELIMIT */}
+        <div className="flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)]">
+          <input
+            type="number"
+            value={question.timeLimit}
+            onChange={(e) =>
+              onUpdateQuestion("timeLimit", Number(e.target.value))
+            }
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full text-right outline-none text-[var(--text-h)]"
+          />
+          <span className="text-[var(--text-h)] text-[var(--text-h)]">s</span>
+        </div>
 
-        {/* POINT INPUT */}
-        <input
-          type="number"
-          value={question.point}
-          onChange={(e) => onUpdate("point", Number(e.target.value))}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="flex-1 min-w-[50px] max-w-[70px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] text-center outline-none"
-        />
+        {/* POINT */}
+        <div className="flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)]">
+          <input
+            type="number"
+            value={question.point}
+            onChange={(e) => onUpdateQuestion("point", Number(e.target.value))}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full text-right outline-none text-[var(--text-h)]"
+          />
+          <span className="text-[var(--text-h)] text-[var(--text-h)]">s</span>
+        </div>
 
         {/* TOGGLE */}
         <div className="flex items-center p-2 rounded-lg bg-[var(--surface-5)]">
@@ -88,19 +111,26 @@ export function SortableQuestionContainer({
         </div>
       </div>
 
-      {/* EXPANDED */}
+      {/* EXPANDED SECTION */}
       <div
         className={`
           overflow-hidden transition-all duration-300 ease-in-out
-          ${question.isOpen ? "max-h-[500px] opacity-100 mt-4" : "max-h-0 opacity-0 mt-0"}
+          ${
+            question.isOpen && !isDragging
+              ? "opacity-100 mt-4"
+              : "max-h-0 opacity-0 mt-0"
+          }
         `}
       >
         <SortableQuestionCard
           question={question}
-          index={index}
-          total={total}
-          onDelete={onDelete}
-          onUpdate={onUpdate}
+          indexQuestion={indexQuestion}
+          totalQuestion={totalQuestion}
+          onDeleteQuestion={onDeleteQuestion}
+          onUpdateQuestion={onUpdateQuestion}
+          onAddAnswer={onAddAnswer}
+          onUpdateAnswer={onUpdateAnswer}
+          onDeleteAnswer={onDeleteAnswer}
         />
       </div>
     </div>
