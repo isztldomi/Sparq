@@ -25,4 +25,8 @@
     <ProjectReference Include="..\Sparq.Shared\Sparq.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="storage\" />
+  </ItemGroup>
+
 </Project>
