@@ -3,8 +3,8 @@ import type {
   LoginRequestDto,
   LoginResponseDto,
   RegisterRequestDto,
-} from "@/features/auth/auth.types";
-import type { UserResponseDto } from "@/features/user/user.types";
+} from "@/features/auth/authTypes";
+import type { UserResponseDto } from "@/features/user/userTypes";
 
 export function loginApi(data: LoginRequestDto): Promise<LoginResponseDto> {
   return post("/users/login", data);

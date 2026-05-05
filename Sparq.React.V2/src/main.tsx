@@ -6,7 +6,7 @@ import { RouterProvider } from "react-router-dom";
 import "./index.css";
 import { router } from "@/router/router";
 import { store } from "@/app/store";
-import { AppBootstrap } from "@/app/AppBootstrap";
+//import { AppBootstrap } from "@/app/AppBootstrap";
 
 import { setupInterceptors } from "@/api/client/interceptors";
 
@@ -15,7 +15,6 @@ setupInterceptors();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <AppBootstrap />
       <RouterProvider router={router} />
     </Provider>
   </StrictMode>,

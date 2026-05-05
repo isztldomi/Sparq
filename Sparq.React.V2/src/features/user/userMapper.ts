@@ -1,5 +1,5 @@
 import type { User } from "@/shared/types/user";
-import type { UserResponseDto } from "@/features/user/user.types";
+import type { UserResponseDto } from "@/features/user/userTypes";
 
 export const mapUser = (dto: UserResponseDto): User => {
   return {

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { emailSchema } from "./email.schema";
-import { passwordSchema } from "./password.schema";
+import { emailSchema } from "./emailSchema";
+import { passwordSchema } from "./passwordSchema";
 
 export const registerSchema = z.object({
   firstName: z

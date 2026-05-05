@@ -10,6 +10,8 @@ interface ProfilDetailsContainerProps {
   onNickNameChange: (value: string) => void;
   onSave: () => void;
   isSaving?: boolean;
+
+  nickNameError?: string;
 }
 
 interface DetailsContainerProps {
@@ -36,6 +38,7 @@ export function ProfilDetailsContainer({
   onNickNameChange,
   onSave,
   isSaving,
+  nickNameError,
 }: ProfilDetailsContainerProps) {
   const isDirty = value !== nickName;
 
@@ -45,11 +48,16 @@ export function ProfilDetailsContainer({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 w-full">
             <span>Nick Name:</span>
-            <input
-              value={value}
-              onChange={(e) => onNickNameChange(e.target.value)}
-              className="bg-transparent border px-2 py-1 w-full"
-            />
+            <div className="w-full">
+              <input
+                value={value}
+                onChange={(e) => onNickNameChange(e.target.value)}
+                className="bg-transparent border px-2 py-1 w-full"
+              />
+              {nickNameError && (
+                <p className="text-red-500 text-sm">{nickNameError}</p>
+              )}
+            </div>
           </div>
 
           <GreenButton
