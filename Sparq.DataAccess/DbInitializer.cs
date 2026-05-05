@@ -23,6 +23,8 @@ namespace Sparq.DataAccess
                 return; // DB has been seeded
             }
 
+            var hasher = new PasswordHasher<User>();
+
             var user = new User
             {
                 Id = "teszt_user_id",
@@ -31,8 +33,10 @@ namespace Sparq.DataAccess
                 FirstName = "Teszt_1",
                 LastName = "Teszt_1",
                 NickName = "Teszt_1",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                RefreshToken = Guid.NewGuid(),
             };
+            user.PasswordHash = hasher.HashPassword(user, "asdASD_1");
             context.Users.Add(user);
             context.SaveChanges();
         }

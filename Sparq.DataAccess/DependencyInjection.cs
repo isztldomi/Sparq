@@ -45,6 +45,7 @@ namespace Sparq.DataAccess
 
             // Services
             services.AddScoped<IAnswerService, AnswerService>();
+            services.AddScoped<IMediaService, MediaService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IParticipantAnswerService, ParticipantAnswerService>();
             services.AddScoped<IParticipantService, ParticipantService>();

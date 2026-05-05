@@ -19,6 +19,7 @@ namespace Sparq.DataAccess
         public DbSet<Participant> Participants { get; set; } = null!;
         public DbSet<ParticipantAnswer> ParticipantAnswers { get; set; } = null!;
         public DbSet<Message> Messages { get; set; } = null!;
+        public DbSet<Media> Media { get; set; } = null!;
 
 
         public SparqDbContext(DbContextOptions<SparqDbContext> options) : base(options)
@@ -46,6 +47,14 @@ namespace Sparq.DataAccess
                 .WithOne(a => a.Question)
                 .HasForeignKey(a => a.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Question>()
+                .HasOne(q => q.Media)
+                .WithOne()
+                .HasForeignKey<Question>(q => q.MediaId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Question>()
+                .HasIndex(q => q.MediaId)
+                .IsUnique();
         }
     }
 }
