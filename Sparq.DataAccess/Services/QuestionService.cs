@@ -59,7 +59,7 @@ namespace Sparq.DataAccess.Services
             existing.SnapshotId = updatedQuestion.SnapshotId;
             existing.Title = updatedQuestion.Title;
             existing.Text = updatedQuestion.Text;
-            existing.MediaUrl = updatedQuestion.MediaUrl;
+            existing.MediaId = updatedQuestion.MediaId;
             existing.TimeLimit = updatedQuestion.TimeLimit;
             existing.Point = updatedQuestion.Point;
 

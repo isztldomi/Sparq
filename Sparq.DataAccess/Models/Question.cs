@@ -15,7 +15,9 @@ namespace Sparq.DataAccess.Models
         public virtual Snapshot? Snapshot { get; set; }
         public string? Title { get; set; }
         public string? Text { get; set; }
-        public string? MediaUrl { get; set; }
+        public int? MediaId { get; set; }
+        [ForeignKey("MediaId")]
+        public virtual Media? Media { get; set; }
         public int? TimeLimit { get; set; }
         public int Point { get; set; }
         public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
