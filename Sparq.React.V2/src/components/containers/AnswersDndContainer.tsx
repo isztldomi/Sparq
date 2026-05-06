@@ -19,16 +19,20 @@ import type { AnswerUI } from "@/features/answer/answerTypes";
 
 type AnswersDndContainerProp = {
   answers: AnswerUI[];
+  indexQuestion: number;
   onReorderAnswer: (answers: AnswerUI[]) => void;
   onUpdateAnswer: (answerId: string, field: keyof AnswerUI, value: any) => void;
   onDeleteAnswer: (answerId: string) => void;
+  getClientError: (path: string) => string | undefined;
 };
 
 export function AnswersDndContainer({
   answers,
+  indexQuestion,
   onReorderAnswer,
   onUpdateAnswer,
   onDeleteAnswer,
+  getClientError,
 }: AnswersDndContainerProp) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -74,13 +78,16 @@ export function AnswersDndContainer({
         strategy={rectSortingStrategy}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 auto-rows-fr touch-none">
-          {answers.map((a) => (
+          {answers.map((a, index) => (
             <SortableAnswerContainer
               key={a.id}
               answer={a}
+              indexQuestion={indexQuestion}
+              indexAnswer={index}
               onUpdate={(field, value) => onUpdateAnswer(a.id, field, value)}
               onDelete={() => onDeleteAnswer(a.id)}
               isActive={activeId === a.id}
+              getClientError={getClientError}
             />
           ))}
         </div>

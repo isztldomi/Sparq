@@ -8,7 +8,7 @@ export interface QuestionResponseDto {
   id: number;
   title: string;
   text: string;
-  mediaUrl: string;
+  mediaId: string;
   point: number;
   answers: AnswerResponseDto[];
 }
@@ -16,13 +16,13 @@ export interface QuestionResponseDto {
 export interface QuestionCreateRequestDto {
   title: string;
   text: string;
-  mediaUrl: string | null;
+  mediaId: string | null;
   timeLimit: number;
   point: number;
   answers: AnswerCreateRequestDto[];
 }
 
-export type QuestionUI = Omit<QuestionCreateRequestDto, "mediaUrl"> & {
+export type QuestionUI = QuestionCreateRequestDto & {
   id: string;
   isOpen: boolean;
   answers: AnswerUI[];

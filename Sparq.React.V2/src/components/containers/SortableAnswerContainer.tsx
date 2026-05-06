@@ -7,14 +7,20 @@ import { RedButton } from "../buttons/redButton";
 
 type SortableAnswerContainerProps = {
   answer: AnswerUI;
+  indexQuestion: number;
+  indexAnswer: number;
   onUpdate: (field: keyof AnswerUI, value: any) => void;
   onDelete: () => void;
   isActive?: boolean;
+  getClientError: (path: string) => string | undefined;
 };
 export function SortableAnswerContainer({
   answer,
+  indexQuestion,
+  indexAnswer,
   onUpdate,
   onDelete,
+  getClientError,
 }: SortableAnswerContainerProps) {
   const {
     attributes,
@@ -44,7 +50,14 @@ export function SortableAnswerContainer({
           <textarea
             value={answer.text}
             onChange={(e) => onUpdate("text", e.target.value)}
-            className="bg-transparent outline-none w-full resize-none"
+            className={`bg-transparent outline-none w-full resize-none rounded-lg p-2 border
+            ${
+              getClientError(
+                `snapshots.0.questions.${indexQuestion}.answers.${indexAnswer}.text`,
+              )
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
           />
         </div>
         <div className="flex justify-between items-center w-full gap-4 h-10">
@@ -53,7 +66,12 @@ export function SortableAnswerContainer({
             onChange={(val) => onUpdate("isCorrect", val)}
             trueLabel="Correct"
             falseLabel="Wrong"
-            className="flex-1 h-full"
+            className={`flex-1 h-full border
+            ${
+              getClientError(`snapshots.0.questions.${indexQuestion}.answers`)
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
           ></GreenRedCheckbox>
           <RedButton onClick={onDelete} className="flex-1 h-full">
             Remove

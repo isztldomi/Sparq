@@ -1,17 +1,22 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authApi } from "@/features/auth/authApi";
 import { userApi } from "@/features/user/userApi";
-// import authReducer from "@/features/auth/auth.slice";
-// import userReducer from "@/features/user/user.slice";
+import { mediaApi } from "@/features/media/mediaApi";
+import { quizApi } from "@/features/quiz/quizApi";
 
 export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    [mediaApi.reducerPath]: mediaApi.reducer,
+    [quizApi.reducerPath]: quizApi.reducer,
   },
 
-  middleware: (gDM) => gDM().concat(authApi.middleware, userApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(
+      authApi.middleware,
+      userApi.middleware,
+      mediaApi.middleware,
+      quizApi.middleware,
+    ),
 });
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;

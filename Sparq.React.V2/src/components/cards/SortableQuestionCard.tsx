@@ -14,6 +14,7 @@ type SortableQuestionCardProps = {
   onAddAnswer: () => void;
   onUpdateAnswer: (answerId: string, field: keyof AnswerUI, value: any) => void;
   onDeleteAnswer: (answerId: string) => void;
+  getClientError: (path: string) => string | undefined;
 };
 
 export function SortableQuestionCard({
@@ -25,6 +26,7 @@ export function SortableQuestionCard({
   onAddAnswer,
   onUpdateAnswer,
   onDeleteAnswer,
+  getClientError,
 }: SortableQuestionCardProps) {
   return (
     <div className="rounded-lg p-4 flex flex-col gap-3">
@@ -39,17 +41,12 @@ export function SortableQuestionCard({
           value={question.text}
           onChange={(e) => onUpdateQuestion("text", e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
-          className="
-            w-full 
-            min-h-[80px]
-            bg-[var(--surface-5)] 
-            text-[var(--text-h)]
-            border border-transparent
-            rounded-lg 
-            p-2 
-            outline-none 
-            resize-none
-          "
+          className={`w-full min-h-[80px] bg-[var(--surface-5)] text-[var(--text-h)] rounded-lg p-2 outline-none resize-none border
+            ${
+              getClientError(`snapshots.0.questions.${indexQuestion}.text`)
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
         />
       </div>
 
@@ -99,11 +96,13 @@ export function SortableQuestionCard({
       {/* 4nd ROW - Answres */}
       <AnswersDndContainer
         answers={question.answers}
+        indexQuestion={indexQuestion}
         onReorderAnswer={(answers) => onUpdateQuestion("answers", answers)}
         onUpdateAnswer={(answerId, field, value) =>
           onUpdateAnswer(answerId, field, value)
         }
         onDeleteAnswer={(answerId) => onDeleteAnswer(answerId)}
+        getClientError={getClientError}
       />
 
       <div className="flex justify-center">
@@ -112,8 +111,7 @@ export function SortableQuestionCard({
         </GreenButton>
       </div>
 
-      {/* META */}
-      <div className="text-xs text-[var(--text-muted)]">ID: {question.id}</div>
+      {/* META <div className="text-xs text-[var(--text-muted)]">ID: {question.id}</div> */}
     </div>
   );
 }
