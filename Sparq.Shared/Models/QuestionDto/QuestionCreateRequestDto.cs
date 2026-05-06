@@ -13,8 +13,7 @@ namespace Sparq.Shared.Models.QuestionDto
         [StringLength(2000, MinimumLength = 3, ErrorMessage = "Text must be between 3 and 2000 characters.")]
         public string Text { get; set; } = string.Empty;
 
-        [StringLength(500, ErrorMessage = "Media URL cannot exceed 500 characters.")]
-        public string MediaUrl { get; set; } = string.Empty;
+        public int? MediaId { get; set; }
 
         [Required(ErrorMessage = "Time limit is required.")]
         [Range(10, 7200, ErrorMessage = "Time limit must be between 10 seconds and 2 hours.")]
@@ -31,11 +30,22 @@ namespace Sparq.Shared.Models.QuestionDto
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            Console.WriteLine($"Answers count: {Answers?.Count}");
+
+            if (Answers != null)
+            {
+                foreach (var a in Answers)
+                {
+                    Console.WriteLine($"Answer: {a.Text} IsCorrect: {a.IsCorrect}");
+                }
+            }
+
             if (Answers == null || !Answers.Any())
             {
                 yield return new ValidationResult(
                     "At least one answer is required.",
                     new[] { nameof(Answers) });
+
                 yield break;
             }
 

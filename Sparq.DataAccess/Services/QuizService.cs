@@ -90,5 +90,22 @@ namespace Sparq.DataAccess.Services
 
             return true;
         }
+
+        public async Task<(List<Quiz> Items, int TotalCount)> GetByUserPagedAsync(string userId, int page, int pageSize)
+        {
+            var query = _context.Quizzes
+                .Where(q => q.OwnerId == userId);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(q => q.UpdatedAt > q.CreatedAt ? q.UpdatedAt : q.CreatedAt)
+                .ThenByDescending(q => q.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }

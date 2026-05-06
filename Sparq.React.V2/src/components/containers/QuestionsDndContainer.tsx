@@ -30,6 +30,7 @@ type QuestionsDndContainerProps = {
     value: any,
   ) => void;
   onDeleteAnswer: (questionId: string, answerId: string) => void;
+  getClientError: (path: string) => string | undefined;
 };
 
 export function QuestionsDndContainer({
@@ -41,6 +42,7 @@ export function QuestionsDndContainer({
   onAddAnswer,
   onUpdateAnswer,
   onDeleteAnswer,
+  getClientError,
 }: QuestionsDndContainerProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
 
@@ -95,6 +97,7 @@ export function QuestionsDndContainer({
               }
               onDeleteAnswer={(answerId) => onDeleteAnswer(q.id, answerId)}
               draggingIdQuestion={draggingId}
+              getClientError={getClientError}
             />
           ))}
         </div>

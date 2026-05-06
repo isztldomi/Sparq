@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
 import { GreenButton } from "@/components/buttons/greenButton";
@@ -11,9 +12,24 @@ import { QuestionsDndContainer } from "@/components/containers/QuestionsDndConta
 import { arrayMove } from "@dnd-kit/sortable";
 import type { AnswerUI } from "@/features/answer/answerTypes";
 import { GreenRedCheckbox } from "@/components/checkbox/greenRedCheckbox";
+import { useUploadMediaMutation } from "@/features/media/mediaApi";
+import { useCreateQuizMutation } from "@/features/quiz/quizApi";
+import { mapQuizUIToDto } from "@/features/quiz/quizMapper";
+import type { ProblemDetails } from "@/api/models/ProblemDetails";
+import { flattenErrors } from "@/api/core/flattenErrors";
+import { quizSchema } from "@/schemas/quiz/quizSchema";
+import { buildErrorMap } from "@/utils/clientErrors/buildErrorMap";
 
 export function QuizCreatePage() {
-  const [serverErrors] = useState<{ field: string; message: string }[]>([]);
+  const navigate = useNavigate();
+  const [uploadMedia] = useUploadMediaMutation();
+  const [createQuiz] = useCreateQuizMutation();
+
+  const [serverErrors, setServerErrors] = useState<
+    { field: string; message: string }[]
+  >([]);
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const initialSnapshot: SnapshotUI = {
     title: "",
@@ -32,16 +48,34 @@ export function QuizCreatePage() {
 
   const snapshot = formData.snapshots[0];
 
+  function clamp(value: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, value));
+  }
+
   function updateSnapshot(field: keyof SnapshotUI, value: any) {
-    setFormData((prev) => ({
-      ...prev,
-      snapshots: [
-        {
-          ...prev.snapshots[0],
-          [field]: value,
-        },
-      ],
-    }));
+    setFormData((prev) => {
+      let newValue = value;
+
+      if (field === "timeLimit") {
+        const parsed = Number(value);
+
+        if (!isNaN(parsed)) {
+          newValue = clamp(Number(value), 10, 7200);
+        } else {
+          return prev;
+        }
+      }
+
+      return {
+        ...prev,
+        snapshots: [
+          {
+            ...prev.snapshots[0],
+            [field]: newValue,
+          },
+        ],
+      };
+    });
   }
 
   // ---------------------------
@@ -61,9 +95,21 @@ export function QuizCreatePage() {
 
   function updateQuestion(id: string, field: string, value: any) {
     setFormData((prev) => {
-      const questions = prev.snapshots[0].questions.map((q) =>
-        q.id === id ? { ...q, [field]: value } : q,
-      );
+      const questions = prev.snapshots[0].questions.map((q) => {
+        if (q.id !== id) return q;
+
+        let newValue = value;
+
+        if (field === "timeLimit") {
+          newValue = clamp(Number(value), 10, 7200);
+        }
+
+        if (field === "point") {
+          newValue = clamp(Number(value), 0, 10);
+        }
+
+        return { ...q, [field]: newValue };
+      });
 
       return {
         ...prev,
@@ -251,18 +297,81 @@ export function QuizCreatePage() {
     });
   }
 
+  // ---------------------------
+  // DONE
+  // ---------------------------
+  async function handleDone() {
+    const result = quizSchema.safeParse(formData);
+
+    if (!result.success) {
+      const errorMap = buildErrorMap(result.error.issues);
+
+      setFormErrors(errorMap);
+
+      console.log("ERROR MAP:", errorMap);
+      return;
+    }
+
+    setFormErrors({});
+
+    try {
+      const snapshot = formData.snapshots[0];
+
+      // 1. UPLOAD MINDEN KÉPHEZ
+      const questionsWithMedia = await Promise.all(
+        snapshot.questions.map(async (q) => {
+          if (!q.mediaFile) {
+            return q;
+          }
+
+          const res = await uploadMedia(q.mediaFile).unwrap();
+
+          return {
+            ...q,
+            mediaId: res.id,
+          };
+        }),
+      );
+
+      // 2. új snapshot összerakása
+      const finalFormData = {
+        ...formData,
+        snapshots: [
+          {
+            ...snapshot,
+            questions: questionsWithMedia,
+          },
+        ],
+      };
+
+      // 3. DTO mapping
+      const dto = mapQuizUIToDto(finalFormData);
+
+      // 4. QUIZ CREATE
+      await createQuiz(dto).unwrap();
+      navigate(`/my-quizzes`);
+
+      console.log("QUIZ CREATED");
+    } catch (err: unknown) {
+      const error = err as { data?: ProblemDetails };
+      setServerErrors(flattenErrors(error.data?.errors));
+    }
+  }
+
+  // ---------------------------
+  // FRONTEND ERRORS
+  // ---------------------------
+  function getClientError(path: string) {
+    return formErrors[path];
+  }
+
   return (
     <div className="min-h-screen p-4 flex flex-col gap-6">
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-xl">Quiz Create</h1>
 
-        <GreenButton
-          className="w-30 h-10"
-          onClick={() => {
-            console.log("FORM DATA:", structuredClone(formData));
-          }}
-        >
+        <GreenButton className="w-30 h-10" onClick={handleDone}>
           Done
         </GreenButton>
       </div>
@@ -283,7 +392,14 @@ export function QuizCreatePage() {
             className="w-30 h-10"
           />
           {/* TIMELIMIT */}
-          <div className="flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)]">
+          <div
+            className={`flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)] border
+                          ${
+                            getClientError(`snapshots.0.timeLimit`)
+                              ? "border-[var(--error-text)]"
+                              : "border-transparent"
+                          }`}
+          >
             <div className="whitespace-pre">Time Limit:</div>
             <input
               type="number"
@@ -296,48 +412,67 @@ export function QuizCreatePage() {
           </div>
 
           {/* PINCODE */}
-          <div className="flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)]">
-            <div className="whitespace-pre">Pin Code:</div>
+          <div>
+            <div
+              className={`flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)] border
+                          ${
+                            getClientError(`snapshots.0.pinCode`)
+                              ? "border-[var(--error-text)]"
+                              : "border-transparent"
+                          }`}
+            >
+              <div className="whitespace-pre">Pin Code:</div>
 
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={snapshot.pinCode}
-              onChange={(e) => updateSnapshot("pinCode", e.target.value)}
-              onPointerDown={(e) => e.stopPropagation()}
-              className="w-full text-right outline-none text-[var(--text-h)] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-            />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={snapshot.pinCode}
+                onChange={(e) => updateSnapshot("pinCode", e.target.value)}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="w-full text-right outline-none text-[var(--text-h)] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+              />
+            </div>
           </div>
         </div>
 
         {/* TITLE INPUT */}
-        <input
-          value={snapshot.title}
-          onChange={(e) => updateSnapshot("title", e.target.value)}
-          onPointerDown={(e) => e.stopPropagation()}
-          placeholder="Quiz Title"
-          className="flex-1 min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none"
-        />
+        <div>
+          <input
+            value={snapshot.title}
+            onChange={(e) => updateSnapshot("title", e.target.value)}
+            onPointerDown={(e) => e.stopPropagation()}
+            placeholder="Quiz Title"
+            className={`flex-1 w-full min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none border
+            ${
+              getClientError(`snapshots.0.title`)
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
+          />
+        </div>
 
-        <textarea
-          placeholder="Quiz Description"
-          value={snapshot.description}
-          onChange={(e) => updateSnapshot("description", e.target.value)}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="
-            w-full 
-            min-h-[80px]
-            bg-[var(--surface-5)] 
-            text-[var(--text-h)]
-            border border-transparent
-            rounded-lg 
-            p-2 
-            outline-none
-          "
-        />
+        <div>
+          <textarea
+            placeholder="Quiz Description"
+            value={snapshot.description}
+            onChange={(e) => updateSnapshot("description", e.target.value)}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`w-full min-h-[80px] bg-[var(--surface-5)] text-[var(--text-h)] rounded-lg p-2 outline-none border
+            ${
+              getClientError(`snapshots.0.description`)
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
+          />
+        </div>
       </div>
 
+      {getClientError("snapshots.0.questions") && (
+        <p className="text-[var(--error-text)]">
+          {getClientError("snapshots.0.questions")}
+        </p>
+      )}
       {/* QUESTIONS */}
       <QuestionsDndContainer
         questions={snapshot.questions}
@@ -348,6 +483,7 @@ export function QuizCreatePage() {
         onAddAnswer={addAnswer}
         onUpdateAnswer={updateAnswer}
         onDeleteAnswer={removeAnswer}
+        getClientError={getClientError}
       />
       {/* ADD */}
       <div className="flex justify-center relative z-50">

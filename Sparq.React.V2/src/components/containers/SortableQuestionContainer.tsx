@@ -18,6 +18,7 @@ type SortableQuestionContainerProps = {
   onUpdateAnswer: (answerId: string, field: keyof AnswerUI, value: any) => void;
   onDeleteAnswer: (answerId: string) => void;
   draggingIdQuestion?: string | null;
+  getClientError: (path: string) => string | undefined;
 };
 
 export function SortableQuestionContainer({
@@ -31,6 +32,7 @@ export function SortableQuestionContainer({
   onUpdateAnswer,
   onDeleteAnswer,
   draggingIdQuestion,
+  getClientError,
 }: SortableQuestionContainerProps) {
   const isDragging = draggingIdQuestion === question.id;
 
@@ -76,11 +78,23 @@ export function SortableQuestionContainer({
           onChange={(e) => onUpdateQuestion("title", e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
           placeholder={`${indexQuestion + 1} Question Title`}
-          className="flex-1 min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none"
+          className={`flex-1 min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none border
+            ${
+              getClientError(`snapshots.0.questions.${indexQuestion}.title`)
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
         />
 
         {/* TIMELIMIT */}
-        <div className="flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)]">
+        <div
+          className={`flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)] border
+            ${
+              getClientError(`snapshots.0.questions.${indexQuestion}.timeLimit`)
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
+        >
           <input
             type="number"
             value={question.timeLimit}
@@ -94,7 +108,14 @@ export function SortableQuestionContainer({
         </div>
 
         {/* POINT */}
-        <div className="flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)]">
+        <div
+          className={`flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)] border
+            ${
+              getClientError(`snapshots.0.questions.${indexQuestion}.point`)
+                ? "border-[var(--error-text)]"
+                : "border-transparent"
+            }`}
+        >
           <input
             type="number"
             value={question.point}
@@ -102,7 +123,7 @@ export function SortableQuestionContainer({
             onPointerDown={(e) => e.stopPropagation()}
             className="w-full text-right outline-none text-[var(--text-h)]"
           />
-          <span className="text-[var(--text-h)] text-[var(--text-h)]">s</span>
+          <span className="text-[var(--text-h)] text-[var(--text-h)]">p</span>
         </div>
 
         {/* TOGGLE */}
@@ -131,6 +152,7 @@ export function SortableQuestionContainer({
           onAddAnswer={onAddAnswer}
           onUpdateAnswer={onUpdateAnswer}
           onDeleteAnswer={onDeleteAnswer}
+          getClientError={getClientError}
         />
       </div>
     </div>
