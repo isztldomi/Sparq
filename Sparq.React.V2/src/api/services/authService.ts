@@ -10,6 +10,14 @@ export function loginApi(data: LoginRequestDto): Promise<LoginResponseDto> {
   return post("/users/login", data);
 }
 
+export function refreshTokenApi(
+  refreshToken: string,
+): Promise<LoginResponseDto> {
+  return post("/users/refresh", {
+    refreshToken,
+  });
+}
+
 export function registerApi(
   data: RegisterRequestDto,
 ): Promise<UserResponseDto> {

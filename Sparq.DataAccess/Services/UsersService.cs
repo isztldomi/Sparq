@@ -58,18 +58,21 @@ namespace Sparq.DataAccess.Services
             return (accessToken, user.RefreshToken?.ToString(), user.Id, null);
         }
 
-        public async Task<(string authToken, string refreshToken, string userId)> RedeemRefreshTokenAsync(string refreshToken)
+        public async Task<(string? authToken, string? refreshToken, string? userId, string? error)>
+            RedeemRefreshTokenAsync(string refreshToken)
         {
             if (!Guid.TryParse(refreshToken, out var parsedToken))
-                throw new AccessViolationException("Invalid refresh token");
+                return (null, null, null, "Invalid refresh token");
 
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == parsedToken);
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.RefreshToken == parsedToken);
+
             if (user == null)
-                throw new AccessViolationException("Invalid refresh token");
+                return (null, null, null, "Invalid refresh token");
 
             var accessToken = await GenerateJwtTokenAsync(user);
 
-            return (accessToken, refreshToken, user.Id);
+            return (accessToken, refreshToken, user.Id, null);
         }
 
         public async Task LogoutAsync()
