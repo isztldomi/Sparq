@@ -39,14 +39,27 @@ namespace Sparq.WebApi.Controllers
         /// <param name="id">The quiz identifier.</param>
         /// <returns>The quiz if found.</returns>
         [HttpGet("{id}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(QuizResponseDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             var quizEntity = await _quizService.GetByIdAsync(id);
 
             if (quizEntity == null)
                 return NotFound();
+
+            if (quizEntity.OwnerId != user.Id)
+            {
+                return Forbid();
+            }
 
             var response = _mapper.Map<QuizResponseDto>(quizEntity);
 

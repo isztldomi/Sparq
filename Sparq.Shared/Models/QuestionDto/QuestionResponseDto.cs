@@ -10,7 +10,8 @@ namespace Sparq.Shared.Models.QuestionDto
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Text { get; set; } = string.Empty;
-        public int? MediaId{ get; set; } 
+        public int? MediaId { get; set; } = null;
+        public int TimeLimit { get; set; }
         public int Point { get; set; }
         public List<AnswerResponseDto> Answers { get; set; } = new();
     }

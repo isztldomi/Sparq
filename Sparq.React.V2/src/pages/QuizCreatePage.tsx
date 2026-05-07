@@ -190,13 +190,10 @@ export function QuizCreatePage() {
         if (q.id !== questionId) return q;
 
         const answers = q.answers.map((a) => {
-          // ha ez az aktuális answer
           if (a.id === answerId) {
             return { ...a, [field]: value };
           }
 
-          // 👇 EZ A LÉNYEG
-          // ha isCorrect-et állítunk true-ra, minden más legyen false
           if (field === "isCorrect" && value === true) {
             return { ...a, isCorrect: false };
           }
@@ -317,7 +314,6 @@ export function QuizCreatePage() {
     try {
       const snapshot = formData.snapshots[0];
 
-      // 1. UPLOAD MINDEN KÉPHEZ
       const questionsWithMedia = await Promise.all(
         snapshot.questions.map(async (q) => {
           if (!q.mediaFile) {
@@ -333,7 +329,6 @@ export function QuizCreatePage() {
         }),
       );
 
-      // 2. új snapshot összerakása
       const finalFormData = {
         ...formData,
         snapshots: [
@@ -342,12 +337,10 @@ export function QuizCreatePage() {
             questions: questionsWithMedia,
           },
         ],
-      };
+      } as QuizUI;
 
-      // 3. DTO mapping
       const dto = mapQuizUIToDto(finalFormData);
 
-      // 4. QUIZ CREATE
       await createQuiz(dto).unwrap();
       navigate(`/my-quizzes`);
 
