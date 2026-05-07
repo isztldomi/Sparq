@@ -110,7 +110,7 @@ namespace Sparq.WebApi.Controllers
         [HttpPost]
         [Route("login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDto))]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login(LoginRequestDto dto)
         {
             var (token, refreshToken, userId, error) =
@@ -118,15 +118,14 @@ namespace Sparq.WebApi.Controllers
 
             if (error != null)
             {
-                return Unauthorized(new ValidationProblemDetails(
+                return BadRequest(new ValidationProblemDetails(
                     new Dictionary<string, string[]>
                     {
-                { "User", new[] { error } }
-                    }
-                )
+                { "User", new[] { "Invalid email or password" } }
+                    })
                 {
-                    Title = "Authentication failed",
-                    Status = StatusCodes.Status401Unauthorized
+                    Title = "Login failed",
+                    Status = StatusCodes.Status400BadRequest
                 });
             }
 
@@ -143,21 +142,35 @@ namespace Sparq.WebApi.Controllers
         /// </summary>
         /// <param name="redeemRefreshTokenRequestDto"></param>
         /// <returns>New authentication and refresh tokens.</returns>
-        [HttpPost]
-        [Route("refresh")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(LoginResponseDto))]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> RedeemRefreshToken([FromBody] RedeemRefreshTokenRequestDto redeemRefreshTokenRequestDto)
+        [HttpPost("refresh")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDto))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RedeemRefreshToken(
+            [FromBody] RedeemRefreshTokenRequestDto redeemRefreshTokenRequestDto)
         {
             var refreshToken = redeemRefreshTokenRequestDto.RefreshToken;
 
-            var (authToken, newRefreshToken, userId) = await _usersService.RedeemRefreshTokenAsync(refreshToken);
+            var (authToken, newRefreshToken, userId, error) =
+                await _usersService.RedeemRefreshTokenAsync(refreshToken);
+
+            if (error != null)
+            {
+                return Unauthorized(new ValidationProblemDetails(
+                    new Dictionary<string, string[]>
+                    {
+                { "RefreshToken", new[] { error } }
+                    })
+                {
+                    Title = "Authentication failed",
+                    Status = StatusCodes.Status401Unauthorized
+                });
+            }
 
             var loginResponseDto = new LoginResponseDto
             {
-                UserId = userId,
-                AuthToken = authToken,
-                RefreshToken = newRefreshToken,
+                UserId = userId!,
+                AuthToken = authToken!,
+                RefreshToken = newRefreshToken!,
             };
 
             return Ok(loginResponseDto);

@@ -10,7 +10,7 @@ namespace Sparq.DataAccess.Services
     {
         Task<IdentityResult> AddUserAsync(User user, string password);
         Task<(string? authToken, string? refreshToken, string? userId, string? error)> LoginAsync(string email, string password);
-        Task<(string authToken, string refreshToken, string userId)> RedeemRefreshTokenAsync(string refreshToken);
+        Task<(string? authToken, string? refreshToken, string? userId, string? error)> RedeemRefreshTokenAsync(string refreshToken);
         Task LogoutAsync();
         Task<User?> GetCurrentUserAsync();
         string? GetCurrentUserId();
