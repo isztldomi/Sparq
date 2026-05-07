@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { quizApi, useGetQuizByIdApiQuery } from "@/features/quiz/quizApi";
+import {
+  useDeactivateQuizMutation,
+  useGetQuizByIdQuery,
+} from "@/features/quiz/quizApi";
 import { useParams } from "react-router-dom";
 import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
 import type { QuizUI } from "@/features/quiz/quizTypes";
@@ -19,35 +22,76 @@ import { useUploadMediaMutation } from "@/features/media/mediaApi";
 import { flattenErrors } from "@/api/core/flattenErrors";
 import { mapSnapshotUIToDto } from "@/features/snapshot/snapshotMapper";
 import { useCreateSnapshotMutation } from "@/features/snapshot/snapshotApi";
-import { useAppDispatch } from "@/app/hooks";
+import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
+import { getMediaBlobApi } from "@/api/services/mediaService";
+import { v4 as uuidv4 } from "uuid";
+import { RedButton } from "@/components/buttons/redButton";
 
 export function QuizModifyPage() {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [uploadMedia] = useUploadMediaMutation();
-
+  const [deactivateQuiz] = useDeactivateQuizMutation();
   const [createSnapshot] = useCreateSnapshotMutation();
 
   const { id } = useParams();
 
-  const { data, isLoading, isError, error } = useGetQuizByIdApiQuery(
-    Number(id),
-  );
+  const { data, isLoading, isError, error } = useGetQuizByIdQuery(Number(id));
 
   const [serverErrors, setServerErrors] = useState<
     { field: string; message: string }[]
   >([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [nextIdQuestion, setNextIdQuestion] = useState(1);
-  const [nextIdAnswer, setNextIdAnswer] = useState(1);
   const [formData, setFormData] = useState<QuizUI | null>(null);
 
   useEffect(() => {
-    if (data) {
-      setFormData(mapQuizDtoToUI(data));
-    }
-  }, [data]);
+    async function loadQuiz() {
+      if (!data) return;
 
+      const mapped = mapQuizDtoToUI(data);
+
+      const questionsWithPreview = await Promise.all(
+        mapped.snapshots[0].questions.map(async (q) => {
+          if (!q.mediaId) {
+            return q;
+          }
+
+          try {
+            const blob = await getMediaBlobApi(q.mediaId);
+
+            console.log("BLOB", blob);
+
+            const previewUrl = URL.createObjectURL(blob);
+
+            console.log("PREVIEW URL", previewUrl);
+
+            return {
+              ...q,
+              mediaPreviewUrl: previewUrl,
+            };
+          } catch (err) {
+            console.error(err);
+            return q;
+          }
+        }),
+      );
+
+      const finalData = {
+        ...mapped,
+        snapshots: [
+          {
+            ...mapped.snapshots[0],
+            questions: questionsWithPreview,
+          },
+        ],
+      };
+
+      console.log(finalData);
+
+      setFormData(finalData);
+    }
+
+    loadQuiz();
+  }, [data]);
   if (isLoading) return <LoadingIndicator />;
   if (isError) return <div>Error</div>;
   if (!formData) return <LoadingIndicator />;
@@ -142,7 +186,7 @@ export function QuizModifyPage() {
     setFormData((prev) => {
       if (!prev) return prev;
       const newQuestion: QuestionUI = {
-        id: String(nextIdQuestion),
+        id: uuidv4(),
         isOpen: false,
         title: "",
         text: "",
@@ -240,7 +284,7 @@ export function QuizModifyPage() {
         if (q.id !== questionId) return q;
 
         const newAnswer: AnswerUI = {
-          id: String(nextIdAnswer),
+          id: uuidv4(),
           text: "",
           isCorrect: false,
         };
@@ -366,7 +410,7 @@ export function QuizModifyPage() {
 
       await createSnapshot(dto).unwrap();
 
-      dispatch(quizApi.util.resetApiState());
+      // dispatch(quizApi.util.resetApiState());
       navigate(`/my-quizzes`);
 
       console.log("Snapshot CREATED");
@@ -376,6 +420,22 @@ export function QuizModifyPage() {
     }
 
     return null;
+  }
+
+  // ---------------------------
+  // Delete
+  // ---------------------------
+  async function handleDeactivate() {
+    try {
+      await deactivateQuiz(Number(id)).unwrap();
+
+      navigate(`/my-quizzes`);
+
+      console.log("Deleted");
+    } catch (err: unknown) {
+      const error = err as { data?: ProblemDetails };
+      setServerErrors(flattenErrors(error.data?.errors));
+    }
   }
 
   // ---------------------------
@@ -391,10 +451,16 @@ export function QuizModifyPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-xl">Quiz Create</h1>
 
-        <GreenButton className="w-30 h-10" onClick={handleDone}>
-          Done
-        </GreenButton>
+        <div className="flex flex-wrap gap-5">
+          <RedButton className="w-30 h-10" onClick={handleDeactivate}>
+            Delete
+          </RedButton>
+          <GreenButton className="w-30 h-10" onClick={handleDone}>
+            Save
+          </GreenButton>
+        </div>
       </div>
+      <ErrorsContainer serverErrors={serverErrors} />
 
       <div className="flex flex-col gap-2 bg-[var(--surface-4)] p-2 rounded-lg">
         <div className="flex flex-wrap gap-x-4 gap-y-2 w-full">

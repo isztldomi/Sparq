@@ -1,5 +1,5 @@
 import type { PagedResult } from "@/features/page/pageTypes";
-import { post, get } from "../http/http";
+import { post, get, patch } from "../http/http";
 import type {
   MyQuizListDto,
   QuizCreateRequestDto,
@@ -21,4 +21,8 @@ export function getMyQuizzesApi(
 
 export function getQuizByIdApi(id: number): Promise<QuizResponseDto> {
   return get(`/quiz/${id}`);
+}
+
+export function deactivateQuizByIdApi(id: number): Promise<void> {
+  return patch<void, void>(`/quiz/${id}/deactivate`);
 }

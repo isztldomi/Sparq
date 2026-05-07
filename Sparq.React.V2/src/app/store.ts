@@ -1,25 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { authApi } from "@/features/auth/authApi";
-import { userApi } from "@/features/user/userApi";
-import { mediaApi } from "@/features/media/mediaApi";
-import { quizApi } from "@/features/quiz/quizApi";
-import { snapshotApi } from "@/features/snapshot/snapshotApi";
+import { baseApi } from "@/features/base/baseApi";
 
 export const store = configureStore({
   reducer: {
-    [authApi.reducerPath]: authApi.reducer,
-    [userApi.reducerPath]: userApi.reducer,
-    [mediaApi.reducerPath]: mediaApi.reducer,
-    [quizApi.reducerPath]: quizApi.reducer,
-    [snapshotApi.reducerPath]: snapshotApi.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
-      authApi.middleware,
-      userApi.middleware,
-      mediaApi.middleware,
-      quizApi.middleware,
-      snapshotApi.middleware,
-    ),
+    getDefaultMiddleware().concat(baseApi.middleware),
 });

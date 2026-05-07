@@ -1,58 +1,69 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "@/features/base/baseApi";
 import {
   createQuizApi,
+  deactivateQuizByIdApi,
   getMyQuizzesApi,
   getQuizByIdApi,
 } from "@/api/services/quizService";
 import { toApiError } from "@/api/core/toApiError";
-import type { PagedResult } from "../page/pageTypes";
-import type { MyQuizListDto, QuizResponseDto } from "./quizTypes";
 
-export const quizApi = createApi({
-  reducerPath: "quizApi",
-  baseQuery: async () => ({ data: {} }),
-
-  tagTypes: ["Quiz"],
-
+export const quizApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createQuiz: builder.mutation<any, any>({
       async queryFn(payload) {
         try {
-          const dto = await createQuizApi(payload);
-          return { data: dto };
+          return { data: await createQuizApi(payload) };
         } catch (e) {
           return { error: toApiError(e) };
         }
       },
-      invalidatesTags: ["Quiz"],
+      invalidatesTags: [{ type: "Quiz", id: "LIST" }],
     }),
-    getMyQuizzes: builder.query<
-      PagedResult<MyQuizListDto>,
-      { page: number; pageSize: number }
-    >({
+
+    getMyQuizzes: builder.query({
       async queryFn({ page, pageSize }) {
         try {
-          const dto = await getMyQuizzesApi(page, pageSize);
-          return { data: dto };
+          return { data: await getMyQuizzesApi(page, pageSize) };
         } catch (e) {
           return { error: toApiError(e) };
         }
       },
 
-      providesTags: ["Quiz"],
+      providesTags: (result) =>
+        result
+          ? [
+              { type: "Quiz", id: "LIST" },
+              ...result.items.map((q) => ({ type: "Quiz", id: q.id })),
+            ]
+          : [{ type: "Quiz", id: "LIST" }],
     }),
-    getQuizByIdApi: builder.query<QuizResponseDto, number>({
+
+    getQuizById: builder.query({
       async queryFn(id) {
         try {
-          const dto = await getQuizByIdApi(id);
-
-          return { data: dto };
+          return { data: await getQuizByIdApi(id) };
         } catch (e) {
           return { error: toApiError(e) };
         }
       },
 
-      providesTags: (_result, _error, id) => [{ type: "Quiz", id }],
+      providesTags: (_r, _e, id) => [{ type: "Quiz", id }],
+    }),
+
+    deactivateQuiz: builder.mutation({
+      async queryFn(id) {
+        try {
+          await deactivateQuizByIdApi(id);
+          return { data: undefined };
+        } catch (e) {
+          return { error: toApiError(e) };
+        }
+      },
+
+      invalidatesTags: (_r, _e, id) => [
+        { type: "Quiz", id },
+        { type: "Quiz", id: "LIST" },
+      ],
     }),
   }),
 });
@@ -60,5 +71,6 @@ export const quizApi = createApi({
 export const {
   useCreateQuizMutation,
   useGetMyQuizzesQuery,
-  useGetQuizByIdApiQuery,
+  useGetQuizByIdQuery,
+  useDeactivateQuizMutation,
 } = quizApi;

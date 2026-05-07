@@ -49,12 +49,9 @@ namespace Sparq.DataAccess
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Question>()
                 .HasOne(q => q.Media)
-                .WithOne()
-                .HasForeignKey<Question>(q => q.MediaId)
+                .WithMany()
+                .HasForeignKey(q => q.MediaId)
                 .OnDelete(DeleteBehavior.SetNull);
-            modelBuilder.Entity<Question>()
-                .HasIndex(q => q.MediaId)
-                .IsUnique();
         }
     }
 }

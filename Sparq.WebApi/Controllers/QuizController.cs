@@ -153,5 +153,33 @@ namespace Sparq.WebApi.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Deactivates (soft deletes) a quiz
+        /// </summary>
+        [HttpPatch("{id}/deactivate")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            var quiz = await _quizService.GetByIdAsync(id);
+
+            if (quiz == null)
+                return NotFound();
+
+            if (quiz.OwnerId != user.Id)
+                return Forbid();
+
+            await _quizService.DeactivateAsync(id, user.Id);
+
+            return NoContent();
+        }
     }
 }

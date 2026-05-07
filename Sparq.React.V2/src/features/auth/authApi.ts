@@ -1,17 +1,14 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "@/features/base/baseApi";
 import { loginApi, registerApi } from "@/api/services/authService";
+import { toApiError } from "@/api/core/toApiError";
 import type {
   LoginRequestDto,
   LoginResponseDto,
   RegisterRequestDto,
 } from "@/features/auth/authTypes";
-import { toApiError } from "@/api/core/toApiError";
 import type { UserResponseDto } from "../user/userTypes";
 
-export const authApi = createApi({
-  reducerPath: "authApi",
-  baseQuery: async () => ({ data: {} }),
-
+export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponseDto, LoginRequestDto>({
       async queryFn(data) {

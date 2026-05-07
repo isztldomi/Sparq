@@ -60,6 +60,7 @@ export function SortableQuestionCard({
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) {
+                onUpdateQuestion("mediaId", null);
                 onUpdateQuestion("mediaFile", null);
                 onUpdateQuestion("mediaPreviewUrl", null);
                 return;
@@ -85,7 +86,9 @@ export function SortableQuestionCard({
           {question.mediaPreviewUrl && (
             <div className="w-full max-w-[300px]">
               <img
-                src={question.mediaPreviewUrl}
+                src={question.mediaPreviewUrl ?? undefined}
+                onLoad={() => console.log("IMAGE LOADED")}
+                onError={() => console.log("IMAGE ERROR")}
                 className="w-full h-[150px] object-cover"
               />
             </div>
