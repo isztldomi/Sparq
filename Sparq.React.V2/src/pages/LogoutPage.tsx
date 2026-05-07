@@ -9,6 +9,7 @@ import { quizApi } from "@/features/quiz/quizApi";
 import { mediaApi } from "@/features/media/mediaApi";
 
 import { clearAuth } from "@/features/auth/authStorage";
+import { snapshotApi } from "@/features/snapshot/snapshotApi";
 
 export function LogoutPage() {
   const dispatch = useAppDispatch();
@@ -23,6 +24,7 @@ export function LogoutPage() {
     dispatch(userApi.util.resetApiState());
     dispatch(quizApi.util.resetApiState());
     dispatch(mediaApi.util.resetApiState());
+    dispatch(snapshotApi.util.resetApiState());
 
     // redirect
     navigate("/profile/login", {

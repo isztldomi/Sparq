@@ -4,28 +4,29 @@ import type {
   AnswerUI,
 } from "@/features/answer/answerTypes";
 
-export interface QuestionResponseDto {
+export type QuestionResponseDto = {
   id: number;
   title: string;
   text: string;
-  mediaId: string;
+  mediaId: string | null;
+  timeLimit: number;
   point: number;
   answers: AnswerResponseDto[];
-}
+};
 
-export interface QuestionCreateRequestDto {
+export type QuestionCreateRequestDto = {
   title: string;
   text: string;
   mediaId: string | null;
   timeLimit: number;
   point: number;
   answers: AnswerCreateRequestDto[];
-}
+};
 
-export type QuestionUI = QuestionCreateRequestDto & {
+export type QuestionUI = Omit<QuestionCreateRequestDto, "answers"> & {
   id: string;
   isOpen: boolean;
-  answers: AnswerUI[];
   mediaFile: File | null;
   mediaPreviewUrl: string | null;
+  answers: AnswerUI[];
 };

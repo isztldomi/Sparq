@@ -1,11 +1,42 @@
-import type { SnapshotCreateFromQuizRequestDto } from "@/features/snapshot/snapshotTypes";
+import type {
+  SnapshotCreateFromQuizRequestDto,
+  SnapshotCreateRequestDto,
+  SnapshotResponseDto,
+} from "@/features/snapshot/snapshotTypes";
 import type { SnapshotUI } from "@/features/snapshot/snapshotTypes";
-import { mapQuestionUIToDto } from "@/features/question/questionMapper";
+import {
+  mapQuestionUIToDto,
+  mapQuestionDtoToUI,
+} from "@/features/question/questionMapper";
 
-export function mapSnapshotUIToDto(
+export function mapSnapshotUIToSnapshotCreateFromQuizRequestDto(
   s: SnapshotUI,
 ): SnapshotCreateFromQuizRequestDto {
   return {
+    title: s.title,
+    description: s.description,
+    timeLimit: s.timeLimit,
+    pinCode: s.pinCode,
+    questions: s.questions.map(mapQuestionUIToDto),
+  };
+}
+
+export function mapSnapshotDtoToUI(s: SnapshotResponseDto): SnapshotUI {
+  return {
+    title: s.title,
+    description: s.description,
+    timeLimit: s.timeLimit,
+    pinCode: s.pinCode,
+    questions: s.questions.map(mapQuestionDtoToUI),
+  };
+}
+
+export function mapSnapshotUIToDto(
+  s: SnapshotUI,
+  quizId: string,
+): SnapshotCreateRequestDto {
+  return {
+    quizId: quizId,
     title: s.title,
     description: s.description,
     timeLimit: s.timeLimit,

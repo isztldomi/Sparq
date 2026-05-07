@@ -4,21 +4,22 @@ import type {
   QuestionUI,
 } from "@/features/question/questionTypes";
 
-export interface SnapshotResponseDto {
+export type SnapshotResponseDto = {
   id: number;
   title: string;
   description: string;
   timeLimit: number;
+  pinCode: string;
   questions: QuestionResponseDto[];
-}
+};
 
-export interface SnapshotCreateFromQuizRequestDto {
+export type SnapshotCreateFromQuizRequestDto = {
   title: string;
   description: string;
   timeLimit: number;
   pinCode: string;
   questions: QuestionCreateRequestDto[];
-}
+};
 
 export type SnapshotUI = Omit<SnapshotCreateFromQuizRequestDto, "questions"> & {
   questions: QuestionUI[];
