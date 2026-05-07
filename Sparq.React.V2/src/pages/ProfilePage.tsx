@@ -65,7 +65,10 @@ export function ProfilePage() {
         <h1 className="text-xl">Profile</h1>
 
         {user && (
-          <RedButton className="w-30 h-10" onClick={() => navigate("/logout")}>
+          <RedButton
+            className="w-30 h-10"
+            onClick={() => navigate("/profile/logout")}
+          >
             Logout
           </RedButton>
         )}
@@ -78,7 +81,7 @@ export function ProfilePage() {
           <div className="flex justify-center">
             <GreenButton
               className="w-50 h-20"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/profile/login")}
             >
               <span className="text-2xl">Login</span>
             </GreenButton>
@@ -87,7 +90,7 @@ export function ProfilePage() {
           <div className="flex justify-center">
             <GreenButton
               className="w-50 h-20"
-              onClick={() => navigate("/register")}
+              onClick={() => navigate("/profile/register")}
             >
               <span className="text-2xl">Registration</span>
             </GreenButton>

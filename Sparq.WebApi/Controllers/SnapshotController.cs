@@ -13,18 +13,23 @@ namespace Sparq.WebApi.Controllers
     [Route("api/[controller]")]
     public class SnapshotController : ControllerBase
     {
-        private readonly ISnapshotService _snapshotService;
         private readonly IMapper _mapper;
+        private readonly ISnapshotService _snapshotService;
+        private readonly IUsersService _usersService;
+        private readonly IQuizService _quizService;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SnapshotController"/> class.
         /// </summary>
         /// <param name="mapper">Mapper instance for DTO-entity conversions.</param>
         /// <param name="snapshotService">Service handling snapshot business logic.</param>
-        public SnapshotController(IMapper mapper, ISnapshotService snapshotService)
+        public SnapshotController(IMapper mapper, ISnapshotService snapshotService, IUsersService usersService, IQuizService quizService)
         {
             _mapper = mapper;
             _snapshotService = snapshotService;
+            _usersService = usersService;
+            _quizService = quizService;
         }
 
         /// <summary>
@@ -68,11 +73,34 @@ namespace Sparq.WebApi.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SnapshotResponseDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Create([FromBody] SnapshotCreateRequestDto snapshotCreateRequestDto)
         {
+            // aktuális user
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            // quiz lekérése
+            var quiz = await _quizService.GetByIdAsync(snapshotCreateRequestDto.QuizId);
+
+            if (quiz == null)
+                return NotFound("Quiz not found.");
+
+            // ownership check
+            if (quiz.OwnerId != user.Id)
+                return Forbid();
+
+
             var snapshotEntity = _mapper.Map<Snapshot>(snapshotCreateRequestDto);
+
             var createdSnapshot = await _snapshotService.CreateAsync(snapshotEntity);
+
             var response = _mapper.Map<SnapshotResponseDto>(createdSnapshot);
+
             return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
         }
     }

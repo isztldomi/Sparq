@@ -18,3 +18,7 @@ export function getMyQuizzesApi(
 ): Promise<PagedResult<MyQuizListDto>> {
   return get(`/quiz/mine?page=${page}&pageSize=${pageSize}`);
 }
+
+export function getQuizByIdApi(id: number): Promise<QuizResponseDto> {
+  return get(`/quiz/${id}`);
+}

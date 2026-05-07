@@ -36,7 +36,6 @@ namespace Sparq.WebApi.Controllers
         /// Get current logged-in user from token
         /// </summary>
         [HttpGet]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponseDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

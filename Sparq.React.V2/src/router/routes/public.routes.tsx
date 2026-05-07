@@ -17,15 +17,15 @@ export const publicRoutes: RouteObject[] = [
     element: <ProfilePage />,
   },
   {
-    path: "/login",
+    path: "/profile/login",
     element: <LoginPage />,
   },
   {
-    path: "/logout",
+    path: "/profile/logout",
     element: <LogoutPage />,
   },
   {
-    path: "/register",
+    path: "/profile/register",
     element: <RegistrationPage />,
   },
   {

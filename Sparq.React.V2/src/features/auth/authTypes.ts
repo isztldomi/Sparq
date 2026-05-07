@@ -22,3 +22,8 @@ export type RegisterRequestDto = {
   email: string;
   password: string;
 };
+
+export type AuthData = {
+  token: string;
+  refreshToken: string;
+};
