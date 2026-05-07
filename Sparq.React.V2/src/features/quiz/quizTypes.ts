@@ -19,3 +19,13 @@ export interface QuizCreateRequestDto {
 export type QuizUI = Omit<QuizCreateRequestDto, "snapshots"> & {
   snapshots: SnapshotUI[];
 };
+
+export type MyQuizListDto = {
+  id: number;
+  isPublic: boolean;
+  lastSnapshot: {
+    id: number;
+    title: string;
+    description: string;
+  };
+};

@@ -1,9 +1,20 @@
-import { post } from "../http/http";
-import type { QuizCreateRequestDto } from "@/features/quiz/quizTypes";
+import type { PagedResult } from "@/features/page/pageTypes";
+import { post, get } from "../http/http";
+import type {
+  MyQuizListDto,
+  QuizCreateRequestDto,
+} from "@/features/quiz/quizTypes";
 import type { QuizResponseDto } from "@/features/quiz/quizTypes";
 
 export function createQuizApi(
   data: QuizCreateRequestDto,
 ): Promise<QuizResponseDto> {
   return post("/quiz", data);
+}
+
+export function getMyQuizzesApi(
+  page: number,
+  pageSize: number,
+): Promise<PagedResult<MyQuizListDto>> {
+  return get(`/quiz/mine?page=${page}&pageSize=${pageSize}`);
 }

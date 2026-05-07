@@ -1,14 +1,9 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GreenButton } from "@/components/buttons/greenButton";
-import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
+import { MyQuizzesListContainer } from "@/components/containers/MyQuizzesListContainer";
 
 export function MyQuizzesPage() {
   const navigate = useNavigate();
-
-  const [errors, setErrors] = useState<{ field: string; message: string }[]>(
-    [],
-  );
 
   return (
     <div className="min-h-screen justify-center p-4">
@@ -23,7 +18,7 @@ export function MyQuizzesPage() {
         </GreenButton>
       </div>
 
-      <ErrorsContainer serverErrors={errors} />
+      <MyQuizzesListContainer />
     </div>
   );
 }
