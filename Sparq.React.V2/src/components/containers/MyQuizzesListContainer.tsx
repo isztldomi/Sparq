@@ -59,28 +59,29 @@ export function MyQuizzesListContainer() {
           ))}
         </ul>
       )}
+      {items.length > 0 && (
+        <div className="flex flex-wrap gap-5 items-center justify-center">
+          <GreenButton
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="w-20 h-10"
+          >
+            Prev
+          </GreenButton>
 
-      <div className="flex flex-wrap gap-5 items-center justify-center">
-        <GreenButton
-          disabled={page === 1}
-          onClick={() => setPage((p) => p - 1)}
-          className="w-20 h-10"
-        >
-          Prev
-        </GreenButton>
+          <span className="bg-[var(--error-bg)] text-[var(--error-text)] w-25 h-10 rounded-lg flex items-center justify-center">
+            Page {page} / {totalPages || 1}
+          </span>
 
-        <span className="bg-[var(--error-bg)] text-[var(--error-text)] w-25 h-10 rounded-lg flex items-center justify-center">
-          Page {page} / {totalPages || 1}
-        </span>
-
-        <GreenButton
-          disabled={page >= totalPages}
-          onClick={() => setPage((p) => p + 1)}
-          className="w-20 h-10"
-        >
-          Next
-        </GreenButton>
-      </div>
+          <GreenButton
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className="w-20 h-10"
+          >
+            Next
+          </GreenButton>
+        </div>
+      )}
     </div>
   );
 }

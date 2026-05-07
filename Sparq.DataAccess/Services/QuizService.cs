@@ -19,6 +19,7 @@ namespace Sparq.DataAccess.Services
         {
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.UpdatedAt = DateTime.UtcNow;
+            quiz.IsActive = true;
             foreach (var snapshot in quiz.Snapshots)
             {
                 snapshot.SnapshotNumber = 1;
@@ -41,7 +42,7 @@ namespace Sparq.DataAccess.Services
             return await _context.Quizzes
                 .Include(q => q.Owner)
                 .Include(q => q.Snapshots)
-                .FirstOrDefaultAsync(q => q.Id == id);
+                .FirstOrDefaultAsync(q => q.Id == id && q.IsActive);
         }
 
         // READ all
@@ -96,7 +97,7 @@ namespace Sparq.DataAccess.Services
         public async Task<(List<Quiz> Items, int TotalCount)> GetByUserPagedAsync(string userId, int page, int pageSize)
         {
             var query = _context.Quizzes
-                .Where(q => q.OwnerId == userId);
+                .Where(q => q.OwnerId == userId && q.IsActive);
 
             var totalCount = await query.CountAsync();
 
@@ -108,6 +109,19 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
 
             return (items, totalCount);
+        }
+        public async Task DeactivateAsync(int quizId, string userId)
+        {
+            var quiz = await _context.Quizzes
+                .FirstOrDefaultAsync(q => q.Id == quizId);
+
+            if (quiz == null)
+                throw new Exception("Quiz not found");
+
+            quiz.IsActive = false;
+            quiz.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -19,6 +19,7 @@ import type { ProblemDetails } from "@/api/models/ProblemDetails";
 import { flattenErrors } from "@/api/core/flattenErrors";
 import { quizSchema } from "@/schemas/quiz/quizSchema";
 import { buildErrorMap } from "@/utils/clientErrors/buildErrorMap";
+import { v4 as uuidv4 } from "uuid";
 
 export function QuizCreatePage() {
   const navigate = useNavigate();
@@ -39,8 +40,6 @@ export function QuizCreatePage() {
     questions: [],
   };
 
-  const [nextIdQuestion, setNextIdQuestion] = useState(1);
-  const [nextIdAnswer, setNextIdAnswer] = useState(1);
   const [formData, setFormData] = useState<QuizUI>({
     isPublic: false,
     snapshots: [initialSnapshot],
@@ -126,7 +125,7 @@ export function QuizCreatePage() {
   function addQuestion() {
     setFormData((prev) => {
       const newQuestion: QuestionUI = {
-        id: String(nextIdQuestion),
+        id: uuidv4(),
         isOpen: false,
         title: "",
         text: "",
@@ -217,7 +216,7 @@ export function QuizCreatePage() {
         if (q.id !== questionId) return q;
 
         const newAnswer: AnswerUI = {
-          id: String(nextIdAnswer),
+          id: uuidv4(),
           text: "",
           isCorrect: false,
         };
@@ -365,7 +364,7 @@ export function QuizCreatePage() {
         <h1 className="text-xl">Quiz Create</h1>
 
         <GreenButton className="w-30 h-10" onClick={handleDone}>
-          Done
+          Save
         </GreenButton>
       </div>
       <ErrorsContainer serverErrors={serverErrors} />

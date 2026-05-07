@@ -1,17 +1,12 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "@/features/base/baseApi";
+import { createSnapshotApi } from "@/api/services/snapshotService";
+import { toApiError } from "@/api/core/toApiError";
 import type {
   SnapshotCreateRequestDto,
   SnapshotResponseDto,
 } from "./snapshotTypes";
-import { createSnapshotApi } from "@/api/services/snapshotService";
-import { toApiError } from "@/api/core/toApiError";
 
-export const snapshotApi = createApi({
-  reducerPath: "snapshotApi",
-  baseQuery: async () => ({ data: {} }),
-
-  tagTypes: ["Snapshot"],
-
+export const snapshotApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createSnapshot: builder.mutation<
       SnapshotResponseDto,
@@ -19,13 +14,16 @@ export const snapshotApi = createApi({
     >({
       async queryFn(payload) {
         try {
-          const dto = await createSnapshotApi(payload);
-          return { data: dto };
+          return { data: await createSnapshotApi(payload) };
         } catch (e) {
           return { error: toApiError(e) };
         }
       },
-      invalidatesTags: ["Snapshot"],
+
+      invalidatesTags: (_r, _e, payload) => [
+        { type: "Quiz", id: payload.quizId },
+        { type: "Quiz", id: "LIST" },
+      ],
     }),
   }),
 });
