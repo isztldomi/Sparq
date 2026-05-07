@@ -4,17 +4,16 @@ import type {
   SnapshotUI,
 } from "@/features/snapshot/snapshotTypes";
 
-export interface QuizResponseDto {
+export type QuizResponseDto = {
   id: number;
   isPublic: boolean;
   lastSnapshot: SnapshotResponseDto;
-  snapshots: SnapshotResponseDto[];
-}
+};
 
-export interface QuizCreateRequestDto {
+export type QuizCreateRequestDto = {
   isPublic: boolean;
   snapshots: SnapshotCreateFromQuizRequestDto[];
-}
+};
 
 export type QuizUI = Omit<QuizCreateRequestDto, "snapshots"> & {
   snapshots: SnapshotUI[];

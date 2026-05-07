@@ -32,6 +32,7 @@ namespace Sparq.DataAccess.Services
             _context.Snapshots.Add(snapshot);
 
             quiz.LastSnapshot = snapshot;
+            quiz.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 

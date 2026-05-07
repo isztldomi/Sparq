@@ -1,3 +1,4 @@
+import { clearAuth, getAuth, setAuth } from "@/features/auth/authStorage";
 import { apiClient } from "./apiClient";
 import { refreshTokenApi } from "@/api/services/authService";
 
@@ -9,17 +10,11 @@ export function setupInterceptors() {
   // REQUEST INTERCEPTOR
   // =====================
   apiClient.interceptors.request.use((config) => {
-    const auth = localStorage.getItem("auth");
+    const auth = getAuth();
 
     if (auth) {
-      try {
-        const parsed = JSON.parse(auth);
-
-        config.headers = config.headers ?? {};
-        config.headers.Authorization = `Bearer ${parsed.token}`;
-      } catch {
-        console.warn("Invalid auth in localStorage");
-      }
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${auth.token}`;
     }
 
     return config;
@@ -35,12 +30,22 @@ export function setupInterceptors() {
       // =====================
       // 401 HANDLING
       // =====================
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      if (
+        error.response?.status === 401 &&
+        !originalRequest._retry &&
+        !originalRequest.url?.includes("/users/refresh")
+      ) {
         originalRequest._retry = true;
 
-        try {
-          const auth = JSON.parse(localStorage.getItem("auth") || "{}");
+        const auth = getAuth();
 
+        if (!auth?.refreshToken) {
+          clearAuth();
+
+          return Promise.reject(error);
+        }
+
+        try {
           if (isRefreshing) {
             return new Promise((resolve) => {
               queue.push((token: string) => {
@@ -59,12 +64,13 @@ export function setupInterceptors() {
             refreshToken: res.refreshToken,
           };
 
-          localStorage.setItem("auth", JSON.stringify(newAuth));
-
-          isRefreshing = false;
+          setAuth(newAuth);
 
           queue.forEach((cb) => cb(res.authToken));
+
           queue = [];
+
+          isRefreshing = false;
 
           originalRequest.headers.Authorization = `Bearer ${res.authToken}`;
 
@@ -72,7 +78,10 @@ export function setupInterceptors() {
         } catch (refreshError) {
           console.error("Refresh failed → logout user");
 
-          localStorage.removeItem("auth");
+          clearAuth();
+
+          queue = [];
+          isRefreshing = false;
 
           return Promise.reject(refreshError);
         }

@@ -23,3 +23,12 @@ export interface SnapshotCreateFromQuizRequestDto {
 export type SnapshotUI = Omit<SnapshotCreateFromQuizRequestDto, "questions"> & {
   questions: QuestionUI[];
 };
+
+export type SnapshotCreateRequestDto = {
+  quizId: string;
+  title: string;
+  description: string;
+  timeLimit: number;
+  pinCode: string;
+  questions: QuestionCreateRequestDto[];
+};

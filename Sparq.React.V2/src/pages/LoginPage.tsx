@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { GreenButton } from "@/components/buttons/greenButton";
-import { useAppDispatch } from "@/app/hooks";
-// import { login } from "@/features/auth/auth.thunks";
+
 import { flattenErrors } from "@/api/core/flattenErrors";
 import { ErrorsContainer } from "@/components/errors/ErrorsContainer";
+
 import type { ProblemDetails } from "@/api/models/ProblemDetails";
+
 import { useLoginMutation } from "@/features/auth/authApi";
-import { setAuth } from "@/features/auth/authSlice";
+
+import { setAuth } from "@/features/auth/authStorage";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { loginSchema, type LoginFormData } from "@/schemas/auth/loginSchema";
 
 export function LoginPage() {
-  //const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState<{ field: string; message: string }[]>(
@@ -30,7 +33,6 @@ export function LoginPage() {
   });
 
   const [login, { isLoading }] = useLoginMutation();
-  const dispatch = useAppDispatch();
 
   const onSubmit = async (data: LoginFormData) => {
     setErrors([]);
@@ -43,13 +45,13 @@ export function LoginPage() {
         refreshToken: res.refreshToken,
       };
 
-      localStorage.setItem("auth", JSON.stringify(payload));
-
-      dispatch(setAuth(payload));
+      // auth storage ONLY (no redux)
+      setAuth(payload);
 
       navigate("/profile");
     } catch (err: unknown) {
       const error = err as { data?: ProblemDetails };
+
       setErrors(flattenErrors(error.data?.errors));
     }
   };
@@ -66,9 +68,9 @@ export function LoginPage() {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            {/* EMAIL */}
             <div>
               <label className="block mb-1">Email</label>
+
               <input
                 type="email"
                 {...register("email")}
@@ -84,6 +86,7 @@ export function LoginPage() {
 
             <div>
               <label className="block mb-1">Password</label>
+
               <input
                 type="password"
                 {...register("password")}
@@ -104,9 +107,10 @@ export function LoginPage() {
             >
               {isLoading ? "Logging in..." : "Login"}
             </GreenButton>
+
             <GreenButton
               className="w-full py-2 text-lg"
-              onClick={() => navigate("/register")}
+              onClick={() => navigate("/profile/register")}
             >
               Registration
             </GreenButton>

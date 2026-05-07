@@ -10,7 +10,7 @@ type RequireAuthProps = {
 
 export const RequireAuth = ({
   children,
-  redirectTo = "/login",
+  redirectTo = "/profile/login",
 }: RequireAuthProps) => {
   const location = useLocation();
 

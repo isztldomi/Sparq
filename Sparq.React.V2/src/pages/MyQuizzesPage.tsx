@@ -12,7 +12,7 @@ export function MyQuizzesPage() {
 
         <GreenButton
           className="w-30 h-10"
-          onClick={() => navigate("/quiz/create")}
+          onClick={() => navigate("/my-quizzes/create")}
         >
           Quiz Create
         </GreenButton>

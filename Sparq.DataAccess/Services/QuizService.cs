@@ -22,6 +22,8 @@ namespace Sparq.DataAccess.Services
             foreach (var snapshot in quiz.Snapshots)
             {
                 snapshot.SnapshotNumber = 1;
+                snapshot.CreatedAt = DateTime.UtcNow;
+                
             }
             _context.Quizzes.Add(quiz);
             

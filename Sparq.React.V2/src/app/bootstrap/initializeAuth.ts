@@ -1,23 +1,18 @@
-import { store } from "@/app/store";
-import { setAuth } from "@/features/auth/authSlice";
+import { getAuth, clearAuth } from "@/features/auth/authStorage";
 
 export function initializeAuth() {
-  const auth = localStorage.getItem("auth");
+  const auth = getAuth();
 
   if (!auth) {
     return;
   }
 
   try {
-    const parsed = JSON.parse(auth);
-
-    store.dispatch(
-      setAuth({
-        token: parsed.token,
-        refreshToken: parsed.refreshToken,
-      }),
-    );
+    // ha valami sérült lenne, itt kiszűrjük
+    if (!auth.token || !auth.refreshToken) {
+      clearAuth();
+    }
   } catch {
-    localStorage.removeItem("auth");
+    clearAuth();
   }
 }

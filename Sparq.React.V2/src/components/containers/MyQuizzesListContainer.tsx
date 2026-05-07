@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGetMyQuizzesQuery } from "@/features/quiz/quizApi";
 import type { MyQuizListDto } from "@/features/quiz/quizTypes";
 import { GreenButton } from "../buttons/greenButton";
@@ -6,6 +7,7 @@ import { InlineLoading } from "@/components/loadings/InlineLoading";
 import { YellowButton } from "../buttons/yellowButton";
 
 export function MyQuizzesListContainer() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -46,7 +48,12 @@ export function MyQuizzesListContainer() {
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <GreenButton className="p-3 text-lg">Sessions</GreenButton>
-                <YellowButton className="p-3 text-lg">Modify</YellowButton>
+                <YellowButton
+                  className="p-3 text-lg"
+                  onClick={() => navigate(`/my-quizzes/${quiz.id}/modify`)}
+                >
+                  Modify
+                </YellowButton>
               </div>
             </li>
           ))}

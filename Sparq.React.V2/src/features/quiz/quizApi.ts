@@ -1,8 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { createQuizApi, getMyQuizzesApi } from "@/api/services/quizService";
+import {
+  createQuizApi,
+  getMyQuizzesApi,
+  getQuizByIdApi,
+} from "@/api/services/quizService";
 import { toApiError } from "@/api/core/toApiError";
 import type { PagedResult } from "../page/pageTypes";
-import type { MyQuizListDto } from "./quizTypes";
+import type { MyQuizListDto, QuizResponseDto } from "./quizTypes";
 
 export const quizApi = createApi({
   reducerPath: "quizApi",
@@ -37,7 +41,24 @@ export const quizApi = createApi({
 
       providesTags: ["Quiz"],
     }),
+    getQuizByIdApi: builder.query<QuizResponseDto, number>({
+      async queryFn(id) {
+        try {
+          const dto = await getQuizByIdApi(id);
+
+          return { data: dto };
+        } catch (e) {
+          return { error: toApiError(e) };
+        }
+      },
+
+      providesTags: (_result, _error, id) => [{ type: "Quiz", id }],
+    }),
   }),
 });
 
-export const { useCreateQuizMutation, useGetMyQuizzesQuery } = quizApi;
+export const {
+  useCreateQuizMutation,
+  useGetMyQuizzesQuery,
+  useGetQuizByIdApiQuery,
+} = quizApi;
