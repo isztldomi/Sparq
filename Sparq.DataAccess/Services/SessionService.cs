@@ -16,8 +16,25 @@ namespace Sparq.DataAccess.Services
         }
 
         // CREATE
-        public async Task<Session> CreateAsync(Session session)
+        public async Task<Session?> CreateAsync(int snapshotId)
         {
+            var snapshot = await _context.Snapshots
+                .FirstOrDefaultAsync(s => s.Id == snapshotId);
+
+            if (snapshot == null)
+            {
+                return null;
+            }
+
+            var session = new Session
+            {
+                SnapshotId = snapshotId,
+                CreatedAt = DateTime.UtcNow,
+                IsWaiting = false,
+                IsRunning = false,
+                PinCode = snapshot.PinCode,
+            };
+
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
 

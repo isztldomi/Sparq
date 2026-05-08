@@ -5,6 +5,7 @@ import type {
   QuizCreateRequestDto,
 } from "@/features/quiz/quizTypes";
 import type { QuizResponseDto } from "@/features/quiz/quizTypes";
+import type { MyQuizSessionsListDto } from "@/features/session/sessionTypes";
 
 export function createQuizApi(
   data: QuizCreateRequestDto,
@@ -25,4 +26,12 @@ export function getQuizByIdApi(id: number): Promise<QuizResponseDto> {
 
 export function deactivateQuizByIdApi(id: number): Promise<void> {
   return patch<void, void>(`/quiz/${id}/deactivate`);
+}
+
+export function getQuizSessionsByIdApi(
+  id: number,
+  page: number,
+  pageSize: number,
+): Promise<PagedResult<MyQuizSessionsListDto>> {
+  return get(`/quiz/${id}/sessions?page=${page}&pageSize=${pageSize}`);
 }

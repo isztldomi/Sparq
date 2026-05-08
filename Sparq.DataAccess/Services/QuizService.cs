@@ -42,6 +42,7 @@ namespace Sparq.DataAccess.Services
             return await _context.Quizzes
                 .Include(q => q.Owner)
                 .Include(q => q.Snapshots)
+                .Include(q => q.LastSnapshot)
                 .FirstOrDefaultAsync(q => q.Id == id && q.IsActive);
         }
 
@@ -122,6 +123,29 @@ namespace Sparq.DataAccess.Services
             quiz.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<(List<Session> Items, int TotalCount)> GetQuizSessionsPagedAsync(
+            int quizId,
+            int page,
+            int pageSize)
+        {
+            var baseQuery = _context.Sessions
+                .AsNoTracking()
+                .Where(s => s.Snapshot!.QuizId == quizId);
+
+            var totalCount = await baseQuery.CountAsync();
+
+            var items = await baseQuery
+                .Include(s => s.Snapshot)
+                .Include(s => s.Participants)
+                .OrderByDescending(s => s.StartedAt)
+                .ThenByDescending(s => s.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
     }
 }

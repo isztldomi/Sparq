@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
   useDeactivateQuizMutation,
   useGetQuizByIdQuery,
@@ -33,9 +33,11 @@ export function QuizModifyPage() {
   const [deactivateQuiz] = useDeactivateQuizMutation();
   const [createSnapshot] = useCreateSnapshotMutation();
 
-  const { id } = useParams();
+  const { quizId } = useParams();
 
-  const { data, isLoading, isError, error } = useGetQuizByIdQuery(Number(id));
+  const { data, isLoading, isError, error } = useGetQuizByIdQuery(
+    Number(quizId),
+  );
 
   const [serverErrors, setServerErrors] = useState<
     { field: string; message: string }[]
@@ -93,7 +95,9 @@ export function QuizModifyPage() {
     loadQuiz();
   }, [data]);
   if (isLoading) return <LoadingIndicator />;
-  if (isError) return <div>Error</div>;
+  if (isError) {
+    return <Navigate to="/my-quizzes/notFound" replace />;
+  }
   if (!formData) return <LoadingIndicator />;
 
   const snapshot = formData.snapshots[0];
@@ -207,8 +211,6 @@ export function QuizModifyPage() {
         ],
       };
     });
-
-    setNextIdQuestion((prev) => prev + 1);
   }
 
   function removeQuestion(id: string) {
@@ -297,7 +299,6 @@ export function QuizModifyPage() {
         snapshots: [{ ...prev.snapshots[0], questions }],
       };
     });
-    setNextIdAnswer((prev) => prev + 1);
   }
 
   function removeAnswer(questionId: string, answerId: string) {
@@ -406,7 +407,7 @@ export function QuizModifyPage() {
         questions: questionsWithMedia,
       } as SnapshotUI;
 
-      const dto = mapSnapshotUIToDto(finalSnapshotData, id as string);
+      const dto = mapSnapshotUIToDto(finalSnapshotData, quizId as string);
 
       await createSnapshot(dto).unwrap();
 
@@ -427,7 +428,7 @@ export function QuizModifyPage() {
   // ---------------------------
   async function handleDeactivate() {
     try {
-      await deactivateQuiz(Number(id)).unwrap();
+      await deactivateQuiz(Number(quizId)).unwrap();
 
       navigate(`/my-quizzes`);
 
@@ -449,6 +450,9 @@ export function QuizModifyPage() {
     <div className="min-h-screen p-4 flex flex-col gap-6">
       {/* HEADER */}
       <div className="flex justify-between items-center">
+        <GreenButton className="w-30 h-10" onClick={() => navigate(-1)}>
+          Back
+        </GreenButton>
         <h1 className="text-xl">Quiz Create</h1>
 
         <div className="flex flex-wrap gap-5">

@@ -14,5 +14,6 @@ namespace Sparq.DataAccess.Services
         Task<bool> DeleteAsync(int id);
         Task<(List<Quiz> Items, int TotalCount)> GetByUserPagedAsync(string userId, int page, int pageSize);
         Task DeactivateAsync(int quizId, string userId);
+        Task<(List<Session> Items, int TotalCount)> GetQuizSessionsPagedAsync(int quizId, int page, int pageSize);
     }
 }

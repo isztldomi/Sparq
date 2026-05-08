@@ -3,6 +3,7 @@ using Sparq.DataAccess.Models;
 using Sparq.Shared.Models.AnswerDto;
 using Sparq.Shared.Models.QuestionDto;
 using Sparq.Shared.Models.QuizDto;
+using Sparq.Shared.Models.SessionDto;
 using Sparq.Shared.Models.SnapshotDto;
 using Sparq.Shared.Models.UserDto;
 
@@ -26,10 +27,14 @@ namespace Sparq.WebApi.Infrastructure
             CreateMap<Quiz, QuizResponseDto>(MemberList.Destination);
             CreateMap<QuizCreateRequestDto, Quiz>(MemberList.Destination);
 
+            CreateMap<Snapshot, SnapshotMetaDetailsResponseDto>(MemberList.Destination);
             CreateMap<Snapshot, MyQuizSnapshotListDto>(MemberList.Destination);
             CreateMap<Snapshot, SnapshotResponseDto>(MemberList.Destination);
             CreateMap<SnapshotCreateFromQuizRequestDto, Snapshot>(MemberList.Destination);
             CreateMap<SnapshotCreateRequestDto, Snapshot>(MemberList.Destination);
+
+            CreateMap<Session, SessionListDto>(MemberList.Destination);
+            CreateMap<CreateSessionResponseDto, Session>(MemberList.Destination);
 
             CreateMap<Question, QuestionResponseDto>(MemberList.Destination);
             CreateMap<QuestionCreateRequestDto, Question>(MemberList.Destination);
