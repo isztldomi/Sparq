@@ -26,6 +26,7 @@ namespace Sparq.WebApi.Controllers
         /// </summary>
         /// <param name="mapper">Mapper instance for DTO-entity conversions.</param>
         /// <param name="quizService">Service handling quiz business logic.</param>
+        /// <param name="usersService">Service handling user business logic.</param>
         public QuizController(IMapper mapper, IQuizService quizService, IUsersService usersService)
         {
             _mapper = mapper;
