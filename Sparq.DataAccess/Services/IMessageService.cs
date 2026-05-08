@@ -8,11 +8,11 @@ namespace Sparq.DataAccess.Services
     public interface IMessageService
     {
         Task<Message> CreateAsync(Message message);
-        Task<Message?> GetByIdAsync(int id);
+        Task<Message?> GetByIdAsync(string id);
         Task<IReadOnlyCollection<Message>> GetAllAsync();
-        Task<bool> DeleteAsync(int id);
+        Task<bool> DeleteAsync(string id);
 
-        Task<IReadOnlyCollection<Message>> GetBySessionIdAsync(int sessionId);
-        Task<IReadOnlyCollection<Message>> GetByParticipantIdAsync(int participantId);
+        Task<IReadOnlyCollection<Message>> GetBySessionIdAsync(string sessionId);
+        Task<IReadOnlyCollection<Message>> GetByParticipantIdAsync(string participantId);
     }
 }

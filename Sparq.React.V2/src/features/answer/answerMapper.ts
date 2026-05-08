@@ -13,7 +13,7 @@ export function mapAnswerUIToDto(a: AnswerUI): AnswerCreateRequestDto {
 
 export function mapAnswerResponseDtoToUI(a: AnswerResponseDto): AnswerUI {
   return {
-    id: String(a.id),
+    id: a.id,
     text: a.text,
     isCorrect: a.isCorrect,
   };

@@ -5,7 +5,7 @@ import type {
 } from "@/features/question/questionTypes";
 
 export type SnapshotResponseDto = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   timeLimit: number;
@@ -35,8 +35,8 @@ export type SnapshotCreateRequestDto = {
 };
 
 export type SnapshotMetaDetailsResponseDto = {
-  id: number;
-  quizId: number;
+  id: string;
+  quizId: string;
   snapshotNumber: number;
   title: string;
   description: string;

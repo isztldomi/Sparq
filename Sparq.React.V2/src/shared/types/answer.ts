@@ -1,6 +1,6 @@
 export type Answer = {
-  id: number;
-  questionId: number;
+  id: string;
+  questionId: string;
   text: string;
   isCorrect: boolean;
   // participantAnswers: ParticipantAnswer[]

@@ -9,14 +9,14 @@ namespace Sparq.DataAccess.Models
     public class ParticipantAnswer
     {
         [Key]
-        public int Id { get; set; }
-        public int ParticipantId { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string? ParticipantId { get; set; }
         [ForeignKey("ParticipantId")]
         public virtual Participant? Participant { get; set; }
-        public int QuestionId { get; set; }
+        public string? QuestionId { get; set; }
         [ForeignKey("QuestionId")]
         public virtual Question? Question { get; set; }
-        public int AnswerId { get; set; }
+        public string? AnswerId { get; set; }
         [ForeignKey("AnswerId")]
         public virtual Answer? Answer { get; set; }
         public DateTime AnsweredAt { get; set; }

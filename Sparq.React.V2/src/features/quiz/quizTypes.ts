@@ -5,7 +5,7 @@ import type {
 } from "@/features/snapshot/snapshotTypes";
 
 export type QuizResponseDto = {
-  id: number;
+  id: string;
   isPublic: boolean;
   lastSnapshot: SnapshotResponseDto;
 };
@@ -20,10 +20,10 @@ export type QuizUI = Omit<QuizCreateRequestDto, "snapshots"> & {
 };
 
 export type MyQuizListDto = {
-  id: number;
+  id: string;
   isPublic: boolean;
   lastSnapshot: {
-    id: number;
+    id: string;
     title: string;
     description: string;
   };

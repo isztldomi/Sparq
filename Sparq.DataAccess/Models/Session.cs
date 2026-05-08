@@ -9,8 +9,8 @@ namespace Sparq.DataAccess.Models
     public class Session
     {
         [Key]
-        public int Id { get; set; }
-        public int SnapshotId { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string? SnapshotId { get; set; }
         [ForeignKey("SnapshotId")]
         public virtual Snapshot? Snapshot { get; set; }
         public DateTime? CreatedAt { get; set; }

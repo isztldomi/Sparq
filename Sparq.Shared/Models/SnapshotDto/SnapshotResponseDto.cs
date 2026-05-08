@@ -7,7 +7,7 @@ namespace Sparq.Shared.Models.SnapshotDto
 {
     public class SnapshotResponseDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int TimeLimit { get; set; }

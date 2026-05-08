@@ -8,6 +8,6 @@ namespace Sparq.Shared.Models.SessionDto
     public class CreateSessionRequestDto
     {
         [Required]
-        public int QuizId { get; set; }
+        public string QuizId { get; set; } = string.Empty;
     }
 }

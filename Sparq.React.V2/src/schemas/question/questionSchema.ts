@@ -15,7 +15,7 @@ export const questionSchema = z
       .min(3, "Question text must be at least 3 characters")
       .max(2000, "Question text too long"),
 
-    mediaId: z.number().nullable().optional(),
+    mediaId: z.string().nullable().optional(),
 
     timeLimit: z
       .number()

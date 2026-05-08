@@ -27,7 +27,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // READ by id
-        public async Task<Message?> GetByIdAsync(int id)
+        public async Task<Message?> GetByIdAsync(string id)
         {
             return await _context.Messages
                 .Include(m => m.Session)
@@ -46,7 +46,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // DELETE
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var message = await _context.Messages.FindAsync(id);
 
@@ -60,7 +60,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // SESSION chat
-        public async Task<IReadOnlyCollection<Message>> GetBySessionIdAsync(int sessionId)
+        public async Task<IReadOnlyCollection<Message>> GetBySessionIdAsync(string sessionId)
         {
             return await _context.Messages
                 .Where(m => m.SessionId == sessionId)
@@ -70,7 +70,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // PARTICIPANT chat history
-        public async Task<IReadOnlyCollection<Message>> GetByParticipantIdAsync(int participantId)
+        public async Task<IReadOnlyCollection<Message>> GetByParticipantIdAsync(string participantId)
         {
             return await _context.Messages
                 .Where(m => m.ParticipantId == participantId)

@@ -9,7 +9,7 @@ namespace Sparq.DataAccess.Models
     public class Media
     {
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public string? OwnerId { get; set; }
         [ForeignKey("OwnerId")]
         public virtual User? Owner { get; set; }

@@ -5,7 +5,7 @@ import type {
 } from "@/features/answer/answerTypes";
 
 export type QuestionResponseDto = {
-  id: number;
+  id: string;
   title: string;
   text: string;
   mediaId: string | null;

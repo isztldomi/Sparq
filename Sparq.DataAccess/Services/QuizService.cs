@@ -37,7 +37,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // READ by id
-        public async Task<Quiz?> GetByIdAsync(int id)
+        public async Task<Quiz?> GetByIdAsync(string id)
         {
             return await _context.Quizzes
                 .Include(q => q.Owner)
@@ -55,7 +55,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // UPDATE (teljes objektum frissítés)
-        public async Task<Quiz?> UpdateAsync(int id, Quiz updatedQuiz)
+        public async Task<Quiz?> UpdateAsync(string id, Quiz updatedQuiz)
         {
             var existing = await _context.Quizzes
                 .Include(q => q.Snapshots)
@@ -82,7 +82,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // DELETE (hard delete)
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var quiz = await _context.Quizzes.FindAsync(id);
 
@@ -111,7 +111,7 @@ namespace Sparq.DataAccess.Services
 
             return (items, totalCount);
         }
-        public async Task DeactivateAsync(int quizId, string userId)
+        public async Task DeactivateAsync(string quizId, string userId)
         {
             var quiz = await _context.Quizzes
                 .FirstOrDefaultAsync(q => q.Id == quizId);
@@ -126,7 +126,7 @@ namespace Sparq.DataAccess.Services
         }
 
         public async Task<(List<Session> Items, int TotalCount)> GetQuizSessionsPagedAsync(
-            int quizId,
+            string quizId,
             int page,
             int pageSize)
         {

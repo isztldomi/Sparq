@@ -5,7 +5,7 @@ import { toApiError } from "@/api/core/toApiError";
 export const mediaApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     uploadMedia: builder.mutation<
-      { id: number; fileName: string; contentType: string },
+      { id: string; fileName: string; contentType: string },
       File
     >({
       async queryFn(file) {
@@ -22,7 +22,7 @@ export const mediaApi = baseApi.injectEndpoints({
       invalidatesTags: ["Media"],
     }),
 
-    getMediaBlob: builder.query<Blob, string | number>({
+    getMediaBlob: builder.query<Blob, string | string>({
       async queryFn(id) {
         try {
           return { data: await getMediaBlobApi(id) };

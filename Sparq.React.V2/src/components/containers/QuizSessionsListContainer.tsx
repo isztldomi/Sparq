@@ -17,12 +17,12 @@ export function QuizSessionsListContainer({
 }: Props) {
   const { quizId } = useParams();
 
-  const id = quizId ? Number(quizId) : NaN;
+  const id = quizId ?? null;
 
   const { data, isLoading, isFetching, isError } = useGetQuizSessionsByIdQuery(
     { id, page, pageSize },
     {
-      skip: !quizId || isNaN(id),
+      skip: quizId,
     },
   );
 

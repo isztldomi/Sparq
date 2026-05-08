@@ -21,7 +21,7 @@ export function mapQuestionUIToDto(q: QuestionUI): QuestionCreateRequestDto {
 
 export function mapQuestionDtoToUI(q: QuestionResponseDto): QuestionUI {
   return {
-    id: String(q.id),
+    id: q.id,
     isOpen: false,
     title: q.title,
     text: q.text,

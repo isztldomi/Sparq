@@ -20,16 +20,16 @@ export function getMyQuizzesApi(
   return get(`/quiz/mine?page=${page}&pageSize=${pageSize}`);
 }
 
-export function getQuizByIdApi(id: number): Promise<QuizResponseDto> {
+export function getQuizByIdApi(id: string): Promise<QuizResponseDto> {
   return get(`/quiz/${id}`);
 }
 
-export function deactivateQuizByIdApi(id: number): Promise<void> {
+export function deactivateQuizByIdApi(id: string): Promise<void> {
   return patch<void, void>(`/quiz/${id}/deactivate`);
 }
 
 export function getQuizSessionsByIdApi(
-  id: number,
+  id: string,
   page: number,
   pageSize: number,
 ): Promise<PagedResult<MyQuizSessionsListDto>> {

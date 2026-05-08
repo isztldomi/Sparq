@@ -25,7 +25,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // READ by id
-        public async Task<Answer?> GetByIdAsync(int id)
+        public async Task<Answer?> GetByIdAsync(string id)
         {
             return await _context.Answers
                 .Include(a => a.Question)
@@ -42,7 +42,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // UPDATE
-        public async Task<Answer?> UpdateAsync(int id, Answer updatedAnswer)
+        public async Task<Answer?> UpdateAsync(string id, Answer updatedAnswer)
         {
             var existing = await _context.Answers
                 .Include(a => a.ParticipantAnswers)
@@ -68,7 +68,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // DELETE
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var answer = await _context.Answers.FindAsync(id);
 

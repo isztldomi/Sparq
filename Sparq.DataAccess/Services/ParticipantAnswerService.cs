@@ -37,7 +37,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // READ by id
-        public async Task<ParticipantAnswer?> GetByIdAsync(int id)
+        public async Task<ParticipantAnswer?> GetByIdAsync(string id)
         {
             return await _context.ParticipantAnswers
                 .Include(pa => pa.Participant)
@@ -57,7 +57,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // DELETE
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var entity = await _context.ParticipantAnswers.FindAsync(id);
 
@@ -71,7 +71,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // Participant válaszai
-        public async Task<IReadOnlyCollection<ParticipantAnswer>> GetByParticipantIdAsync(int participantId)
+        public async Task<IReadOnlyCollection<ParticipantAnswer>> GetByParticipantIdAsync(string participantId)
         {
             return await _context.ParticipantAnswers
                 .Where(pa => pa.ParticipantId == participantId)
@@ -81,7 +81,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // Kérdésre adott válaszok
-        public async Task<IReadOnlyCollection<ParticipantAnswer>> GetByQuestionIdAsync(int questionId)
+        public async Task<IReadOnlyCollection<ParticipantAnswer>> GetByQuestionIdAsync(string questionId)
         {
             return await _context.ParticipantAnswers
                 .Where(pa => pa.QuestionId == questionId)

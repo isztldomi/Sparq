@@ -39,7 +39,7 @@ namespace Sparq.DataAccess.Services
             return snapshot;
         }
 
-        public async Task<Snapshot?> GetByIdAsync(int id)
+        public async Task<Snapshot?> GetByIdAsync(string id)
         {
             return await _context.Snapshots
                 .Include(v => v.Quiz)
@@ -57,7 +57,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // UPDATE
-        public async Task<Snapshot?> UpdateAsync(int id, Snapshot updatedSnapshot)
+        public async Task<Snapshot?> UpdateAsync(string id, Snapshot updatedSnapshot)
         {
             var existing = await _context.Snapshots
                 .Include(v => v.Questions)
@@ -87,7 +87,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // DELETE
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var snapshot = await _context.Snapshots.FindAsync(id);
 

@@ -9,8 +9,8 @@ namespace Sparq.DataAccess.Models
     public class Snapshot
     {
         [Key]
-        public int Id { get; set; }
-        public int? QuizId { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string? QuizId { get; set; }
         [ForeignKey("QuizId")]
         public virtual Quiz? Quiz { get; set; }
         public int SnapshotNumber { get; set; }

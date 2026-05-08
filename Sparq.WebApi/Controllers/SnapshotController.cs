@@ -7,9 +7,7 @@ using Sparq.Shared.Models.SnapshotDto;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>
-    /// Handles snapshot-related operations such as creation and retrieval.
-    /// </summary>
+    /// <summary>Snapshot</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class SnapshotController : ControllerBase
@@ -19,12 +17,11 @@ namespace Sparq.WebApi.Controllers
         private readonly IUsersService _usersService;
         private readonly IQuizService _quizService;
 
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SnapshotController"/> class.
-        /// </summary>
-        /// <param name="mapper">Mapper instance for DTO-entity conversions.</param>
-        /// <param name="snapshotService">Service handling snapshot business logic.</param>
+        /// <summary>Ctor</summary>
+        /// <param name="mapper">Mapper for DTO mapping</param>
+        /// <param name="snapshotService">Snapshot service dependency</param>
+        /// <param name="usersService">User service dependency</param>
+        /// <param name="quizService">Quiz service dependency</param>
         public SnapshotController(IMapper mapper, ISnapshotService snapshotService, IUsersService usersService, IQuizService quizService)
         {
             _mapper = mapper;
@@ -33,15 +30,14 @@ namespace Sparq.WebApi.Controllers
             _quizService = quizService;
         }
 
-        /// <summary>
-        /// Snapshot by Id
-        /// </summary>
-        /// <param name="id">The snapshot identifier.</param>
-        /// <returns>The snapshot if found.</returns>
+        /// <summary>Get by id</summary>
+        /// <param name="id">Snapshot identifier</param>
+        /// <returns>Snapshot data</returns>
+        /// <remarks>Retrieves a snapshot by its unique identifier.</remarks>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SnapshotResponseDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(string id)
         {
             var snapshotEntity = await _snapshotService.GetByIdAsync(id);
             if (snapshotEntity == null)
@@ -50,10 +46,9 @@ namespace Sparq.WebApi.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// All snapshots
-        /// </summary>
-        /// <returns>A list of snapshots.</returns>
+        /// <summary>Get all</summary>
+        /// <returns>List of snapshots</returns>
+        /// <remarks>Retrieves all available snapshots.</remarks>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<SnapshotResponseDto>))]
         public async Task<IActionResult> GetAll()
@@ -63,12 +58,11 @@ namespace Sparq.WebApi.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// Create
-        /// </summary>
-        /// <param name="snapshotCreateRequestDto">The snapshot creation payload.</param>
-        /// <returns>The created snapshot.</returns>
+        /// <summary>Create snapshot</summary>
+        /// <param name="snapshotCreateRequestDto">Snapshot creation payload</param>
+        /// <returns>Created snapshot</returns>
         /// <remarks>
+        /// Creates a new snapshot for a quiz owned by the authenticated user.
         /// The snapshot is persisted and returned with its generated identifier.
         /// </remarks>
         [HttpPost]
@@ -80,73 +74,22 @@ namespace Sparq.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Create([FromBody] SnapshotCreateRequestDto snapshotCreateRequestDto)
         {
-
-            if (snapshotCreateRequestDto?.Questions != null)
-            {
-                int qi = 0;
-
-                foreach (var q in snapshotCreateRequestDto.Questions)
-                {
-
-                    if (q.Answers != null)
-                    {
-                        int ai = 0;
-
-                        foreach (var a in q.Answers)
-                        {
-                            ai++;
-                        }
-                    }
-
-                    qi++;
-                }
-            }
-
             var user = await _usersService.GetCurrentUserAsync();
 
-            if (user == null)
-            {
+            if (user == null) 
                 return Unauthorized();
-            }
 
-            var quiz = await _quizService.GetByIdAsync(snapshotCreateRequestDto.QuizId);
+            var quiz = await _quizService.GetByIdAsync(snapshotCreateRequestDto!.QuizId);
 
             if (quiz == null)
-            {
                 return NotFound("Quiz not found.");
-            }
 
             if (quiz.OwnerId != user.Id)
-            {
                 return Forbid();
-            }
-
 
             var snapshotEntity = _mapper.Map<Snapshot>(snapshotCreateRequestDto);
 
-            // if (snapshotEntity == null)
-            // {
-            //     return StatusCode(500);
-            // }
-
-
-            if (snapshotEntity.Questions != null)
-            {
-                int qi = 0;
-
-                foreach (var q in snapshotEntity.Questions)
-                {
-                    // Console.WriteLine($"[MAPPED Q {qi}] Title={q.Title}, Answers={q.Answers?.Count}");
-                    qi++;
-                }
-            }
-
             var createdSnapshot = await _snapshotService.CreateAsync(snapshotEntity);
-
-            // if (createdSnapshot == null)
-            // {
-            //     return StatusCode(500);
-            // }
 
             var response = _mapper.Map<SnapshotResponseDto>(createdSnapshot);
 

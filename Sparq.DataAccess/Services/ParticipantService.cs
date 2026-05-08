@@ -29,7 +29,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // READ by id
-        public async Task<Participant?> GetByIdAsync(int id)
+        public async Task<Participant?> GetByIdAsync(string id)
         {
             return await _context.Participants
                 .Include(p => p.User)
@@ -48,7 +48,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // UPDATE
-        public async Task<Participant?> UpdateAsync(int id, Participant updatedParticipant)
+        public async Task<Participant?> UpdateAsync(string id, Participant updatedParticipant)
         {
             var existing = await _context.Participants
                 .Include(p => p.ParticipantAnswers)
@@ -82,7 +82,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // DELETE
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var participant = await _context.Participants.FindAsync(id);
 
@@ -96,7 +96,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // SESSION alapú lekérés 
-        public async Task<IReadOnlyCollection<Participant>> GetBySessionIdAsync(int sessionId)
+        public async Task<IReadOnlyCollection<Participant>> GetBySessionIdAsync(string sessionId)
         {
             return await _context.Participants
                 .Where(p => p.SessionId == sessionId)

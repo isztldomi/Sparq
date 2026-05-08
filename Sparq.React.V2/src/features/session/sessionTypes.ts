@@ -1,19 +1,19 @@
 import type { SnapshotMetaDetailsResponseDto } from "../snapshot/snapshotTypes";
 
 export type MyQuizSessionsListDto = {
-  id: number;
-  snapshotId: number;
+  id: string;
+  snapshotId: string;
   snapshot: SnapshotMetaDetailsResponseDto;
   startedAt: Date;
   endedAt: Date;
-  currentQuestionId: number | null;
+  currentQuestionId: string | null;
   isWaiting: boolean;
   isRunning: boolean;
 };
 
 export type CreatedSessionResponseDto = {
-  id: number;
-  snapshotId: number;
+  id: string;
+  snapshotId: string;
   createdAt: Date;
   pinCode: string;
   isWaiting: boolean;
@@ -21,5 +21,5 @@ export type CreatedSessionResponseDto = {
 };
 
 export type CreateSessionRequestDto = {
-  quizId: number;
+  quizId: string;
 };
