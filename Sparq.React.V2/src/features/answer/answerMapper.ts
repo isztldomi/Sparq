@@ -8,6 +8,7 @@ export function mapAnswerUIToDto(a: AnswerUI): AnswerCreateRequestDto {
   return {
     text: a.text,
     isCorrect: a.isCorrect,
+    order: a.order,
   };
 }
 
@@ -16,5 +17,6 @@ export function mapAnswerResponseDtoToUI(a: AnswerResponseDto): AnswerUI {
     id: a.id,
     text: a.text,
     isCorrect: a.isCorrect,
+    order: a.order,
   };
 }

@@ -17,12 +17,14 @@ export function QuizSessionsListContainer({
 }: Props) {
   const { quizId } = useParams();
 
-  const id = quizId ?? null;
-
   const { data, isLoading, isFetching, isError } = useGetQuizSessionsByIdQuery(
-    { id, page, pageSize },
     {
-      skip: quizId,
+      id: quizId as string,
+      page,
+      pageSize,
+    },
+    {
+      skip: !quizId,
     },
   );
 

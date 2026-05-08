@@ -34,7 +34,7 @@ namespace Sparq.WebApi.Infrastructure
             CreateMap<SnapshotCreateRequestDto, Snapshot>(MemberList.Destination);
 
             CreateMap<Session, SessionListDto>(MemberList.Destination);
-            CreateMap<CreateSessionResponseDto, Session>(MemberList.Destination);
+            CreateMap<Session, CreateSessionResponseDto>(MemberList.Destination);
 
             CreateMap<Question, QuestionResponseDto>(MemberList.Destination);
             CreateMap<QuestionCreateRequestDto, Question>()
