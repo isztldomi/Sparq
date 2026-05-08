@@ -1,9 +1,13 @@
-import { useNavigate } from "react-router-dom";
 import { GreenButton } from "@/components/buttons/greenButton";
 import { MyQuizzesListContainer } from "@/components/containers/MyQuizzesListContainer";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export function MyQuizzesPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = Number(searchParams.get("page") ?? 1);
+  const pageSize = Number(searchParams.get("pageSize") ?? 10);
 
   return (
     <div className="min-h-screen justify-center p-4">
@@ -18,7 +22,11 @@ export function MyQuizzesPage() {
         </GreenButton>
       </div>
 
-      <MyQuizzesListContainer />
+      <MyQuizzesListContainer
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setSearchParams}
+      />
     </div>
   );
 }

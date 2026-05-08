@@ -33,3 +33,12 @@ export type SnapshotCreateRequestDto = {
   pinCode: string;
   questions: QuestionCreateRequestDto[];
 };
+
+export type SnapshotMetaDetailsResponseDto = {
+  id: number;
+  quizId: number;
+  snapshotNumber: number;
+  title: string;
+  description: string;
+  createdAt: Date;
+};

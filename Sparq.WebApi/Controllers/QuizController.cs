@@ -1,17 +1,19 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.Page;
 using Sparq.Shared.Models.QuizDto;
+using Sparq.Shared.Models.SessionDto;
 using System.Security.Claims;
 
 namespace Sparq.WebApi.Controllers
 {
     /// <summary>
-    /// Handles quiz-related operations such as creation and retrieval.
+    /// Quiz API
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -35,22 +37,22 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// Quiz by Id
+        /// Get quiz
         /// </summary>
-        /// <param name="id">The quiz identifier.</param>
-        /// <returns>The quiz if found.</returns>
+        /// <param name="id">The unique identifier of the quiz.</param>
+        /// <returns>The quiz data if found and accessible by the current user.</returns>
         [HttpGet("{id}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(QuizResponseDto))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
             if (user == null)
-            {
-                return NotFound();
-            }
+                return Unauthorized();
 
             var quizEntity = await _quizService.GetByIdAsync(id);
 
@@ -68,9 +70,9 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// All quizzes
+        /// List quizzes
         /// </summary>
-        /// <returns>List of quizzes.</returns>
+        /// <returns>A list of all quizzes.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<QuizResponseDto>))]
         public async Task<IActionResult> GetAll()
@@ -81,32 +83,25 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// Create
+        /// Create quiz
         /// </summary>
-        /// <param name="quizCreateRequestDto">User creation request data.</param>
-        /// <returns>The created quiz.</returns>
+        /// <param name="quizCreateRequestDto">The quiz creation payload containing snapshots and questions.</param>
+        /// <returns>The created quiz with its generated identifier.</returns>
         /// <remarks>
-        /// The owner of the quiz is automatically assigned from the authenticated user context.
-        /// Each snapshot is initialized with a creation timestamp.
+        /// Snapshots and related entities are initialized during creation.
         /// </remarks>
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(QuizResponseDto))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Create([FromBody] QuizCreateRequestDto quizCreateRequestDto)
         {
-
             var quiz = _mapper.Map<Quiz>(quizCreateRequestDto);
-
-            Console.WriteLine("Snapshots in mapped object: " + (quiz.Snapshots?.Count ?? 0));
-
 
             var user = await _usersService.GetCurrentUserAsync();
 
             if (user == null)
-            {
-                return NotFound();
-            }
+                return Unauthorized();
 
             //foreach (var snapshot in quiz.Snapshots!)
             //{
@@ -123,11 +118,16 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// Current user's quizzes (paged)
+        /// My quizzes
         /// </summary>
+        /// <param name="page">The page number (starting from 1).</param>
+        /// <param name="pageSize">The number of items per page (max 100).</param>
+        /// <returns>A paginated list of the user's quizzes.</returns>
         [HttpGet("mine")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResult<MyQuizListDto>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetMyQuizzes(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
@@ -156,11 +156,14 @@ namespace Sparq.WebApi.Controllers
         }
 
         /// <summary>
-        /// Deactivates (soft deletes) a quiz
+        /// Deactivate quiz
         /// </summary>
+        /// <param name="id">The unique identifier of the quiz to deactivate.</param>
+        /// <returns>No content if the operation succeeds.</returns>
         [HttpPatch("{id}/deactivate")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Deactivate(int id)
@@ -181,6 +184,57 @@ namespace Sparq.WebApi.Controllers
             await _quizService.DeactivateAsync(id, user.Id);
 
             return NoContent();
+        }
+
+
+        /// <summary>
+        /// Quiz sessions
+        /// </summary>
+        /// <param name="quizId">The unique identifier of the quiz.</param>
+        /// <param name="page">The page number (starting from 1).</param>
+        /// <param name="pageSize">The number of items per page (max 100).</param>
+        /// <returns>A paginated list of sessions belonging to the quiz.</returns>
+        [HttpGet("{quizId}/sessions")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResult<SessionListDto>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetSessions(
+            int quizId,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            var quiz = await _quizService.GetByIdAsync(quizId);
+
+            if (quiz == null || !quiz.IsActive)
+                return NotFound();
+
+            if (quiz.OwnerId != user.Id)
+                return Forbid();
+
+            var (items, totalCount) = await _quizService
+                .GetQuizSessionsPagedAsync(quizId, page, pageSize);
+
+            var mapped = _mapper.Map<List<SessionListDto>>(items);
+
+            var result = new PagedResult<SessionListDto>
+            {
+                Items = mapped,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            return Ok(result);
         }
     }
 }

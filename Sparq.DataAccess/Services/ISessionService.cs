@@ -7,7 +7,7 @@ namespace Sparq.DataAccess.Services
 {
     public interface ISessionService
     {
-        Task<Session> CreateAsync(Session session);
+        Task<Session?> CreateAsync(int snapshotId);
         Task<Session?> GetByIdAsync(int id);
         Task<IReadOnlyCollection<Session>> GetAllAsync();
         Task<Session?> UpdateAsync(int id, Session updatedSession);

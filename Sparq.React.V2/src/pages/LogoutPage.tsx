@@ -18,7 +18,7 @@ export function LogoutPage() {
     dispatch(baseApi.util.resetApiState());
 
     // redirect
-    navigate("/profile/login", {
+    navigate("/profile", {
       replace: true,
     });
   }, [dispatch, navigate]);

@@ -4,12 +4,20 @@ import {
   deactivateQuizByIdApi,
   getMyQuizzesApi,
   getQuizByIdApi,
+  getQuizSessionsByIdApi,
 } from "@/api/services/quizService";
 import { toApiError } from "@/api/core/toApiError";
+import type { PagedResult } from "../page/pageTypes";
+import type {
+  MyQuizListDto,
+  QuizCreateRequestDto,
+  QuizResponseDto,
+} from "./quizTypes";
+import type { MyQuizSessionsListDto } from "../session/sessionTypes";
 
 export const quizApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createQuiz: builder.mutation<any, any>({
+    createQuiz: builder.mutation<QuizResponseDto, QuizCreateRequestDto>({
       async queryFn(payload) {
         try {
           return { data: await createQuizApi(payload) };
@@ -20,7 +28,10 @@ export const quizApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Quiz", id: "LIST" }],
     }),
 
-    getMyQuizzes: builder.query({
+    getMyQuizzes: builder.query<
+      PagedResult<MyQuizListDto>,
+      { page: number; pageSize: number }
+    >({
       async queryFn({ page, pageSize }) {
         try {
           return { data: await getMyQuizzesApi(page, pageSize) };
@@ -32,13 +43,16 @@ export const quizApi = baseApi.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              { type: "Quiz", id: "LIST" },
-              ...result.items.map((q) => ({ type: "Quiz", id: q.id })),
+              { type: "Quiz" as const, id: "LIST" },
+              ...result.items.map((q) => ({
+                type: "Quiz" as const,
+                id: q.id,
+              })),
             ]
-          : [{ type: "Quiz", id: "LIST" }],
+          : [{ type: "Quiz" as const, id: "LIST" }],
     }),
 
-    getQuizById: builder.query({
+    getQuizById: builder.query<QuizResponseDto, number>({
       async queryFn(id) {
         try {
           return { data: await getQuizByIdApi(id) };
@@ -50,11 +64,11 @@ export const quizApi = baseApi.injectEndpoints({
       providesTags: (_r, _e, id) => [{ type: "Quiz", id }],
     }),
 
-    deactivateQuiz: builder.mutation({
+    deactivateQuiz: builder.mutation<null, number>({
       async queryFn(id) {
         try {
           await deactivateQuizByIdApi(id);
-          return { data: undefined };
+          return { data: null };
         } catch (e) {
           return { error: toApiError(e) };
         }
@@ -65,6 +79,29 @@ export const quizApi = baseApi.injectEndpoints({
         { type: "Quiz", id: "LIST" },
       ],
     }),
+
+    getQuizSessionsById: builder.query<
+      PagedResult<MyQuizSessionsListDto>,
+      { id: number; page: number; pageSize: number }
+    >({
+      async queryFn({ id, page, pageSize }) {
+        try {
+          return {
+            data: await getQuizSessionsByIdApi(id, page, pageSize),
+          };
+        } catch (e) {
+          return { error: toApiError(e) };
+        }
+      },
+
+      providesTags: (result, _error, payload) =>
+        result
+          ? [
+              { type: "Session" as const, id: payload.id },
+              { type: "Session" as const, id: "LIST" },
+            ]
+          : [{ type: "Session" as const, id: "LIST" }],
+    }),
   }),
 });
 
@@ -73,4 +110,5 @@ export const {
   useGetMyQuizzesQuery,
   useGetQuizByIdQuery,
   useDeactivateQuizMutation,
+  useGetQuizSessionsByIdQuery,
 } = quizApi;

@@ -146,8 +146,6 @@ export function QuizCreatePage() {
         ],
       };
     });
-
-    setNextIdQuestion((prev) => prev + 1);
   }
 
   function removeQuestion(id: string) {
@@ -229,7 +227,6 @@ export function QuizCreatePage() {
         snapshots: [{ ...prev.snapshots[0], questions }],
       };
     });
-    setNextIdAnswer((prev) => prev + 1);
   }
 
   function removeAnswer(questionId: string, answerId: string) {
@@ -361,6 +358,9 @@ export function QuizCreatePage() {
     <div className="min-h-screen p-4 flex flex-col gap-6">
       {/* HEADER */}
       <div className="flex justify-between items-center">
+        <GreenButton className="w-30 h-10" onClick={() => navigate(-1)}>
+          Back
+        </GreenButton>
         <h1 className="text-xl">Quiz Create</h1>
 
         <GreenButton className="w-30 h-10" onClick={handleDone}>

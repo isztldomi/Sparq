@@ -1,26 +1,23 @@
-﻿using System;
+﻿using Sparq.Shared.Models.SnapshotDto;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace Sparq.DataAccess.Models
+namespace Sparq.Shared.Models.SessionDto
 {
-    public class Session
+    public class SessionListDto
     {
-        [Key]
+
         public int Id { get; set; }
         public int SnapshotId { get; set; }
-        [ForeignKey("SnapshotId")]
-        public virtual Snapshot? Snapshot { get; set; }
+        public SnapshotMetaDetailsResponseDto? Snapshot { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }
         public int? CurrentQuestionId { get; set; }
-        public string? PinCode { get; set; }
+        public string PinCode { get; set; } = string.Empty;
         public bool IsWaiting { get; set; }
         public bool IsRunning { get; set; }
-        public virtual ICollection<Participant> Participants { get; set; } = new List<Participant>();
-        public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
     }
 }

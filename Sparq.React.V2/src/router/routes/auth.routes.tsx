@@ -5,6 +5,7 @@ import { HistoryPage } from "@/pages/HistoryPage";
 import { MyQuizzesPage } from "@/pages/MyQuizzesPage";
 import { QuizCreatePage } from "@/pages/QuizCreatePage";
 import { QuizModifyPage } from "@/pages/QuizModifyPage";
+import { QuizSessionsPage } from "@/pages/QuizSessionsPage";
 
 export const authRoutes: RouteObject[] = [
   {
@@ -32,10 +33,18 @@ export const authRoutes: RouteObject[] = [
     ),
   },
   {
-    path: "/my-quizzes/:id/modify",
+    path: "/my-quizzes/:quizId/modify",
     element: (
       <RequireAuth>
         <QuizModifyPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/my-quizzes/:quizId/sessions",
+    element: (
+      <RequireAuth>
+        <QuizSessionsPage />
       </RequireAuth>
     ),
   },

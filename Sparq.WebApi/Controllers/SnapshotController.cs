@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
@@ -71,6 +72,7 @@ namespace Sparq.WebApi.Controllers
         /// The snapshot is persisted and returned with its generated identifier.
         /// </remarks>
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SnapshotResponseDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -78,15 +80,6 @@ namespace Sparq.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Create([FromBody] SnapshotCreateRequestDto snapshotCreateRequestDto)
         {
-            Console.WriteLine("=== SNAPSHOT CREATE START ===");
-
-            // 1. REQUEST
-            Console.WriteLine($"QuizId: {snapshotCreateRequestDto?.QuizId}");
-            Console.WriteLine($"Title: {snapshotCreateRequestDto?.Title}");
-            Console.WriteLine($"TimeLimit: {snapshotCreateRequestDto?.TimeLimit}");
-            Console.WriteLine($"PinCode: {snapshotCreateRequestDto?.PinCode}");
-
-            Console.WriteLine($"Questions count: {snapshotCreateRequestDto?.Questions?.Count}");
 
             if (snapshotCreateRequestDto?.Questions != null)
             {
@@ -94,13 +87,6 @@ namespace Sparq.WebApi.Controllers
 
                 foreach (var q in snapshotCreateRequestDto.Questions)
                 {
-                    Console.WriteLine($"--- QUESTION {qi} ---");
-                    Console.WriteLine($"Title: {q.Title}");
-                    Console.WriteLine($"Text: {q.Text}");
-                    Console.WriteLine($"MediaId: {q.MediaId}");
-                    Console.WriteLine($"TimeLimit: {q.TimeLimit}");
-                    Console.WriteLine($"Point: {q.Point}");
-                    Console.WriteLine($"Answers count: {q.Answers?.Count}");
 
                     if (q.Answers != null)
                     {
@@ -108,7 +94,6 @@ namespace Sparq.WebApi.Controllers
 
                         foreach (var a in q.Answers)
                         {
-                            Console.WriteLine($"   Answer {ai}: Text={a.Text}, IsCorrect={a.IsCorrect}");
                             ai++;
                         }
                     }
@@ -117,52 +102,33 @@ namespace Sparq.WebApi.Controllers
                 }
             }
 
-            // 2. USER
-            Console.WriteLine("Loading user...");
             var user = await _usersService.GetCurrentUserAsync();
 
             if (user == null)
             {
-                Console.WriteLine("USER NULL → Unauthorized");
                 return Unauthorized();
             }
-
-            Console.WriteLine($"User OK: {user.Id}");
-
-            // 3. QUIZ
-            Console.WriteLine($"Loading quiz: {snapshotCreateRequestDto.QuizId}");
 
             var quiz = await _quizService.GetByIdAsync(snapshotCreateRequestDto.QuizId);
 
             if (quiz == null)
             {
-                Console.WriteLine("QUIZ NOT FOUND");
                 return NotFound("Quiz not found.");
             }
 
-            Console.WriteLine($"Quiz OK: Id={quiz.Id}, OwnerId={quiz.OwnerId}");
-
-            // 4. OWNERSHIP
             if (quiz.OwnerId != user.Id)
             {
-                Console.WriteLine("FORBIDDEN: not owner");
                 return Forbid();
             }
 
-            Console.WriteLine("Ownership OK");
-
-            // 5. MAPPING
-            Console.WriteLine("Mapping DTO → Entity");
 
             var snapshotEntity = _mapper.Map<Snapshot>(snapshotCreateRequestDto);
 
-            if (snapshotEntity == null)
-            {
-                Console.WriteLine("MAPPING FAILED → NULL ENTITY");
-                return StatusCode(500);
-            }
+            // if (snapshotEntity == null)
+            // {
+            //     return StatusCode(500);
+            // }
 
-            Console.WriteLine($"Mapped Questions: {snapshotEntity.Questions?.Count}");
 
             if (snapshotEntity.Questions != null)
             {
@@ -170,32 +136,19 @@ namespace Sparq.WebApi.Controllers
 
                 foreach (var q in snapshotEntity.Questions)
                 {
-                    Console.WriteLine($"[MAPPED Q {qi}] Title={q.Title}, Answers={q.Answers?.Count}");
+                    // Console.WriteLine($"[MAPPED Q {qi}] Title={q.Title}, Answers={q.Answers?.Count}");
                     qi++;
                 }
             }
 
-            // 6. CREATE
-            Console.WriteLine("Calling CreateAsync...");
-
             var createdSnapshot = await _snapshotService.CreateAsync(snapshotEntity);
 
-            if (createdSnapshot == null)
-            {
-                Console.WriteLine("CREATE FAILED → NULL");
-                return StatusCode(500);
-            }
-
-            Console.WriteLine($"Created Snapshot ID: {createdSnapshot.Id}");
-
-            // 7. RESPONSE
-            Console.WriteLine("Mapping response DTO...");
+            // if (createdSnapshot == null)
+            // {
+            //     return StatusCode(500);
+            // }
 
             var response = _mapper.Map<SnapshotResponseDto>(createdSnapshot);
-
-            Console.WriteLine($"Response ready: {response.Id}");
-
-            Console.WriteLine("=== SNAPSHOT CREATE END SUCCESS ===");
 
             return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
         }
