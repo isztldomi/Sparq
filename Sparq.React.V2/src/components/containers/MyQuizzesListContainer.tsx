@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetMyQuizzesQuery } from "@/features/quiz/quizApi";
 import type { MyQuizListDto } from "@/features/quiz/quizTypes";
-import { GreenButton } from "../buttons/greenButton";
+import { GreenButton } from "@/components/buttons/greenButton";
 import { InlineLoading } from "@/components/loadings/InlineLoading";
-import { YellowButton } from "../buttons/yellowButton";
+import { YellowButton } from "@/components/buttons/yellowButton";
 
 export function MyQuizzesListContainer() {
   const navigate = useNavigate();
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = Number(searchParams.get("page") ?? 1);
+  const pageSize = Number(searchParams.get("pageSize") ?? 10);
 
   const { data, isLoading, isFetching } = useGetMyQuizzesQuery({
     page,
@@ -47,9 +49,11 @@ export function MyQuizzesListContainer() {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <GreenButton className="p-3 text-lg">Sessions</GreenButton>
+                <GreenButton className="w-30 h-10 text-lg">
+                  Sessions
+                </GreenButton>
                 <YellowButton
-                  className="p-3 text-lg"
+                  className="w-30 h-10 text-lg"
                   onClick={() => navigate(`/my-quizzes/${quiz.id}/modify`)}
                 >
                   Modify
@@ -59,11 +63,16 @@ export function MyQuizzesListContainer() {
           ))}
         </ul>
       )}
-      {items.length > 0 && (
+      {totalCount > pageSize && (
         <div className="flex flex-wrap gap-5 items-center justify-center">
           <GreenButton
             disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
+            onClick={() =>
+              setSearchParams({
+                page: String(page - 1),
+                pageSize: String(pageSize),
+              })
+            }
             className="w-20 h-10"
           >
             Prev
@@ -75,7 +84,12 @@ export function MyQuizzesListContainer() {
 
           <GreenButton
             disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() =>
+              setSearchParams({
+                page: String(page + 1),
+                pageSize: String(pageSize),
+              })
+            }
             className="w-20 h-10"
           >
             Next
