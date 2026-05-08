@@ -7,7 +7,7 @@ namespace Sparq.Shared.Models.QuizDto
 {
     public class MyQuizListDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
         public MyQuizSnapshotListDto? LastSnapshot { get; set; }
     }

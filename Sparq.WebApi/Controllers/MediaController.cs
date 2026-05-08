@@ -9,6 +9,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Sparq.WebApi.Controllers
 {
+    /// <summary>Media</summary>
     [ApiController]
     [Route("api/media")]
     public class MediaController : ControllerBase
@@ -16,14 +17,23 @@ namespace Sparq.WebApi.Controllers
         private readonly IMediaService _mediaService;
         private readonly IUsersService _usersService;
 
+        /// <summary>Ctor</summary>
+        /// <param name="mediaService">Media service dependency</param>
+        /// <param name="usersService">User service dependency</param>
         public MediaController(IMediaService mediaService, IUsersService usersService)
         {
             _mediaService = mediaService;
             _usersService = usersService;
         }
 
+        /// <summary>Upload file</summary>
+        /// <param name="file">Uploaded file</param>
+        /// <returns>Uploaded media metadata</returns>
+        /// <remarks>Uploads a file for the authenticated user.</remarks>
         [HttpPost("upload")]
         [Authorize]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MediaUploadResponseDto>> Upload([FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -31,8 +41,8 @@ namespace Sparq.WebApi.Controllers
 
             var user = await _usersService.GetCurrentUserAsync();
 
-            if (string.IsNullOrEmpty(user.Id))
-                return Unauthorized();
+            if (user == null)
+                return Forbid();
 
             var result = await _mediaService.UploadAsync(file, user.Id);
 
@@ -46,17 +56,20 @@ namespace Sparq.WebApi.Controllers
             return Ok(dto);
         }
 
+        /// <summary>Get file</summary>
+        /// <param name="id">Media identifier</param>
+        /// <returns>File stream</returns>
+        /// <remarks>Returns a file by id for the authenticated user.</remarks>
         [HttpGet("{id}")]
         [Authorize]
         [ProducesResponseType(typeof(MediaFileResponseDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get(int id)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> Get(string id)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
-            if (string.IsNullOrEmpty(user.Id))
-                return Unauthorized();
+            if (user == null)
+                return Forbid();
 
             var result = await _mediaService.GetFileAsync(id, user.Id);
 

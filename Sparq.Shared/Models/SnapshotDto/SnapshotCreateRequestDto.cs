@@ -10,7 +10,7 @@ namespace Sparq.Shared.Models.SnapshotDto
     public class SnapshotCreateRequestDto
     {
         [Required(ErrorMessage = "QuizId is required.")]
-        public int QuizId { get; set; }
+        public string QuizId { get; set; } = string.Empty;
         [Required(ErrorMessage = "Title is required.")]
         [StringLength(255, MinimumLength = 3, ErrorMessage = "Title must be between 3 and 255 characters.")]
         public string Title { get; set; } = string.Empty;

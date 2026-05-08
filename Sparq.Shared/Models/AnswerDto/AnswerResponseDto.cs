@@ -6,8 +6,8 @@ namespace Sparq.Shared.Models.AnswerDto
 {
     public class AnswerResponseDto
     {
-        public int Id { get; set; }
-        public string Text { get; set; } = string.Empty;
-        public bool IsCorrect { get; set; }
+        public required string Id { get; set; }
+        public required string Text { get; set; }
+        public required bool IsCorrect { get; set; }
     }
 }

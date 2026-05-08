@@ -8,9 +8,9 @@ namespace Sparq.DataAccess.Services
     public interface IAnswerService
     {
         Task<Answer> CreateAsync(Answer answer);
-        Task<Answer?> GetByIdAsync(int id);
+        Task<Answer?> GetByIdAsync(string id);
         Task<IReadOnlyCollection<Answer>> GetAllAsync();
-        Task<Answer?> UpdateAsync(int id, Answer updatedAnswer);
-        Task<bool> DeleteAsync(int id);
+        Task<Answer?> UpdateAsync(string id, Answer updatedAnswer);
+        Task<bool> DeleteAsync(string id);
     }
 }

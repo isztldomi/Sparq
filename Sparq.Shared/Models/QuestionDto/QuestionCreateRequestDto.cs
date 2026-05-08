@@ -13,7 +13,7 @@ namespace Sparq.Shared.Models.QuestionDto
         [StringLength(2000, MinimumLength = 3, ErrorMessage = "Text must be between 3 and 2000 characters.")]
         public string Text { get; set; } = string.Empty;
 
-        public int? MediaId { get; set; } = null;
+        public string? MediaId { get; set; }
 
         [Required(ErrorMessage = "Time limit is required.")]
         [Range(10, 7200, ErrorMessage = "Time limit must be between 10 seconds and 2 hours.")]

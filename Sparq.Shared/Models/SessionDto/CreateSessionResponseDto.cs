@@ -6,8 +6,8 @@ namespace Sparq.Shared.Models.SessionDto
 {
     public class CreateSessionResponseDto
     {
-        public int Id { get; set; }
-        public int SnapshotId { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string SnapshotId { get; set; } = string.Empty;
         public DateTime? CreatedAt { get; set; }
         public string? PinCode { get; set; }
         public bool IsWaiting { get; set; }

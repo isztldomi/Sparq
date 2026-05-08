@@ -8,11 +8,11 @@ namespace Sparq.DataAccess.Services
     public interface IParticipantAnswerService
     {
         Task<ParticipantAnswer> CreateAsync(ParticipantAnswer participantAnswer);
-        Task<ParticipantAnswer?> GetByIdAsync(int id);
+        Task<ParticipantAnswer?> GetByIdAsync(string id);
         Task<IReadOnlyCollection<ParticipantAnswer>> GetAllAsync();
-        Task<bool> DeleteAsync(int id);
+        Task<bool> DeleteAsync(string id);
 
-        Task<IReadOnlyCollection<ParticipantAnswer>> GetByParticipantIdAsync(int participantId);
-        Task<IReadOnlyCollection<ParticipantAnswer>> GetByQuestionIdAsync(int questionId);
+        Task<IReadOnlyCollection<ParticipantAnswer>> GetByParticipantIdAsync(string participantId);
+        Task<IReadOnlyCollection<ParticipantAnswer>> GetByQuestionIdAsync(string questionId);
     }
 }

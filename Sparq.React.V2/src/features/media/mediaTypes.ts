@@ -1,5 +1,5 @@
 export interface MediaUploadResponseDto {
-  id: number;
+  id: string;
   fileName: string;
   contentType: string;
 }

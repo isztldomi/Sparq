@@ -1,8 +1,8 @@
 import type { Question } from "./question";
 
 export type Snapshot = {
-  id: number;
-  quizId: number;
+  id: string;
+  quizId: string;
   snapshotNumber: number;
   title: string;
   description: string;

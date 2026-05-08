@@ -294,6 +294,14 @@ export function QuizCreatePage() {
   // DONE
   // ---------------------------
   async function handleDone() {
+    console.log(
+      "FINAL ORDER BEFORE UPLOAD:",
+      snapshot.questions.map((q) => ({
+        id: q.id,
+        hasMedia: !!q.mediaFile,
+        mediaId: q.mediaId,
+      })),
+    );
     const result = quizSchema.safeParse(formData);
 
     if (!result.success) {
@@ -317,7 +325,13 @@ export function QuizCreatePage() {
           }
 
           const res = await uploadMedia(q.mediaFile).unwrap();
-
+          console.log(
+            "AFTER UPLOAD:",
+            questionsWithMedia.map((q) => ({
+              id: q.id,
+              mediaId: q.mediaId,
+            })),
+          );
           return {
             ...q,
             mediaId: res.id,

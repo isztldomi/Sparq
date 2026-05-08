@@ -86,6 +86,7 @@ export function SortableQuestionCard({
           {question.mediaPreviewUrl && (
             <div className="w-full max-w-[300px]">
               <img
+                key={question.mediaPreviewUrl}
                 src={question.mediaPreviewUrl ?? undefined}
                 onLoad={() => console.log("IMAGE LOADED")}
                 onError={() => console.log("IMAGE ERROR")}

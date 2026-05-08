@@ -8,6 +8,7 @@ using Sparq.Shared.Models.SessionDto;
 
 namespace Sparq.WebApi.Controllers
 {
+    /// <summary>Session</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class SessionController : ControllerBase
@@ -17,6 +18,13 @@ namespace Sparq.WebApi.Controllers
         private readonly IUsersService _usersService;
         private readonly IQuizService _quizService;
         private readonly ISnapshotService _snapshotService;
+
+        /// <summary>Ctor</summary>
+        /// <param name="mapper">AutoMapper instance</param>
+        /// <param name="sessionService">Session service dependency</param>
+        /// <param name="usersService">User service dependency</param>
+        /// <param name="quizService">Quiz service dependency</param>
+        /// <param name="snapshotService">Snapshot service dependency</param>
         public SessionController(IMapper mapper, ISessionService sessionService, IUsersService usersService, IQuizService quizService, ISnapshotService snapshotService)
         {
             _mapper = mapper;
@@ -26,20 +34,27 @@ namespace Sparq.WebApi.Controllers
             _snapshotService = snapshotService;
         }
 
+        /// <summary>Create session</summary>
+        /// <param name="createSessionRequestDto">Session creation request containing quiz identifier.</param>
+        /// <returns>The created session.</returns>
+        /// <remarks>
+        /// Creates a new session from the latest snapshot of the specified quiz.
+        /// Only the quiz owner is allowed to create sessions.
+        /// </remarks>
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreateSessionResponseDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> Create([FromBody] CreateSessionRequestDto dto)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Create([FromBody] CreateSessionRequestDto createSessionRequestDto)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
             if (user == null)
                 return Unauthorized();
 
-            var quiz = await _quizService.GetByIdAsync(dto.QuizId);
+            var quiz = await _quizService.GetByIdAsync(createSessionRequestDto.QuizId);
 
             if (quiz == null)
                 return NotFound("Quiz not found");

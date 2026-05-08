@@ -16,7 +16,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // CREATE
-        public async Task<Session?> CreateAsync(int snapshotId)
+        public async Task<Session?> CreateAsync(string snapshotId)
         {
             var snapshot = await _context.Snapshots
                 .FirstOrDefaultAsync(s => s.Id == snapshotId);
@@ -42,7 +42,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // READ by id
-        public async Task<Session?> GetByIdAsync(int id)
+        public async Task<Session?> GetByIdAsync(string id)
         {
             return await _context.Sessions
                 .Include(s => s.Snapshot)
@@ -60,7 +60,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // UPDATE
-        public async Task<Session?> UpdateAsync(int id, Session updatedSession)
+        public async Task<Session?> UpdateAsync(string id, Session updatedSession)
         {
             var existing = await _context.Sessions
                 .Include(s => s.Participants)
@@ -94,7 +94,7 @@ namespace Sparq.DataAccess.Services
         }
 
         // DELETE
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var session = await _context.Sessions.FindAsync(id);
 

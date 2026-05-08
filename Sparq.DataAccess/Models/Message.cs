@@ -9,14 +9,14 @@ namespace Sparq.DataAccess.Models
     public class Message
     {
         [Key]
-        public int Id { get; set; }
-        public int? SessionId { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string? SessionId { get; set; }
         [ForeignKey("SessionId")]
         public virtual Session? Session { get; set; }
-        public int? ParticipantId { get; set; }
+        public string? ParticipantId { get; set; }
         [ForeignKey("ParticipantId")]
         public virtual Participant? Participant { get; set; }
-        public int? QuestionId { get; set; }
+        public string? QuestionId { get; set; }
         [ForeignKey("QuestionId")]
         public virtual Question? Question { get; set; }
         public string Text { get; set; } = string.Empty;

@@ -1,8 +1,8 @@
 import type { Answer } from "./answer";
 
 export type Question = {
-  id: number;
-  snapshotId: number;
+  id: string;
+  snapshotId: string;
   title: string;
   text: string;
   mediaUrl: string;

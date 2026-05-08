@@ -11,30 +11,26 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>
-    /// Controller responsible for user-related operations.
-    /// </summary>
+    /// <summary>Users</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
         private readonly IMapper _mapper;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UsersController"/> class.
-        /// </summary>
-        /// <param name="mapper">Mapper instance for DTO-entity conversions.</param>
-        /// <param name="usersService">Service handling user business logic.</param>
+        
+        /// <summary>Ctor</summary>
+        /// <param name="mapper">Mapper for DTO conversion</param>
+        /// <param name="usersService">User service dependency</param>
         public UsersController(IMapper mapper, IUsersService usersService)
         {
             _mapper = mapper;
             _usersService = usersService;
         }
 
-        /// <summary>
-        /// Get current logged-in user from token
-        /// </summary>
+        /// <summary>Current user</summary>
+        /// <returns>Currently authenticated user.</returns>
+        /// <remarks>Returns the user identified by the access token.</remarks>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponseDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -54,11 +50,10 @@ namespace Sparq.WebApi.Controllers
             return Ok(dto);
         }
 
-        /// <summary>
-        /// User by ID
-        /// </summary>
-        /// <param name="id">User identifier.</param>
+        /// <summary>Get user</summary>
+        /// <param name="id">User identifier</param>
         /// <returns>User data.</returns>
+        /// <remarks>Returns a user by their unique identifier.</remarks>
         [HttpGet]
         [Route("{id}")]
         [Authorize]
@@ -74,11 +69,10 @@ namespace Sparq.WebApi.Controllers
             return Ok(userResponseDto);
         }
 
-        /// <summary>
-        /// Create
-        /// </summary>
-        /// <param name="userRequestDto">User creation request data.</param>
+        /// <summary>Create user</summary>
+        /// <param name="userRequestDto">User creation payload</param>
         /// <returns>The created user.</returns>
+        /// <remarks>Registers a new user in the system.</remarks>
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserRequestDto userRequestDto)
         {
@@ -101,19 +95,18 @@ namespace Sparq.WebApi.Controllers
             return CreatedAtAction(nameof(CreateUser), userResponseDto);
         }
 
-        /// <summary>
-        /// Login
-        /// </summary>
-        /// <param name="loginRequestDto">Login credentials.</param>
-        /// <returns>Authentication and refresh tokens.</returns>
+        /// <summary>Login</summary>
+        /// <param name="loginRequestDto">Login credentials</param>
+        /// <returns>Authentication tokens.</returns>
+        /// <remarks>Authenticates user and returns JWT + refresh token.</remarks>
         [HttpPost]
         [Route("login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Login(LoginRequestDto dto)
+        public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
         {
             var (token, refreshToken, userId, error) =
-                await _usersService.LoginAsync(dto.Email, dto.Password);
+                await _usersService.LoginAsync(loginRequestDto.Email, loginRequestDto.Password);
 
             if (error != null)
             {
@@ -136,11 +129,10 @@ namespace Sparq.WebApi.Controllers
             });
         }
 
-        /// <summary>
-        /// Token
-        /// </summary>
-        /// <param name="redeemRefreshTokenRequestDto"></param>
-        /// <returns>New authentication and refresh tokens.</returns>
+        /// <summary>Refresh token</summary>
+        /// <param name="redeemRefreshTokenRequestDto">Refresh token request</param>
+        /// <returns>New authentication tokens.</returns>
+        /// <remarks>Generates new JWT and refresh token pair.</remarks>
         [HttpPost("refresh")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -175,10 +167,9 @@ namespace Sparq.WebApi.Controllers
             return Ok(loginResponseDto);
         }
 
-        /// <summary>
-        /// Logout
-        /// </summary>
+        /// <summary>Logout</summary>
         /// <returns>No content.</returns>
+        /// <remarks>Invalidates the current user session.</remarks>
         [HttpPost]
         [Route("logout")]
         [Authorize]
@@ -191,13 +182,19 @@ namespace Sparq.WebApi.Controllers
             return NoContent();
         }
 
+        /// <summary>Update nickname</summary>
+        /// <param name="nickNameUpdateRequestDto">Nickname update request</param>
+        /// <returns>Updated user.</returns>
+        /// <remarks>Updates the nickname of the current authenticated user.</remarks>
         [HttpPatch("nickname")]
         [Authorize]
-        public async Task<IActionResult> UpdateNickName([FromBody] NickNameUpdateRequestDto dto)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponseDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateNickName([FromBody] NickNameUpdateRequestDto nickNameUpdateRequestDto)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
-            var updatedUser = await _usersService.UpdateNickNameAsync(user!.Id, dto.NickName);
+            var updatedUser = await _usersService.UpdateNickNameAsync(user!.Id, nickNameUpdateRequestDto.NickName);
 
             if (updatedUser == null)
                 return NotFound();

@@ -52,7 +52,7 @@ export const quizApi = baseApi.injectEndpoints({
           : [{ type: "Quiz" as const, id: "LIST" }],
     }),
 
-    getQuizById: builder.query<QuizResponseDto, number>({
+    getQuizById: builder.query<QuizResponseDto, string>({
       async queryFn(id) {
         try {
           return { data: await getQuizByIdApi(id) };
@@ -64,7 +64,7 @@ export const quizApi = baseApi.injectEndpoints({
       providesTags: (_r, _e, id) => [{ type: "Quiz", id }],
     }),
 
-    deactivateQuiz: builder.mutation<null, number>({
+    deactivateQuiz: builder.mutation<null, string>({
       async queryFn(id) {
         try {
           await deactivateQuizByIdApi(id);
@@ -82,7 +82,7 @@ export const quizApi = baseApi.injectEndpoints({
 
     getQuizSessionsById: builder.query<
       PagedResult<MyQuizSessionsListDto>,
-      { id: number; page: number; pageSize: number }
+      { id: string; page: number; pageSize: number }
     >({
       async queryFn({ id, page, pageSize }) {
         try {

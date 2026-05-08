@@ -1,5 +1,5 @@
 export interface AnswerResponseDto {
-  id: number;
+  id: string;
   text: string;
   isCorrect: boolean;
 }

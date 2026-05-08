@@ -9,13 +9,13 @@ namespace Sparq.DataAccess.Models
     public class Question
     {
         [Key]
-        public int Id { get; set; }
-        public int SnapshotId { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string? SnapshotId { get; set; }
         [ForeignKey("SnapshotId")]
         public virtual Snapshot? Snapshot { get; set; }
         public string? Title { get; set; }
         public string? Text { get; set; }
-        public int? MediaId { get; set; }
+        public string? MediaId { get; set; }
         [ForeignKey("MediaId")]
         public virtual Media? Media { get; set; }
         public int? TimeLimit { get; set; }

@@ -9,13 +9,13 @@ namespace Sparq.Shared.Models.SessionDto
     public class SessionListDto
     {
 
-        public int Id { get; set; }
-        public int SnapshotId { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string SnapshotId { get; set; } = string.Empty;
         public SnapshotMetaDetailsResponseDto? Snapshot { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }
-        public int? CurrentQuestionId { get; set; }
+        public string? CurrentQuestionId { get; set; }
         public string PinCode { get; set; } = string.Empty;
         public bool IsWaiting { get; set; }
         public bool IsRunning { get; set; }

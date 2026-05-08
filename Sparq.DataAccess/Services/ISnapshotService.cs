@@ -8,9 +8,9 @@ namespace Sparq.DataAccess.Services
     public interface ISnapshotService
     {
         Task<Snapshot> CreateAsync(Snapshot version);
-        Task<Snapshot?> GetByIdAsync(int id);
+        Task<Snapshot?> GetByIdAsync(string id);
         Task<IReadOnlyCollection<Snapshot>> GetAllAsync();
-        Task<Snapshot?> UpdateAsync(int id, Snapshot updatedVersion);
-        Task<bool> DeleteAsync(int id);
+        Task<Snapshot?> UpdateAsync(string id, Snapshot updatedVersion);
+        Task<bool> DeleteAsync(string id);
     }
 }

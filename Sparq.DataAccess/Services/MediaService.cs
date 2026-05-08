@@ -46,7 +46,7 @@ namespace Sparq.DataAccess.Services
             return media;
         }
 
-        public async Task<(Media Media, Stream Stream)> GetFileAsync(int id, string userId)
+        public async Task<(Media Media, Stream Stream)> GetFileAsync(string id, string userId)
         {
             var media = await _context.Media
                 .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
@@ -60,7 +60,7 @@ namespace Sparq.DataAccess.Services
             return (media, await _storage.DownloadAsync(media.StorageKey));
         }
 
-        public async Task<bool> DeleteAsync(int id, string userId)
+        public async Task<bool> DeleteAsync(string id, string userId)
         {
             var media = await _context.Media
                 .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);

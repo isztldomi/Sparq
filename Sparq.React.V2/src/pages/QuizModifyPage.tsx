@@ -35,9 +35,7 @@ export function QuizModifyPage() {
 
   const { quizId } = useParams();
 
-  const { data, isLoading, isError, error } = useGetQuizByIdQuery(
-    Number(quizId),
-  );
+  const { data, isLoading, isError, error } = useGetQuizByIdQuery(quizId);
 
   const [serverErrors, setServerErrors] = useState<
     { field: string; message: string }[]
@@ -60,11 +58,7 @@ export function QuizModifyPage() {
           try {
             const blob = await getMediaBlobApi(q.mediaId);
 
-            console.log("BLOB", blob);
-
             const previewUrl = URL.createObjectURL(blob);
-
-            console.log("PREVIEW URL", previewUrl);
 
             return {
               ...q,
@@ -87,8 +81,6 @@ export function QuizModifyPage() {
         ],
       };
 
-      console.log(finalData);
-
       setFormData(finalData);
     }
 
@@ -101,8 +93,6 @@ export function QuizModifyPage() {
   if (!formData) return <LoadingIndicator />;
 
   const snapshot = formData.snapshots[0];
-
-  console.log(snapshot);
 
   function clamp(value: number, min: number, max: number) {
     return Math.max(min, Math.min(max, value));
@@ -375,10 +365,10 @@ export function QuizModifyPage() {
 
     if (!result.success) {
       const errorMap = buildErrorMap(result.error.issues);
+      console.log(errorMap);
 
       setFormErrors(errorMap);
 
-      console.log("ERROR MAP:", errorMap);
       return;
     }
 
@@ -411,10 +401,7 @@ export function QuizModifyPage() {
 
       await createSnapshot(dto).unwrap();
 
-      // dispatch(quizApi.util.resetApiState());
       navigate(`/my-quizzes`);
-
-      console.log("Snapshot CREATED");
     } catch (err: unknown) {
       const error = err as { data?: ProblemDetails };
       setServerErrors(flattenErrors(error.data?.errors));
@@ -428,11 +415,9 @@ export function QuizModifyPage() {
   // ---------------------------
   async function handleDeactivate() {
     try {
-      await deactivateQuiz(Number(quizId)).unwrap();
+      await deactivateQuiz(quizId as string).unwrap();
 
       navigate(`/my-quizzes`);
-
-      console.log("Deleted");
     } catch (err: unknown) {
       const error = err as { data?: ProblemDetails };
       setServerErrors(flattenErrors(error.data?.errors));

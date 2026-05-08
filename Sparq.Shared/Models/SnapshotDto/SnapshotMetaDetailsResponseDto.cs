@@ -6,8 +6,8 @@ namespace Sparq.Shared.Models.SnapshotDto
 {
     public class SnapshotMetaDetailsResponseDto
     {
-        public int Id { get; set; }
-        public int QuizId { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string QuizId { get; set; } = string.Empty;
         public int SnapshotNumber { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

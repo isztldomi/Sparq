@@ -1,11 +1,11 @@
 import type { Snapshot } from "./snapshot";
 
 export type Quiz = {
-  id: number;
+  id: string;
   ownerId: string;
   isPublic: boolean;
   isActive: boolean;
-  lastSnapshotId: number;
+  lastSnapshotId: string;
   snapshots: Snapshot[];
 
   createdAt: Date;

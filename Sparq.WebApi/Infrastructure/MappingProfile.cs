@@ -37,7 +37,9 @@ namespace Sparq.WebApi.Infrastructure
             CreateMap<CreateSessionResponseDto, Session>(MemberList.Destination);
 
             CreateMap<Question, QuestionResponseDto>(MemberList.Destination);
-            CreateMap<QuestionCreateRequestDto, Question>(MemberList.Destination);
+            CreateMap<QuestionCreateRequestDto, Question>()
+                .ForMember(dest => dest.Media, opt => opt.Ignore())
+                .ForMember(dest => dest.Snapshot, opt => opt.Ignore());
 
             CreateMap<Answer, AnswerResponseDto>(MemberList.Destination);
             CreateMap<AnswerCreateRequestDto, Answer>(MemberList.Destination);
