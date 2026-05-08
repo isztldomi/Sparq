@@ -3,13 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "@/app/hooks";
 
-import { authApi } from "@/features/auth/authApi";
-import { userApi } from "@/features/user/userApi";
-import { quizApi } from "@/features/quiz/quizApi";
-import { mediaApi } from "@/features/media/mediaApi";
-
 import { clearAuth } from "@/features/auth/authStorage";
-import { snapshotApi } from "@/features/snapshot/snapshotApi";
+import { baseApi } from "@/features/base/baseApi";
 
 export function LogoutPage() {
   const dispatch = useAppDispatch();
@@ -20,11 +15,7 @@ export function LogoutPage() {
     clearAuth();
 
     // RTK Query cache cleanup
-    dispatch(authApi.util.resetApiState());
-    dispatch(userApi.util.resetApiState());
-    dispatch(quizApi.util.resetApiState());
-    dispatch(mediaApi.util.resetApiState());
-    dispatch(snapshotApi.util.resetApiState());
+    dispatch(baseApi.util.resetApiState());
 
     // redirect
     navigate("/profile/login", {
