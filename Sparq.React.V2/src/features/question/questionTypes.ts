@@ -8,6 +8,7 @@ export type QuestionResponseDto = {
   id: string;
   title: string;
   text: string;
+  order: number;
   mediaId: string | null;
   timeLimit: number;
   point: number;
@@ -17,6 +18,7 @@ export type QuestionResponseDto = {
 export type QuestionCreateRequestDto = {
   title: string;
   text: string;
+  order: number;
   mediaId: string | null;
   timeLimit: number;
   point: number;

@@ -80,7 +80,8 @@ export function SortableQuestionContainer({
           placeholder={`${indexQuestion + 1} Question Title`}
           className={`flex-1 min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none border
             ${
-              getClientError(`snapshots.0.questions.${indexQuestion}.title`)
+              getClientError(`snapshots.0.questions.${indexQuestion}.title`) ||
+              getClientError(`questions.${indexQuestion}.title`)
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
             }`}
@@ -90,7 +91,9 @@ export function SortableQuestionContainer({
         <div
           className={`flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)] border
             ${
-              getClientError(`snapshots.0.questions.${indexQuestion}.timeLimit`)
+              getClientError(
+                `snapshots.0.questions.${indexQuestion}.timeLimit`,
+              ) || getClientError(`questions.${indexQuestion}.timeLimit`)
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
             }`}
@@ -111,7 +114,8 @@ export function SortableQuestionContainer({
         <div
           className={`flex min-w-[50px] max-w-[110px] p-2 rounded-lg bg-[var(--surface-5)] border
             ${
-              getClientError(`snapshots.0.questions.${indexQuestion}.point`)
+              getClientError(`snapshots.0.questions.${indexQuestion}.point`) ||
+              getClientError(`questions.${indexQuestion}.point`)
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
             }`}

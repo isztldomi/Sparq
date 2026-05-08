@@ -365,10 +365,7 @@ export function QuizModifyPage() {
 
     if (!result.success) {
       const errorMap = buildErrorMap(result.error.issues);
-      console.log(errorMap);
-
       setFormErrors(errorMap);
-
       return;
     }
 
@@ -377,14 +374,21 @@ export function QuizModifyPage() {
     try {
       const snapshot = formData!.snapshots[0];
 
+      // 1. ORDER FIX (QUESTION + ANSWER)
+      const orderedQuestions = snapshot.questions.map((q, qIndex) => ({
+        ...q,
+        order: qIndex,
+        answers: q.answers.map((a, aIndex) => ({
+          ...a,
+          order: aIndex,
+        })),
+      }));
+
+      // 2. MEDIA UPLOAD
       const questionsWithMedia = await Promise.all(
-        snapshot.questions.map(async (q) => {
-          if (!q.mediaFile) {
-            return q;
-          }
-
+        orderedQuestions.map(async (q) => {
+          if (!q.mediaFile) return q;
           const res = await uploadMedia(q.mediaFile).unwrap();
-
           return {
             ...q,
             mediaId: res.id,
@@ -392,22 +396,20 @@ export function QuizModifyPage() {
         }),
       );
 
+      // 3. FINAL SNAPSHOT
       const finalSnapshotData = {
         ...snapshot,
         questions: questionsWithMedia,
-      } as SnapshotUI;
+      };
 
       const dto = mapSnapshotUIToDto(finalSnapshotData, quizId as string);
 
       await createSnapshot(dto).unwrap();
-
       navigate(`/my-quizzes`);
     } catch (err: unknown) {
       const error = err as { data?: ProblemDetails };
       setServerErrors(flattenErrors(error.data?.errors));
     }
-
-    return null;
   }
 
   // ---------------------------
@@ -472,7 +474,7 @@ export function QuizModifyPage() {
           <div
             className={`flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)] border
                           ${
-                            getClientError(`snapshots.0.timeLimit`)
+                            getClientError(`timeLimit`)
                               ? "border-[var(--error-text)]"
                               : "border-transparent"
                           }`}
@@ -493,7 +495,7 @@ export function QuizModifyPage() {
             <div
               className={`flex items-center w-50 p-2 rounded-lg bg-[var(--surface-5)] border
                           ${
-                            getClientError(`snapshots.0.pinCode`)
+                            getClientError(`pinCode`)
                               ? "border-[var(--error-text)]"
                               : "border-transparent"
                           }`}
@@ -522,7 +524,7 @@ export function QuizModifyPage() {
             placeholder="Quiz Title"
             className={`flex-1 w-full min-w-[150px] p-2 rounded-lg bg-[var(--surface-5)] text-[var(--text-h)] outline-none border
             ${
-              getClientError(`snapshots.0.title`)
+              getClientError(`title`)
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
             }`}
@@ -537,7 +539,7 @@ export function QuizModifyPage() {
             onPointerDown={(e) => e.stopPropagation()}
             className={`w-full min-h-[80px] bg-[var(--surface-5)] text-[var(--text-h)] rounded-lg p-2 outline-none border
             ${
-              getClientError(`snapshots.0.description`)
+              getClientError(`description`)
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
             }`}
@@ -545,9 +547,9 @@ export function QuizModifyPage() {
         </div>
       </div>
 
-      {getClientError("snapshots.0.questions") && (
+      {getClientError("questions") && (
         <p className="text-[var(--error-text)]">
-          {getClientError("snapshots.0.questions")}
+          {getClientError("questions")}
         </p>
       )}
       {/* QUESTIONS */}

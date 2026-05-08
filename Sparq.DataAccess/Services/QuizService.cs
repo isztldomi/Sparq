@@ -42,6 +42,8 @@ namespace Sparq.DataAccess.Services
             return await _context.Quizzes
                 .Include(q => q.Owner)
                 .Include(q => q.Snapshots)
+                .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
+                .ThenInclude(q => q.Answers.OrderBy(a => a.Order))
                 .Include(q => q.LastSnapshot)
                 .FirstOrDefaultAsync(q => q.Id == id && q.IsActive);
         }

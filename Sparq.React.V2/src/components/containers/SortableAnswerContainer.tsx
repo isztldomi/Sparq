@@ -54,6 +54,9 @@ export function SortableAnswerContainer({
             ${
               getClientError(
                 `snapshots.0.questions.${indexQuestion}.answers.${indexAnswer}.text`,
+              ) ||
+              getClientError(
+                `questions.${indexQuestion}.answers.${indexAnswer}.text`,
               )
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
@@ -68,7 +71,9 @@ export function SortableAnswerContainer({
             falseLabel="Wrong"
             className={`flex-1 h-full border
             ${
-              getClientError(`snapshots.0.questions.${indexQuestion}.answers`)
+              getClientError(
+                `snapshots.0.questions.${indexQuestion}.answers`,
+              ) || getClientError(`questions.${indexQuestion}.answers`)
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
             }`}

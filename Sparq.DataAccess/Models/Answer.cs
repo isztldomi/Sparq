@@ -13,6 +13,7 @@ namespace Sparq.DataAccess.Models
         public string? QuestionId { get; set; }
         [ForeignKey("QuestionId")]
         public virtual Question? Question { get; set; }
+        public int Order { get; set; }
         public string? Text { get; set; }
         public bool IsCorrect { get; set; }
         public virtual ICollection<ParticipantAnswer> ParticipantAnswers { get; set; } = new List<ParticipantAnswer>();

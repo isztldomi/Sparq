@@ -10,5 +10,7 @@ namespace Sparq.Shared.Models.AnswerDto
 
         [Required(ErrorMessage = "The IsCorrect field is required.")]
         public bool IsCorrect { get; set; }
+        [Required(ErrorMessage = "The Order field is required.")]
+        public int Order { get; set; }
     }
 }

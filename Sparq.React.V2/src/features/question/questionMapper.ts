@@ -12,6 +12,7 @@ export function mapQuestionUIToDto(q: QuestionUI): QuestionCreateRequestDto {
   return {
     title: q.title,
     text: q.text,
+    order: q.order,
     mediaId: q.mediaId ?? null,
     timeLimit: q.timeLimit,
     point: q.point,
@@ -25,6 +26,7 @@ export function mapQuestionDtoToUI(q: QuestionResponseDto): QuestionUI {
     isOpen: false,
     title: q.title,
     text: q.text,
+    order: q.order,
     mediaId: q.mediaId ?? null,
     mediaFile: null,
     mediaPreviewUrl: null,

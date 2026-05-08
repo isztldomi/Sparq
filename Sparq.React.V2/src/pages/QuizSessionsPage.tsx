@@ -15,10 +15,15 @@ export function QuizSessionsPage() {
   const [createSession, { isLoading: isCreating }] = useCreateSessionMutation();
 
   async function handleCreateSession() {
+    if (!quizId) {
+      console.error("Missing quizId");
+      return;
+    }
+
     try {
-      await createSession({ quizId: id }).unwrap();
+      await createSession({ quizId }).unwrap();
     } catch (e) {
-      console.error(e);
+      console.error("Session create failed:", e);
     }
   }
 

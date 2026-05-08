@@ -43,7 +43,8 @@ export function SortableQuestionCard({
           onPointerDown={(e) => e.stopPropagation()}
           className={`w-full min-h-[80px] bg-[var(--surface-5)] text-[var(--text-h)] rounded-lg p-2 outline-none resize-none border
             ${
-              getClientError(`snapshots.0.questions.${indexQuestion}.text`)
+              getClientError(`snapshots.0.questions.${indexQuestion}.text`) ||
+              getClientError(`questions.${indexQuestion}.text`)
                 ? "border-[var(--error-text)]"
                 : "border-transparent"
             }`}
@@ -88,8 +89,6 @@ export function SortableQuestionCard({
               <img
                 key={question.mediaPreviewUrl}
                 src={question.mediaPreviewUrl ?? undefined}
-                onLoad={() => console.log("IMAGE LOADED")}
-                onError={() => console.log("IMAGE ERROR")}
                 className="w-full h-[150px] object-cover"
               />
             </div>

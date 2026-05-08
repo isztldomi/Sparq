@@ -294,44 +294,49 @@ export function QuizCreatePage() {
   // DONE
   // ---------------------------
   async function handleDone() {
-    console.log(
-      "FINAL ORDER BEFORE UPLOAD:",
-      snapshot.questions.map((q) => ({
-        id: q.id,
-        hasMedia: !!q.mediaFile,
-        mediaId: q.mediaId,
-      })),
-    );
-    const result = quizSchema.safeParse(formData);
+    const snapshot = formData.snapshots[0];
+
+    // 1. ORDER FIX (QUESTION + ANSWER)
+    const orderedQuestions = snapshot.questions.map((q, qIndex) => {
+      const orderedAnswers = q.answers.map((a, aIndex) => ({
+        ...a,
+        order: aIndex,
+      }));
+
+      return {
+        ...q,
+        order: qIndex,
+        answers: orderedAnswers,
+      };
+    });
+
+    // VALIDATION
+    const result = quizSchema.safeParse({
+      ...formData,
+      snapshots: [
+        {
+          ...snapshot,
+          questions: orderedQuestions,
+        },
+      ],
+    });
 
     if (!result.success) {
       const errorMap = buildErrorMap(result.error.issues);
-
       setFormErrors(errorMap);
-
-      console.log("ERROR MAP:", errorMap);
       return;
     }
 
     setFormErrors({});
 
     try {
-      const snapshot = formData.snapshots[0];
-
+      // MEDIA UPLOAD
       const questionsWithMedia = await Promise.all(
-        snapshot.questions.map(async (q) => {
-          if (!q.mediaFile) {
-            return q;
-          }
+        orderedQuestions.map(async (q) => {
+          if (!q.mediaFile) return q;
 
           const res = await uploadMedia(q.mediaFile).unwrap();
-          console.log(
-            "AFTER UPLOAD:",
-            questionsWithMedia.map((q) => ({
-              id: q.id,
-              mediaId: q.mediaId,
-            })),
-          );
+
           return {
             ...q,
             mediaId: res.id,
@@ -353,8 +358,6 @@ export function QuizCreatePage() {
 
       await createQuiz(dto).unwrap();
       navigate(`/my-quizzes`);
-
-      console.log("QUIZ CREATED");
     } catch (err: unknown) {
       const error = err as { data?: ProblemDetails };
       setServerErrors(flattenErrors(error.data?.errors));
