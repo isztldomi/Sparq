@@ -141,7 +141,7 @@ namespace Sparq.DataAccess.Services
             var items = await baseQuery
                 .Include(s => s.Snapshot)
                 .Include(s => s.Participants)
-                .OrderByDescending(s => s.StartedAt)
+                .OrderByDescending(s => s.CreatedAt)
                 .ThenByDescending(s => s.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

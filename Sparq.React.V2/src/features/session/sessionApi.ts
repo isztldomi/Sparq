@@ -1,6 +1,9 @@
 import { baseApi } from "@/features/base/baseApi";
 import { toApiError } from "@/api/core/toApiError";
-import { createSessionApi } from "@/api/services/sessionService";
+import {
+  activateForWaitingSessionApi,
+  createSessionApi,
+} from "@/api/services/sessionService";
 
 import type {
   CreatedSessionResponseDto,
@@ -30,7 +33,26 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Session", id: "LIST" },
       ],
     }),
+    activateForWaitingSession: builder.mutation<void, string>({
+      async queryFn(sessionId) {
+        try {
+          await activateForWaitingSessionApi(sessionId);
+          return { data: undefined };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      invalidatesTags: (_result, _error, sessionId) => [
+        { type: "Session", id: sessionId },
+        { type: "Session", id: "LIST" },
+      ],
+    }),
   }),
 });
 
-export const { useCreateSessionMutation } = sessionApi;
+export const {
+  useCreateSessionMutation,
+  useActivateForWaitingSessionMutation,
+} = sessionApi;
