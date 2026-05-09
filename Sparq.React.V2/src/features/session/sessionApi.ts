@@ -70,13 +70,13 @@ export const sessionApi = baseApi.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
+              { type: "Session", id: "PUBLIC_WAITING_LIST" },
               ...result.items.map((s) => ({
                 type: "Session" as const,
                 id: s.id,
               })),
-              { type: "Session" as const, id: "LIST" },
             ]
-          : [{ type: "Session" as const, id: "LIST" }],
+          : [{ type: "Session", id: "PUBLIC_WAITING_LIST" }],
     }),
   }),
 });

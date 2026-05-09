@@ -5,6 +5,7 @@ import {
   getMyQuizzesApi,
   getQuizByIdApi,
   getQuizSessionsByIdApi,
+  ToggleVisibilityQuizByIdApi,
 } from "@/api/services/quizService";
 import { toApiError } from "@/api/core/toApiError";
 import type { PagedResult } from "../page/pageTypes";
@@ -102,6 +103,22 @@ export const quizApi = baseApi.injectEndpoints({
             ]
           : [{ type: "Session" as const, id: "LIST" }],
     }),
+
+    toggleVisibilityQuiz: builder.mutation<void, string>({
+      async queryFn(id) {
+        try {
+          await ToggleVisibilityQuizByIdApi(id);
+          return { data: undefined };
+        } catch (e) {
+          return { error: toApiError(e) };
+        }
+      },
+      invalidatesTags: (_r, _e, id) => [
+        { type: "Quiz", id },
+        { type: "Quiz", id: "LIST" },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
+      ],
+    }),
   }),
 });
 
@@ -111,4 +128,5 @@ export const {
   useGetQuizByIdQuery,
   useDeactivateQuizMutation,
   useGetQuizSessionsByIdQuery,
+  useToggleVisibilityQuizMutation,
 } = quizApi;
