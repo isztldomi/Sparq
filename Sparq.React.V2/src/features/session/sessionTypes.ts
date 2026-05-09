@@ -1,4 +1,7 @@
-import type { SnapshotMetaDetailsResponseDto } from "../snapshot/snapshotTypes";
+import type {
+  SnapshotMetaDetails2ResponseDto,
+  SnapshotMetaDetailsResponseDto,
+} from "../snapshot/snapshotTypes";
 
 export type MyQuizSessionsListDto = {
   id: string;
@@ -22,4 +25,9 @@ export type CreatedSessionResponseDto = {
 
 export type CreateSessionRequestDto = {
   quizId: string;
+};
+
+export type SessionPublicWaitingListDto = {
+  id: string;
+  snapshot: SnapshotMetaDetails2ResponseDto;
 };

@@ -7,6 +7,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { LogoutPage } from "@/pages/LogoutPage";
 import { RegistrationPage } from "@/pages/RegistrationPage";
 import { SessionPage } from "@/pages/SessionPage";
+import { PublicActiveSessionsPage } from "@/pages/PublicActiveSessionsPage";
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -30,11 +31,15 @@ export const publicRoutes: RouteObject[] = [
     element: <RegistrationPage />,
   },
   {
-    path: "*",
-    element: <NotFoundPage />,
+    path: "/session",
+    element: <PublicActiveSessionsPage />,
   },
   {
-    path: "/sessions/:sessionId",
+    path: "/session/:sessionId",
     element: <SessionPage />,
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ];

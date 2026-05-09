@@ -27,12 +27,14 @@ namespace Sparq.WebApi.Infrastructure
             CreateMap<Quiz, QuizResponseDto>(MemberList.Destination);
             CreateMap<QuizCreateRequestDto, Quiz>(MemberList.Destination);
 
+            CreateMap<Snapshot, SnapshotMetaDetails2ResponseDto>(MemberList.Destination);
             CreateMap<Snapshot, SnapshotMetaDetailsResponseDto>(MemberList.Destination);
             CreateMap<Snapshot, MyQuizSnapshotListDto>(MemberList.Destination);
             CreateMap<Snapshot, SnapshotResponseDto>(MemberList.Destination);
             CreateMap<SnapshotCreateFromQuizRequestDto, Snapshot>(MemberList.Destination);
             CreateMap<SnapshotCreateRequestDto, Snapshot>(MemberList.Destination);
 
+            CreateMap<Session, SessionPublicWaitingListDto>(MemberList.Destination);
             CreateMap<Session, SessionListDto>(MemberList.Destination);
             CreateMap<Session, CreateSessionResponseDto>(MemberList.Destination);
 

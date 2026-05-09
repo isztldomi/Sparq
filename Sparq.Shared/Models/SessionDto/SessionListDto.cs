@@ -8,7 +8,6 @@ namespace Sparq.Shared.Models.SessionDto
 {
     public class SessionListDto
     {
-
         public string Id { get; set; } = string.Empty;
         public string SnapshotId { get; set; } = string.Empty;
         public SnapshotMetaDetailsResponseDto? Snapshot { get; set; }

@@ -7,7 +7,7 @@ export function Navbar() {
     <nav className="bg-[var(--surface-2)] sticky bottom-0 z-50 shadow-md rounded-t-3xl py-1">
       <div className="flex justify-center gap-10 md:gap-20 lg:gap-30 xl:gap-40 py-3 max-w-md mx-auto">
         <NavbarLink
-          to="/quizzes"
+          to="/session"
           icon={FlaskConical}
           activeColor="text-[var(--nav-icon-1)]"
         />

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.Page;
+using Sparq.Shared.Models.QuizDto;
 using Sparq.Shared.Models.SessionDto;
 using Sparq.SignalR.Notifiers;
 
@@ -73,7 +74,7 @@ namespace Sparq.WebApi.Controllers
 
             var session = await _sessionService.CreateAsync(snapshot.Id);
 
-            if (session == null) 
+            if (session == null)
                 return NotFound("Snapshot not found");
 
             var result = _mapper.Map<CreateSessionResponseDto>(session);
@@ -120,5 +121,33 @@ namespace Sparq.WebApi.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("public-waiting")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResult<SessionPublicWaitingListDto>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetAllPublicWaitingSessions(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+
+
+            var (items, totalCount) = await _sessionService
+                .GetAllPublicWaitingSessionsPagedAsync( page, pageSize);
+
+
+            var mapped = _mapper.Map<List<SessionPublicWaitingListDto>>(items);
+
+            var result = new PagedResult<SessionPublicWaitingListDto>
+            {
+                Items = mapped,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            return Ok(result);
+        }
     }
-}
+} 
