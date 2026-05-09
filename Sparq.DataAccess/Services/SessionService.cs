@@ -124,5 +124,24 @@ namespace Sparq.DataAccess.Services
 
             return true;
         }
+
+        public async Task<(List<Session> Items, int TotalCount)> GetAllPublicWaitingSessionsPagedAsync(int page, int pageSize)
+        {
+            var query = _context.Sessions
+                .Include(s => s.Snapshot)
+                .ThenInclude(s => s.Quiz)
+                .Where(s =>
+                    s.IsWaiting &&
+                    s.Snapshot != null &&
+                    s.Snapshot.Quiz != null &&
+                    s.Snapshot.Quiz.IsPublic &&
+                    s.Snapshot.Quiz.IsActive);
+            var totalCount = query.Count();
+            var items = query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            return (items, totalCount);
+        }
     }
 }

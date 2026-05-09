@@ -3,12 +3,15 @@ import { toApiError } from "@/api/core/toApiError";
 import {
   activateForWaitingSessionApi,
   createSessionApi,
+  getAllPublicWaitingSessionsApi,
 } from "@/api/services/sessionService";
 
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
+  SessionPublicWaitingListDto,
 } from "./sessionTypes";
+import type { PagedResult } from "../page/pageTypes";
 
 export const sessionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -49,10 +52,37 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Session", id: "LIST" },
       ],
     }),
+    getAllPublicWaitingSessions: builder.query<
+      PagedResult<SessionPublicWaitingListDto>,
+      { page: number; pageSize: number }
+    >({
+      async queryFn({ page, pageSize }) {
+        try {
+          return {
+            data: await getAllPublicWaitingSessionsApi(page, pageSize),
+          };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.items.map((s) => ({
+                type: "Session" as const,
+                id: s.id,
+              })),
+              { type: "Session" as const, id: "LIST" },
+            ]
+          : [{ type: "Session" as const, id: "LIST" }],
+    }),
   }),
 });
 
 export const {
   useCreateSessionMutation,
   useActivateForWaitingSessionMutation,
+  useGetAllPublicWaitingSessionsQuery,
 } = sessionApi;

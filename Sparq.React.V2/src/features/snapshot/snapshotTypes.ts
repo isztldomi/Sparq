@@ -42,3 +42,8 @@ export type SnapshotMetaDetailsResponseDto = {
   description: string;
   createdAt: Date;
 };
+
+export type SnapshotMetaDetails2ResponseDto = {
+  title: string;
+  description: string;
+};
