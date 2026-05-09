@@ -7,6 +7,8 @@ using Scalar.AspNetCore;
 using Sparq.DataAccess;
 using Sparq.DataAccess.Config;
 using Sparq.DataAccess.Models;
+using Sparq.SignalR.Hubs;
+using Sparq.SignalR.Notifiers;
 using Sparq.WebApi.Infrastructure;
 using System.Reflection;
 using System.Text;
@@ -49,13 +51,35 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
     };
+
+    // SignalR JWT support (WebSocket auth)
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/sessionHub"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
 builder.Services.AddAutomapper();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ExceptionToProblemDetailsHandler>();
+// SIGNALR REGISZTRÁCIÓ
+builder.Services.AddSignalR();
 
+// saját realtime service (SignalR wrapper)
+builder.Services.AddScoped<ISessionNotifier, SessionNotifier>();
 
 
 var app = builder.Build();
@@ -76,6 +100,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// SIGNALR HUB MAPPING
+app.MapHub<SessionHub>("/sessionHub");
 
 if (!app.Environment.IsEnvironment("IntegrationTest"))
 {

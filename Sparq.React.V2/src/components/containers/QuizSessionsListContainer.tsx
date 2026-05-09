@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { BasePaginatedList } from "@/components/paginatedLists/BasePaginatedList";
 import { useGetQuizSessionsByIdQuery } from "@/features/quiz/quizApi";
 import type { MyQuizSessionsListDto } from "@/features/session/sessionTypes";
@@ -19,6 +19,7 @@ export function QuizSessionsListContainer({
   pageSize,
   onPageChange,
 }: Props) {
+  const navigate = useNavigate();
   const { quizId } = useParams();
   const [activateSession, { isLoading: isActivating }] =
     useActivateForWaitingSessionMutation();
@@ -107,6 +108,14 @@ export function QuizSessionsListContainer({
                       {isActivating ? "Activating..." : "Activate session"}
                     </GreenButton>
                   )}
+                {session.isWaiting && (
+                  <GreenButton
+                    className="w-30 h-10"
+                    onClick={() => navigate(`/sessions/${session.id}`)}
+                  >
+                    Join session
+                  </GreenButton>
+                )}
               </div>
             </>
           )}
