@@ -11,6 +11,7 @@ namespace Sparq.DataAccess.Services
         Task<Session?> GetByIdAsync(string id);
         Task<IReadOnlyCollection<Session>> GetAllAsync();
         Task<Session?> UpdateAsync(string id, Session updatedSession);
-        Task<bool> DeleteAsync(string id);
+        Task<bool> DeleteAsync(string id); 
+        Task<bool> ActivateForWaitingByIdAsync(string id);
     }
 }

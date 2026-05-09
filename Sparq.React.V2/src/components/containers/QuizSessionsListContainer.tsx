@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { BasePaginatedList } from "@/components/paginatedLists/BasePaginatedList";
 import { useGetQuizSessionsByIdQuery } from "@/features/quiz/quizApi";
 import type { MyQuizSessionsListDto } from "@/features/session/sessionTypes";
 import { SessionStatusLabel } from "@/components/label/SessionStatusLabel";
+import { GreenButton } from "../buttons/greenButton";
+import { useActivateForWaitingSessionMutation } from "@/features/session/sessionApi";
+import { InlineLoading } from "../loadings/InlineLoading";
 
 type Props = {
   page: number;
@@ -16,6 +20,9 @@ export function QuizSessionsListContainer({
   onPageChange,
 }: Props) {
   const { quizId } = useParams();
+  const [activateSession, { isLoading: isActivating }] =
+    useActivateForWaitingSessionMutation();
+  const [activatingId, setActivatingId] = useState<string | null>(null);
 
   const { data, isLoading, isFetching, isError } = useGetQuizSessionsByIdQuery(
     {
@@ -43,20 +50,65 @@ export function QuizSessionsListContainer({
       onPageChange={onPageChange}
       emptyContent={<p className="text-[var(--text-h)]">No sessions found.</p>}
       renderItem={(session) => (
-        <div className="flex justify-between items-center gap-3 p-5 rounded-lg bg-[var(--surface-4)]">
-          <div className="flex flex-col max-w-40">
-            <p className="text-2xl break-words">
-              {session.snapshot.title ?? "Untitled quiz"}
-            </p>
-
-            <p className="text-sm text-[var(--text-muted)] break-words">
-              {session.snapshot.description}
-            </p>
-          </div>
-          {session.isWaiting && (
+        <div className="flex flex-wrap justify-between items-center gap-3 p-5 rounded-lg bg-[var(--surface-4)]">
+          {activatingId === session.id ? (
             <div>
-              <SessionStatusLabel variant="warning">Waiting</SessionStatusLabel>
+              <InlineLoading />
             </div>
+          ) : (
+            <>
+              <div className="flex flex-col max-w-40">
+                <p className="text-2xl break-words">
+                  {session.snapshot.title ?? "Untitled quiz"}
+                </p>
+
+                <p className="text-sm text-[var(--text-muted)] break-words">
+                  {session.snapshot.description}
+                </p>
+              </div>
+              <div>
+                {!session.isWaiting &&
+                  !session.isRunning &&
+                  !session.endedAt && (
+                    <SessionStatusLabel variant="neutral">
+                      Not Started
+                    </SessionStatusLabel>
+                  )}
+                {session.isWaiting && (
+                  <SessionStatusLabel variant="warning">
+                    Waiting
+                  </SessionStatusLabel>
+                )}
+                {session.isRunning && (
+                  <SessionStatusLabel variant="error">
+                    Running
+                  </SessionStatusLabel>
+                )}
+                {session.endedAt && (
+                  <SessionStatusLabel variant="info">Ended</SessionStatusLabel>
+                )}
+              </div>
+              <div>
+                {!session.isWaiting &&
+                  !session.isRunning &&
+                  !session.endedAt && (
+                    <GreenButton
+                      className="w-30 h-10"
+                      onClick={async () => {
+                        try {
+                          setActivatingId(session.id);
+                          await activateSession(session.id).unwrap();
+                        } finally {
+                          setActivatingId(null);
+                        }
+                      }}
+                      disabled={isActivating}
+                    >
+                      {isActivating ? "Activating..." : "Activate session"}
+                    </GreenButton>
+                  )}
+              </div>
+            </>
           )}
         </div>
       )}

@@ -76,5 +76,43 @@ namespace Sparq.WebApi.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>Activate session waiting state</summary>
+        /// <param name="sessionId">The session identifier.</param>
+        /// <remarks>
+        /// Sets the session into waiting state (IsWaiting = true).
+        /// Only the quiz owner is allowed to activate the session.
+        /// Returns 204 No Content if the operation succeeds.
+        /// </remarks>
+        [HttpPatch("{sessionId}/activate-waiting")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ActivateForWaitingById([FromRoute] string sessionId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+            if (user == null)
+                return Unauthorized();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+            if (session == null)
+                return NotFound("Session not found");
+
+            var quiz = await _quizService.GetByIdAsync(session.Snapshot!.QuizId!);
+            if (quiz == null)
+                return NotFound("Quiz not found");
+
+            if (quiz.OwnerId != user.Id)
+                return Forbid();
+
+            var success = await _sessionService.ActivateForWaitingByIdAsync(sessionId);
+
+            if (!success)
+                return NotFound("Session not found");
+
+            return NoContent();
+        }
     }
 }
