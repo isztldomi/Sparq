@@ -114,7 +114,7 @@ export function QuizSessionsListContainer({
                 {session.isWaiting && (
                   <GreenButton
                     className="w-30 h-10"
-                    onClick={() => navigate(`/session/${session.id}/join`)}
+                    onClick={() => navigate(`/session/${session.id}`)}
                   >
                     Join session
                   </GreenButton>

@@ -103,5 +103,15 @@ namespace Sparq.DataAccess.Services
                 .Include(p => p.User)
                 .ToListAsync();
         }
+
+        public async Task<bool> IsUserJoinedAsync(string userId, string sessionId)
+        {
+            return await _context.Participants.AnyAsync(p => p.UserId == userId && p.SessionId == sessionId);
+        }
+
+        public async Task<bool> IsExtUserJoinedAsync(string extUserId, string sessionId)
+        {
+            return await _context.Participants.AnyAsync(p => p.ExternalUserId == extUserId && p.SessionId == sessionId);
+        }
     }
 }

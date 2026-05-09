@@ -10,7 +10,7 @@ namespace Sparq.WebApi.Controllers
 {
     /// <summary>Media</summary>
     [ApiController]
-    [Route("api/media")]
+    [Route("api/[controller]")]
     public class MediaController : ControllerBase
     {
         private readonly IMediaService _mediaService;

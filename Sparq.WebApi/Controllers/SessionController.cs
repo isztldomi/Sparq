@@ -7,6 +7,7 @@ using Sparq.Shared.Models.Page;
 using Sparq.Shared.Models.QuizDto;
 using Sparq.Shared.Models.SessionDto;
 using Sparq.SignalR.Notifiers;
+using System.Xml.Linq;
 
 namespace Sparq.WebApi.Controllers
 {
@@ -210,13 +211,69 @@ namespace Sparq.WebApi.Controllers
 
             return Ok(mapped);
         }
-
         [HttpPost("join")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> JoinSession([FromBody] JoinSessionRequestDto joinSessionRequestDto)
         {
+            var user = await _usersService.GetCurrentUserAsync();
+            if (user == null)
+                return Unauthorized();
+
+            var session = await _sessionService.GetByIdAsync(joinSessionRequestDto.SessionId);
+            if (session == null)
+                return NotFound("Session not found");
+
+            if (session.Snapshot == null)
+                return NotFound("Snapshot not found");
+
+            var quiz = await _quizService.GetByIdAsync(session.Snapshot!.QuizId!);
+            if (quiz == null)
+                return NotFound("Quiz not found");
+
+            if (quiz.OwnerId == user.Id)
+                return Forbid();
+
+            if (quiz.IsPublic == false)
+                return Forbid();
+
+            if (session.IsWaiting == false)
+                return Forbid();
+
+            if (session.Snapshot.PinCode != joinSessionRequestDto.PinCode)
+                return Forbid();
+
+            var newParticipant = new Participant
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = user?.Id ?? null,
+                ExternalUserId = null,
+                DisplayName = user!.NickName,
+                SessionId = session.Id,
+                Score = 0,
+                Rank = 0,
+                IsFinished = false,
+            };
+
+            var participant = await _participantService.CreateAsync(newParticipant);
+
+            return NoContent();
+        }
+
+        [HttpPost("ext-user-join")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JoinSessionExtUserResponseDto))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> JoinExtUserSession([FromBody] JoinSessionRequestDto joinSessionRequestDto)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user != null)
+                return Forbid();
+
             var session = await _sessionService.GetByIdAsync(joinSessionRequestDto.SessionId);
             if (session == null)
                 return NotFound("Session not found");
@@ -236,19 +293,13 @@ namespace Sparq.WebApi.Controllers
 
             if (session.Snapshot.PinCode != joinSessionRequestDto.PinCode)
                 return Forbid();
-            
-            var user = await _usersService.GetCurrentUserAsync();
-
-            var name = joinSessionRequestDto.Nickname.Trim();
-
-            if (user != null)
-                name = user!.NickName;
 
             var newParticipant = new Participant
             {
                 Id = Guid.NewGuid().ToString(),
-                UserId = user?.Id ?? null,
-                DisplayName = name,
+                UserId = null,
+                ExternalUserId = Guid.NewGuid().ToString(),
+                DisplayName = joinSessionRequestDto.Nickname.Trim(),
                 SessionId = session.Id,
                 Score = 0,
                 Rank = 0,
@@ -257,7 +308,12 @@ namespace Sparq.WebApi.Controllers
 
             var participant = await _participantService.CreateAsync(newParticipant);
 
-            return NoContent();
+            JoinSessionExtUserResponseDto joinSessionExtUserResponseDto = new JoinSessionExtUserResponseDto
+            {
+                ExternalUserId = newParticipant.ExternalUserId
+            };
+
+            return Ok(joinSessionExtUserResponseDto);
         }
     }
 } 

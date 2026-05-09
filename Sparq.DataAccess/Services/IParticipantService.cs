@@ -12,7 +12,8 @@ namespace Sparq.DataAccess.Services
         Task<IReadOnlyCollection<Participant>> GetAllAsync();
         Task<Participant?> UpdateAsync(string id, Participant updatedParticipant);
         Task<bool> DeleteAsync(string id);
-
-        Task<IReadOnlyCollection<Participant>> GetBySessionIdAsync(string sessionId);
+        Task<IReadOnlyCollection<Participant>> GetBySessionIdAsync(string sessionId); 
+        Task<bool> IsUserJoinedAsync(string userId, string sessionId);
+        Task<bool> IsExtUserJoinedAsync(string extUserId, string sessionId);
     }
 }
