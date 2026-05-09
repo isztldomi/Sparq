@@ -8,7 +8,6 @@ export function QuizSessionsPage() {
   const { quizId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const id = quizId ?? null;
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 10);
 

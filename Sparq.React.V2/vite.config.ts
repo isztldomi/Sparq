@@ -18,6 +18,14 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+
+      "/signalr": {
+        target: "https://localhost:7218",
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/signalr/, ""),
+      },
     },
   },
 });

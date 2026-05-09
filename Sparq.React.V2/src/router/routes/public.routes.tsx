@@ -6,6 +6,7 @@ import { ProfilePage } from "@/pages/ProfilePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { LogoutPage } from "@/pages/LogoutPage";
 import { RegistrationPage } from "@/pages/RegistrationPage";
+import { SessionPage } from "@/pages/SessionPage";
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -31,5 +32,9 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "*",
     element: <NotFoundPage />,
+  },
+  {
+    path: "/sessions/:sessionId",
+    element: <SessionPage />,
   },
 ];

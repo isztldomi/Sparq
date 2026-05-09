@@ -5,7 +5,6 @@ using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.MediaDto;
 using System.Security.Claims;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Sparq.WebApi.Controllers
 {
