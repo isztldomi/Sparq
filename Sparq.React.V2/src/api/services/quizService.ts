@@ -35,3 +35,7 @@ export function getQuizSessionsByIdApi(
 ): Promise<PagedResult<MyQuizSessionsListDto>> {
   return get(`/quiz/${id}/sessions?page=${page}&pageSize=${pageSize}`);
 }
+
+export function ToggleVisibilityQuizByIdApi(id: string): Promise<void> {
+  return patch<void, void>(`/quiz/${id}/toggle-visibility`);
+}

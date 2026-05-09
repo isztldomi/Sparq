@@ -224,5 +224,26 @@ namespace Sparq.WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpPatch("{quizId}/toggle-visibility")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ToggleVisibility(string quizId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+            if (user == null)
+                return Unauthorized();
+            var quiz = await _quizService.GetByIdAsync(quizId);
+            if (quiz == null)
+                return NotFound();
+            if (quiz.OwnerId != user.Id)
+                return Forbid();
+            quiz.IsPublic = !quiz.IsPublic;
+            await _quizService.UpdateAsync(quizId, quiz);
+            return NoContent();
+        }
     }
 }

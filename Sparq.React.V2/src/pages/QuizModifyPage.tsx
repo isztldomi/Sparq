@@ -440,7 +440,7 @@ export function QuizModifyPage() {
         <GreenButton className="w-30 h-10" onClick={() => navigate(-1)}>
           Back
         </GreenButton>
-        <h1 className="text-xl">Quiz Create</h1>
+        <h1 className="text-xl">Quiz Modify</h1>
 
         <div className="flex flex-wrap gap-5">
           <RedButton className="w-30 h-10" onClick={handleDeactivate}>
@@ -457,15 +457,7 @@ export function QuizModifyPage() {
         <div className="flex flex-wrap gap-x-4 gap-y-2 w-full">
           <GreenRedCheckbox
             value={formData.isPublic}
-            onChange={(value) =>
-              setFormData((prev) => {
-                if (!prev) return prev;
-                return {
-                  ...prev,
-                  isPublic: value,
-                };
-              })
-            }
+            onChange={() => {}}
             trueLabel="Public"
             falseLabel="Private"
             className="w-30 h-10"

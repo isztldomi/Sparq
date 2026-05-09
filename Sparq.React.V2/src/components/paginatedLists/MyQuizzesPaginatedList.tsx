@@ -3,6 +3,9 @@ import type { MyQuizListDto } from "@/features/quiz/quizTypes";
 import { BasePaginatedList } from "./BasePaginatedList";
 import { GreenButton } from "../buttons/greenButton";
 import { YellowButton } from "../buttons/yellowButton";
+import { GreenRedCheckbox } from "../checkbox/greenRedCheckbox";
+import { useState } from "react";
+import { useToggleVisibilityQuizMutation } from "@/features/quiz/quizApi";
 
 type MyQuizzesPaginatedListProps = {
   items: MyQuizListDto[];
@@ -19,6 +22,11 @@ type MyQuizzesPaginatedListProps = {
 export function MyQuizzesPaginatedList(props: MyQuizzesPaginatedListProps) {
   const navigate = useNavigate();
 
+  const [toggleVisibilityQuiz, { isLoading }] =
+    useToggleVisibilityQuizMutation();
+
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
   return (
     <BasePaginatedList
       {...props}
@@ -34,15 +42,27 @@ export function MyQuizzesPaginatedList(props: MyQuizzesPaginatedListProps) {
               {quiz.lastSnapshot?.description}
             </p>
           </div>
-
           <div className="flex flex-wrap gap-3">
+            <GreenRedCheckbox
+              value={quiz.isPublic}
+              trueLabel="Public"
+              falseLabel="Private"
+              className="w-24 h-10"
+              onChange={async () => {
+                try {
+                  setLoadingId(quiz.id);
+                  await toggleVisibilityQuiz(quiz.id).unwrap();
+                } finally {
+                  setLoadingId(null);
+                }
+              }}
+            />
             <GreenButton
               className="w-30 h-10"
               onClick={() => navigate(`/my-quizzes/${quiz.id}/sessions`)}
             >
               Sessions
             </GreenButton>
-
             <YellowButton
               className="w-30 h-10"
               onClick={() => navigate(`/my-quizzes/${quiz.id}/modify`)}
