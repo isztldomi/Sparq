@@ -3,6 +3,7 @@ import { toApiError } from "@/api/core/toApiError";
 import {
   activateForWaitingSessionApi,
   createSessionApi,
+  extUserJoinSessionApi,
   getAllPublicWaitingSessionsApi,
   getSessionByIdApi,
   getSessionPublicDataByIdApi,
@@ -12,6 +13,7 @@ import {
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
+  JoinSessionExtUserResponseDto,
   JoinSessionRequestDto,
   SessionPublicWaitingListDto,
 } from "./sessionTypes";
@@ -134,6 +136,25 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Session", id: "PUBLIC_WAITING_LIST" },
       ],
     }),
+    extUserJoinSession: builder.mutation<
+      JoinSessionExtUserResponseDto,
+      JoinSessionRequestDto
+    >({
+      async queryFn(data) {
+        try {
+          const response = await extUserJoinSessionApi(data);
+          return { data: response };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      invalidatesTags: (_result, _error, arg) => [
+        { type: "Session", id: arg.sessionId },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
+      ],
+    }),
   }),
 });
 
@@ -144,4 +165,5 @@ export const {
   useGetSessionByIdQuery,
   useGetSessionPublicDataByIdQuery,
   useJoinSessionMutation,
+  useExtUserJoinSessionMutation,
 } = sessionApi;

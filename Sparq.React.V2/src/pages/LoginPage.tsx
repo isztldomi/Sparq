@@ -46,6 +46,7 @@ export function LoginPage() {
       };
 
       // auth storage ONLY (no redux)
+      localStorage.clear();
       setAuth(payload);
 
       navigate("/profile");

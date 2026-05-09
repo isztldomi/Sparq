@@ -55,6 +55,7 @@ export function RegistrationPage() {
       }).unwrap();
 
       // save auth
+      localStorage.clear();
       setAuth({
         token: res.authToken,
         refreshToken: res.refreshToken,

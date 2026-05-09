@@ -37,3 +37,5 @@ export type JoinSessionRequestDto = {
   pinCode: string;
   nickname: string;
 };
+
+export type JoinSessionExtUserResponseDto = { externalUserId: string };

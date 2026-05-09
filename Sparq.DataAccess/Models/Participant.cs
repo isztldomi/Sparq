@@ -13,6 +13,7 @@ namespace Sparq.DataAccess.Models
         public string? UserId { get; set; }
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }
+        public string? ExternalUserId { get; set; }
         public string DisplayName { get; set; } = string.Empty;
         public string? SessionId { get; set; } 
         [ForeignKey("SessionId")]

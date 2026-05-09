@@ -1,6 +1,7 @@
 import { GreenButton } from "@/components/buttons/greenButton";
 import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
 import {
+  useExtUserJoinSessionMutation,
   useGetSessionPublicDataByIdQuery,
   useJoinSessionMutation,
 } from "@/features/session/sessionApi";
@@ -24,6 +25,8 @@ export function SessionJoinPage() {
     skip: !sessionId,
   });
   const [joinSession, { isLoading: isJoining }] = useJoinSessionMutation();
+  const [extUserJoinSession, { isLoading: isExtJoining }] =
+    useExtUserJoinSessionMutation();
 
   useEffect(() => {
     if (!isSessionLoading && !sessionData) {
@@ -60,19 +63,23 @@ export function SessionJoinPage() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) return;
-
     if (!sessionId) return;
 
-    const payload = {
+    const payload: JoinSessionRequestDto = {
       sessionId,
       pinCode: pincode,
-      nickname: isGuest ? nickname : undefined,
-    } as JoinSessionRequestDto;
+      nickname: isGuest ? nickname : user.nickName,
+    };
 
     try {
-      await joinSession(payload).unwrap();
+      if (isGuest) {
+        const res = await extUserJoinSession(payload).unwrap();
 
-      // 🔥 cache már invalidálva RTK Query-ben
+        localStorage.setItem(sessionId, res.externalUserId);
+      } else {
+        await joinSession(payload).unwrap();
+      }
+
       navigate(`/session/${sessionId}`);
     } catch (err) {
       console.error("Join failed:", err);
@@ -133,7 +140,7 @@ export function SessionJoinPage() {
           <GreenButton
             className="w-30 h-10 mt-4"
             onClick={handleJoin}
-            disabled={isJoining}
+            disabled={isJoining || isExtJoining}
           >
             Join
           </GreenButton>

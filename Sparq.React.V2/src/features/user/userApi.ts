@@ -33,8 +33,8 @@ export const userApi = baseApi.injectEndpoints({
           return { error: toApiError(e) };
         }
       },
-
       providesTags: ["User"],
+      keepUnusedDataFor: 0,
     }),
 
     updateNickName: builder.mutation<User, NickNameUpdateRequestDto>({

@@ -3,6 +3,7 @@ import { post, patch, get } from "../http/http";
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
+  JoinSessionExtUserResponseDto,
   JoinSessionRequestDto,
   SessionPublicWaitingListDto,
 } from "@/features/session/sessionTypes";
@@ -38,4 +39,10 @@ export function getSessionPublicDataByIdApi(
 
 export function joinSessionApi(data: JoinSessionRequestDto): Promise<void> {
   return post("/session/join", data);
+}
+
+export function extUserJoinSessionApi(
+  data: JoinSessionRequestDto,
+): Promise<JoinSessionExtUserResponseDto> {
+  return post("/session/ext-user-join", data);
 }
