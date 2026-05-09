@@ -79,7 +79,7 @@ builder.Services.AddExceptionHandler<ExceptionToProblemDetailsHandler>();
 builder.Services.AddSignalR();
 
 // saját realtime service (SignalR wrapper)
-builder.Services.AddScoped<ISessionNotifier, SessionNotifier>();
+builder.Services.AddScoped<ISessionNotifierService, SessionNotifierService>();
 
 
 var app = builder.Build();

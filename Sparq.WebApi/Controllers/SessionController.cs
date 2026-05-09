@@ -20,7 +20,8 @@ namespace Sparq.WebApi.Controllers
         private readonly IUsersService _usersService;
         private readonly IQuizService _quizService;
         private readonly ISnapshotService _snapshotService;
-        private readonly ISessionNotifier _sessionNotifier;
+        private readonly ISessionNotifierService _sessionNotifier;
+        private readonly IParticipantService _participantService;
 
         /// <summary>Ctor</summary>
         /// <param name="mapper">AutoMapper instance</param>
@@ -29,7 +30,10 @@ namespace Sparq.WebApi.Controllers
         /// <param name="quizService">Quiz service dependency</param>
         /// <param name="snapshotService">Snapshot service dependency</param>
         /// <param name="sessionNotifier">Session notifier dependency</param>
-        public SessionController(IMapper mapper, ISessionService sessionService, IUsersService usersService, IQuizService quizService, ISnapshotService snapshotService, ISessionNotifier sessionNotifier)
+        /// <param name="participantService">Participant service dependency</param>
+        public SessionController(IMapper mapper, ISessionService sessionService, IUsersService usersService, 
+            IQuizService quizService, ISnapshotService snapshotService, ISessionNotifierService sessionNotifier,
+            IParticipantService participantService)
         {
             _mapper = mapper;
             _sessionService = sessionService;
@@ -37,6 +41,7 @@ namespace Sparq.WebApi.Controllers
             _quizService = quizService;
             _snapshotService = snapshotService;
             _sessionNotifier = sessionNotifier;
+            _participantService = participantService;
         }
 
         /// <summary>Create session</summary>
@@ -148,6 +153,111 @@ namespace Sparq.WebApi.Controllers
             };
 
             return Ok(result);
+        }
+
+        [HttpGet("{sessionId}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionListDto))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById([FromRoute] string sessionId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+            if (user == null)
+                return Unauthorized();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+            if (session == null)
+                return NotFound("Session not found");
+
+            if (session.Snapshot == null)
+                return NotFound("Snapshot not found");
+
+            var quiz = await _quizService.GetByIdAsync(session.Snapshot!.QuizId!);
+            if (quiz == null)
+                return NotFound("Quiz not found");
+
+            if (quiz.OwnerId != user.Id)
+                return Forbid();
+
+            var mapped = _mapper.Map<SessionListDto>(session);
+
+            return Ok(mapped);
+        }
+
+        [HttpGet("{sessionId}/public")]
+        public async Task<IActionResult> GetSessionPublicDataById([FromRoute] string sessionId)
+        {
+            var session = await _sessionService.GetByIdAsync(sessionId);
+            if (session == null)
+                return NotFound("Session not found");
+
+            if (session.Snapshot == null)
+                return NotFound("Snapshot not found");
+
+            var quiz = await _quizService.GetByIdAsync(session.Snapshot!.QuizId!);
+            if (quiz == null)
+                return NotFound("Quiz not found");
+            
+            if (quiz.IsPublic == false)
+                return Forbid();
+
+            if (session.IsWaiting == false)
+                return Forbid();
+
+            var mapped = _mapper.Map<SessionListDto>(session);
+
+            return Ok(mapped);
+        }
+
+        [HttpPost("join")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> JoinSession([FromBody] JoinSessionRequestDto joinSessionRequestDto)
+        {
+            var session = await _sessionService.GetByIdAsync(joinSessionRequestDto.SessionId);
+            if (session == null)
+                return NotFound("Session not found");
+
+            if (session.Snapshot == null)
+                return NotFound("Snapshot not found");
+
+            var quiz = await _quizService.GetByIdAsync(session.Snapshot!.QuizId!);
+            if (quiz == null)
+                return NotFound("Quiz not found");
+
+            if (quiz.IsPublic == false)
+                return Forbid();
+
+            if (session.IsWaiting == false)
+                return Forbid();
+
+            if (session.Snapshot.PinCode != joinSessionRequestDto.PinCode)
+                return Forbid();
+            
+            var user = await _usersService.GetCurrentUserAsync();
+
+            var name = joinSessionRequestDto.Nickname.Trim();
+
+            if (user != null)
+                name = user!.NickName;
+
+            var newParticipant = new Participant
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = user?.Id ?? null,
+                DisplayName = name,
+                SessionId = session.Id,
+                Score = 0,
+                Rank = 0,
+                IsFinished = false,
+            };
+
+            var participant = await _participantService.CreateAsync(newParticipant);
+
+            return NoContent();
         }
     }
 } 

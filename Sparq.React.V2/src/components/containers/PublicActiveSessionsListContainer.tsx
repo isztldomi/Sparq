@@ -61,7 +61,7 @@ export function PublicActiveSessionsListContainer({
           <div>
             <GreenButton
               className="w-30 h-10"
-              onClick={() => navigate(`/session/${session.id}`)}
+              onClick={() => navigate(`/session/${session.id}/join`)}
             >
               Join
             </GreenButton>

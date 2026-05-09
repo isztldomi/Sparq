@@ -189,6 +189,7 @@ namespace Sparq.DataAccess.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     QuestionId = table.Column<string>(type: "text", nullable: true),
+                    Order = table.Column<int>(type: "integer", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: true),
                     IsCorrect = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -263,6 +264,7 @@ namespace Sparq.DataAccess.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     SnapshotId = table.Column<string>(type: "text", nullable: true),
+                    Order = table.Column<int>(type: "integer", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: true),
                     Text = table.Column<string>(type: "text", nullable: true),
                     MediaId = table.Column<string>(type: "text", nullable: true),

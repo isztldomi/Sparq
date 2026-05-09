@@ -17,7 +17,7 @@ namespace Sparq.DataAccess
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddJsonFile($"appsettings.{environment}.json", optional: true)
-                .AddUserSecrets<SparqDbContextFactory>() // fontos
+                .AddUserSecrets<SparqDbContextFactory>()
                 .Build();
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");

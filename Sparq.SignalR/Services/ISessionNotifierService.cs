@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Sparq.SignalR.Notifiers
 {
-    public interface ISessionNotifier
+    public interface ISessionNotifierService
     {
         Task SessionWaitingActivated(string sessionId);
     }

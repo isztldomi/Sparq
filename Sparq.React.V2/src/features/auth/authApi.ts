@@ -18,6 +18,7 @@ export const authApi = baseApi.injectEndpoints({
           return { error: toApiError(e) };
         }
       },
+      invalidatesTags: ["User"],
     }),
 
     register: builder.mutation<UserResponseDto, RegisterRequestDto>({
@@ -28,6 +29,7 @@ export const authApi = baseApi.injectEndpoints({
           return { error: toApiError(e) };
         }
       },
+      invalidatesTags: ["User"],
     }),
   }),
 });

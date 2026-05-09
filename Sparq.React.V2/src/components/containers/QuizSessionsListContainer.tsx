@@ -66,6 +66,9 @@ export function QuizSessionsListContainer({
                 <p className="text-sm text-[var(--text-muted)] break-words">
                   {session.snapshot.description}
                 </p>
+                <p className="text-xs text-[var(--text-muted)] break-words">
+                  {session.id}
+                </p>
               </div>
               <div>
                 {!session.isWaiting &&
@@ -111,7 +114,7 @@ export function QuizSessionsListContainer({
                 {session.isWaiting && (
                   <GreenButton
                     className="w-30 h-10"
-                    onClick={() => navigate(`/session/${session.id}`)}
+                    onClick={() => navigate(`/session/${session.id}/join`)}
                   >
                     Join session
                   </GreenButton>

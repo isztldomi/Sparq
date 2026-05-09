@@ -8,6 +8,7 @@ import { LogoutPage } from "@/pages/LogoutPage";
 import { RegistrationPage } from "@/pages/RegistrationPage";
 import { SessionPage } from "@/pages/SessionPage";
 import { PublicActiveSessionsPage } from "@/pages/PublicActiveSessionsPage";
+import { SessionJoinPage } from "@/pages/SessionJoinPage";
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -37,6 +38,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/session/:sessionId",
     element: <SessionPage />,
+  },
+  {
+    path: "/session/:sessionId/join",
+    element: <SessionJoinPage />,
   },
   {
     path: "*",
