@@ -31,3 +31,9 @@ export type SessionPublicWaitingListDto = {
   id: string;
   snapshot: SnapshotMetaDetails2ResponseDto;
 };
+
+export type JoinSessionRequestDto = {
+  sessionId: string;
+  pinCode: string;
+  nickname: string;
+};

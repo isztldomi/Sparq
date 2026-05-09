@@ -33,7 +33,6 @@ namespace Sparq.WebApi.Controllers
         /// <remarks>Returns the user identified by the access token.</remarks>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponseDto))]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCurrentUser()
         {
@@ -204,5 +203,23 @@ namespace Sparq.WebApi.Controllers
             return Ok(userResponseDto);
         }
 
+        /// <summary>Optional current user</summary>
+        /// <returns>Currently authenticated user or null.</returns>
+        /// <remarks>
+        /// Returns the current user if authenticated;
+        /// otherwise returns null.
+        /// </remarks>
+        [HttpGet("current")]
+        public async Task<IActionResult> GetOptionalCurrentUser()
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Ok(null);
+
+            var dto = _mapper.Map<UserResponseDto>(user);
+
+            return Ok(dto);
+        }
     }
 }

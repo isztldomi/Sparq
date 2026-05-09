@@ -1,5 +1,9 @@
 import { baseApi } from "@/features/base/baseApi";
-import { getProfileApi, updateNickNameApi } from "@/api/services/userService";
+import {
+  getCurrentUserApi,
+  getProfileApi,
+  updateNickNameApi,
+} from "@/api/services/userService";
 import { mapUser } from "@/features/user/userMapper";
 import type { User } from "@/shared/types/user";
 import type { NickNameUpdateRequestDto } from "@/features/user/userTypes";
@@ -17,6 +21,21 @@ export const userApi = baseApi.injectEndpoints({
       },
       providesTags: ["User"],
     }),
+    getCurrentUser: builder.query<User | null, void>({
+      async queryFn() {
+        try {
+          const result = await getCurrentUserApi();
+
+          return {
+            data: result ? mapUser(result) : null,
+          };
+        } catch (e) {
+          return { error: toApiError(e) };
+        }
+      },
+
+      providesTags: ["User"],
+    }),
 
     updateNickName: builder.mutation<User, NickNameUpdateRequestDto>({
       async queryFn(data) {
@@ -31,4 +50,8 @@ export const userApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetProfileQuery, useUpdateNickNameMutation } = userApi;
+export const {
+  useGetProfileQuery,
+  useGetCurrentUserQuery,
+  useUpdateNickNameMutation,
+} = userApi;

@@ -3,6 +3,7 @@ import { post, patch, get } from "../http/http";
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
+  JoinSessionRequestDto,
   SessionPublicWaitingListDto,
 } from "@/features/session/sessionTypes";
 
@@ -21,4 +22,20 @@ export function getAllPublicWaitingSessionsApi(
   pageSize: number,
 ): Promise<PagedResult<SessionPublicWaitingListDto>> {
   return get(`/session/public-waiting?page=${page}&pageSize=${pageSize}`);
+}
+
+export function getSessionByIdApi(
+  sessionId: string,
+): Promise<CreatedSessionResponseDto> {
+  return get(`/session/${sessionId}`);
+}
+
+export function getSessionPublicDataByIdApi(
+  sessionId: string,
+): Promise<SessionPublicWaitingListDto> {
+  return get(`/session/${sessionId}/public`);
+}
+
+export function joinSessionApi(data: JoinSessionRequestDto): Promise<void> {
+  return post("/session/join", data);
 }

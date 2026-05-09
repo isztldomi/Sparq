@@ -6,11 +6,11 @@ using System.Text;
 
 namespace Sparq.SignalR.Notifiers
 {
-    public class SessionNotifier : ISessionNotifier
+    public class SessionNotifierService : ISessionNotifierService
     {
         private readonly IHubContext<SessionHub> _hub;
 
-        public SessionNotifier(IHubContext<SessionHub> hub)
+        public SessionNotifierService(IHubContext<SessionHub> hub)
         {
             _hub = hub;
         }

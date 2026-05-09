@@ -4,11 +4,15 @@ import {
   activateForWaitingSessionApi,
   createSessionApi,
   getAllPublicWaitingSessionsApi,
+  getSessionByIdApi,
+  getSessionPublicDataByIdApi,
+  joinSessionApi,
 } from "@/api/services/sessionService";
 
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
+  JoinSessionRequestDto,
   SessionPublicWaitingListDto,
 } from "./sessionTypes";
 import type { PagedResult } from "../page/pageTypes";
@@ -34,6 +38,7 @@ export const sessionApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, payload) => [
         { type: "Session", id: payload.quizId },
         { type: "Session", id: "LIST" },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
       ],
     }),
     activateForWaitingSession: builder.mutation<void, string>({
@@ -50,6 +55,7 @@ export const sessionApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, sessionId) => [
         { type: "Session", id: sessionId },
         { type: "Session", id: "LIST" },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
       ],
     }),
     getAllPublicWaitingSessions: builder.query<
@@ -78,6 +84,56 @@ export const sessionApi = baseApi.injectEndpoints({
             ]
           : [{ type: "Session", id: "PUBLIC_WAITING_LIST" }],
     }),
+
+    getSessionById: builder.query<CreatedSessionResponseDto, string>({
+      async queryFn(sessionId) {
+        try {
+          return {
+            data: await getSessionByIdApi(sessionId),
+          };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      providesTags: (result) =>
+        result ? [{ type: "Session", id: result.id }] : [],
+    }),
+    getSessionPublicDataById: builder.query<
+      SessionPublicWaitingListDto,
+      string
+    >({
+      async queryFn(sessionId) {
+        try {
+          return {
+            data: await getSessionPublicDataByIdApi(sessionId),
+          };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      providesTags: (result) =>
+        result ? [{ type: "Session", id: result.id }] : [],
+    }),
+    joinSession: builder.mutation<void, JoinSessionRequestDto>({
+      async queryFn(data) {
+        try {
+          await joinSessionApi(data);
+          return { data: undefined };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      invalidatesTags: (_result, _error, arg) => [
+        { type: "Session", id: arg.sessionId },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
+      ],
+    }),
   }),
 });
 
@@ -85,4 +141,7 @@ export const {
   useCreateSessionMutation,
   useActivateForWaitingSessionMutation,
   useGetAllPublicWaitingSessionsQuery,
+  useGetSessionByIdQuery,
+  useGetSessionPublicDataByIdQuery,
+  useJoinSessionMutation,
 } = sessionApi;

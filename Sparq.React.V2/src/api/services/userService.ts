@@ -13,3 +13,7 @@ export function updateNickNameApi(
 ): Promise<UserResponseDto> {
   return patch("/users/nickname", data);
 }
+
+export function getCurrentUserApi(): Promise<UserResponseDto | null> {
+  return get("/users/current");
+}
