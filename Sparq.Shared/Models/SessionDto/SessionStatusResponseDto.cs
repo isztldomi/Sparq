@@ -4,8 +4,9 @@ using System.Text;
 
 namespace Sparq.Shared.Models.SessionDto
 {
-    public class JoinSessionExtUserResponseDto
+    public class SessionStatusResponseDto
     {
-        public string? ExternalUserId { get; set; }
+        public required SessionStatus Status { get; set; }
     }
+
 }

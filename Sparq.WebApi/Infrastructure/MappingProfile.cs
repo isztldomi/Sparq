@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Sparq.DataAccess.Models;
 using Sparq.Shared.Models.AnswerDto;
+using Sparq.Shared.Models.Participant;
 using Sparq.Shared.Models.QuestionDto;
 using Sparq.Shared.Models.QuizDto;
 using Sparq.Shared.Models.SessionDto;
@@ -45,6 +46,8 @@ namespace Sparq.WebApi.Infrastructure
 
             CreateMap<Answer, AnswerResponseDto>(MemberList.Destination);
             CreateMap<AnswerCreateRequestDto, Answer>(MemberList.Destination);
+
+            CreateMap<Participant, ParticipantPublicListResponseDto>(MemberList.Destination);
         }
     }
 }

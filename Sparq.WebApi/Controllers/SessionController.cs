@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sparq.DataAccess.Models;
@@ -204,116 +205,153 @@ namespace Sparq.WebApi.Controllers
             if (quiz.IsPublic == false)
                 return Forbid();
 
-            if (session.IsWaiting == false)
+            if (session.Status != DataAccess.Models.SessionStatus.Waiting)
                 return Forbid();
 
-            var mapped = _mapper.Map<SessionListDto>(session);
+            var mapped = _mapper.Map<SessionPublicWaitingListDto>(session);
 
             return Ok(mapped);
         }
+
         [HttpPost("join")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JoinSessionExtUserResponseDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> JoinSession([FromBody] JoinSessionRequestDto joinSessionRequestDto)
+        public async Task<IActionResult> JoinSession([FromBody] JoinSessionRequestDto dto)
         {
             var user = await _usersService.GetCurrentUserAsync();
-            if (user == null)
-                return Unauthorized();
 
-            var session = await _sessionService.GetByIdAsync(joinSessionRequestDto.SessionId);
+            var session = await _sessionService.GetByIdAsync(dto.SessionId);
             if (session == null)
                 return NotFound("Session not found");
 
             if (session.Snapshot == null)
                 return NotFound("Snapshot not found");
 
-            var quiz = await _quizService.GetByIdAsync(session.Snapshot!.QuizId!);
-            if (quiz == null)
+            if (session.Snapshot.Quiz == null)
                 return NotFound("Quiz not found");
 
-            if (quiz.OwnerId == user.Id)
+            if (!session.Snapshot.Quiz.IsActive || session.Status != DataAccess.Models.SessionStatus.Waiting)
                 return Forbid();
 
-            if (quiz.IsPublic == false)
+            if (session.Snapshot.Quiz.OwnerId == user?.Id)
                 return Forbid();
 
-            if (session.IsWaiting == false)
-                return Forbid();
+            if (session.Snapshot.PinCode != dto.PinCode)
+                return BadRequest("Invalid pin code");
 
-            if (session.Snapshot.PinCode != joinSessionRequestDto.PinCode)
-                return Forbid();
+            bool isExternal = user == null;
 
-            var newParticipant = new Participant
+            var participant = new Participant
             {
                 Id = Guid.NewGuid().ToString(),
-                UserId = user?.Id ?? null,
-                ExternalUserId = null,
-                DisplayName = user!.NickName,
+                UserId = isExternal ? null : user!.Id,
+                ExternalUserId = isExternal ? Guid.NewGuid().ToString() : null,
+                DisplayName = isExternal
+                    ? dto.Nickname!.Trim()
+                    : user!.NickName,
                 SessionId = session.Id,
                 Score = 0,
                 Rank = 0,
                 IsFinished = false,
             };
 
-            var participant = await _participantService.CreateAsync(newParticipant);
+            await _participantService.CreateAsync(participant);
 
-            return NoContent();
+            return Ok(new JoinSessionExtUserResponseDto
+            {
+                ExternalUserId = participant.ExternalUserId
+            });
         }
 
-        [HttpPost("ext-user-join")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JoinSessionExtUserResponseDto))]
+        [HttpPost("quit")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> JoinExtUserSession([FromBody] JoinSessionRequestDto joinSessionRequestDto)
+        public async Task<IActionResult> QuitSession([FromBody] QuitSessionRequestDto quitSessionRequestDto)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
-            if (user != null)
-                return Forbid();
-
-            var session = await _sessionService.GetByIdAsync(joinSessionRequestDto.SessionId);
+            var session = await _sessionService.GetByIdAsync(quitSessionRequestDto.SessionId);
             if (session == null)
                 return NotFound("Session not found");
 
             if (session.Snapshot == null)
                 return NotFound("Snapshot not found");
 
-            var quiz = await _quizService.GetByIdAsync(session.Snapshot!.QuizId!);
-            if (quiz == null)
+            if (session.Snapshot.Quiz == null)
                 return NotFound("Quiz not found");
 
-            if (quiz.IsPublic == false)
+            if (!session.Snapshot.Quiz.IsActive || session.Status != DataAccess.Models.SessionStatus.Waiting)
                 return Forbid();
 
-            if (session.IsWaiting == false)
+            if (session.Snapshot.Quiz.OwnerId == user?.Id)
                 return Forbid();
 
-            if (session.Snapshot.PinCode != joinSessionRequestDto.PinCode)
+            if (session.Status != DataAccess.Models.SessionStatus.Waiting)
                 return Forbid();
 
-            var newParticipant = new Participant
+            bool isExternal = user == null;
+
+            Participant? participant = null;
+
+            if (isExternal)
             {
-                Id = Guid.NewGuid().ToString(),
-                UserId = null,
-                ExternalUserId = Guid.NewGuid().ToString(),
-                DisplayName = joinSessionRequestDto.Nickname.Trim(),
-                SessionId = session.Id,
-                Score = 0,
-                Rank = 0,
-                IsFinished = false,
-            };
-
-            var participant = await _participantService.CreateAsync(newParticipant);
-
-            JoinSessionExtUserResponseDto joinSessionExtUserResponseDto = new JoinSessionExtUserResponseDto
+                if (string.IsNullOrWhiteSpace(quitSessionRequestDto.ExternalUserId))
+                    return BadRequest("ExternalUserId is required for external users");
+                participant = await _participantService.GetIdByExtUserIdAndSessionIdAsync(quitSessionRequestDto.ExternalUserId, quitSessionRequestDto.SessionId);
+            }
+            else
             {
-                ExternalUserId = newParticipant.ExternalUserId
-            };
+                participant = await _participantService.GetIdByUserIdAndSessionIdAsync(user!.Id, quitSessionRequestDto.SessionId);
+            }
 
-            return Ok(joinSessionExtUserResponseDto);
+            if (participant == null)
+                return NotFound("Participant not found");
+
+            var result = await _participantService.DeleteAsync(participant.Id);
+
+            return Ok(result);
+        }
+
+        [HttpGet("{sessionId}/status")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionStatusResponseDto))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetSessionStatusById(
+            [FromRoute] string sessionId,
+            [FromQuery] string? extUserId = null)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return NotFound();
+
+            // owner
+
+
+            bool isAllowed = false;
+
+            if (user != null)
+            {
+                isAllowed = await _participantService.IsUserJoinedAsync(user.Id, sessionId);
+            }
+            // external user
+            else if (!string.IsNullOrWhiteSpace(extUserId))
+            {
+                isAllowed = await _participantService.IsExtUserJoinedAsync(extUserId, sessionId);
+            }
+
+            if (!isAllowed)
+                return Forbid();
+
+            return Ok(new SessionStatusResponseDto
+            {
+                Status = (Shared.Models.SessionDto.SessionStatus)session.Status
+            });
         }
     }
 } 

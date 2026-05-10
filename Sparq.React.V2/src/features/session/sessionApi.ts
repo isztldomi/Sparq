@@ -3,19 +3,22 @@ import { toApiError } from "@/api/core/toApiError";
 import {
   activateForWaitingSessionApi,
   createSessionApi,
-  extUserJoinSessionApi,
   getAllPublicWaitingSessionsApi,
   getSessionByIdApi,
   getSessionPublicDataByIdApi,
+  getSessionStatusByIdApi,
   joinSessionApi,
+  quitSessionApi,
 } from "@/api/services/sessionService";
 
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
-  JoinSessionExtUserResponseDto,
   JoinSessionRequestDto,
+  JoinSessionResponseDto,
+  quitSessionRequestDto,
   SessionPublicWaitingListDto,
+  SessionStatusResponseDto,
 } from "./sessionTypes";
 import type { PagedResult } from "../page/pageTypes";
 
@@ -41,8 +44,10 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Session", id: payload.quizId },
         { type: "Session", id: "LIST" },
         { type: "Session", id: "PUBLIC_WAITING_LIST" },
+        { type: "Participant", id: payload.quizId },
       ],
     }),
+
     activateForWaitingSession: builder.mutation<void, string>({
       async queryFn(sessionId) {
         try {
@@ -58,8 +63,10 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Session", id: sessionId },
         { type: "Session", id: "LIST" },
         { type: "Session", id: "PUBLIC_WAITING_LIST" },
+        { type: "Participant", id: sessionId },
       ],
     }),
+
     getAllPublicWaitingSessions: builder.query<
       PagedResult<SessionPublicWaitingListDto>,
       { page: number; pageSize: number }
@@ -102,6 +109,7 @@ export const sessionApi = baseApi.injectEndpoints({
       providesTags: (result) =>
         result ? [{ type: "Session", id: result.id }] : [],
     }),
+
     getSessionPublicDataById: builder.query<
       SessionPublicWaitingListDto,
       string
@@ -120,29 +128,53 @@ export const sessionApi = baseApi.injectEndpoints({
       providesTags: (result) =>
         result ? [{ type: "Session", id: result.id }] : [],
     }),
-    joinSession: builder.mutation<void, JoinSessionRequestDto>({
+
+    joinSession: builder.mutation<
+      JoinSessionResponseDto,
+      JoinSessionRequestDto
+    >({
       async queryFn(data) {
         try {
-          await joinSessionApi(data);
-          return { data: undefined };
+          const response = await joinSessionApi(data);
+          return { data: response };
         } catch (e) {
           return {
             error: toApiError(e),
           };
         }
       },
+
       invalidatesTags: (_result, _error, arg) => [
         { type: "Session", id: arg.sessionId },
         { type: "Session", id: "PUBLIC_WAITING_LIST" },
+        { type: "Participant", id: arg.sessionId },
       ],
     }),
-    extUserJoinSession: builder.mutation<
-      JoinSessionExtUserResponseDto,
-      JoinSessionRequestDto
+
+    getSessionStatusById: builder.query<
+      SessionStatusResponseDto,
+      { sessionId: string; extUserId?: string }
     >({
+      async queryFn({ sessionId, extUserId }) {
+        try {
+          const response = await getSessionStatusByIdApi(sessionId, extUserId);
+          return { data: response };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      providesTags: (_result, _error, { sessionId }) => [
+        { type: "Session", id: sessionId },
+        { type: "Participant", id: sessionId },
+      ],
+    }),
+
+    quitSession: builder.mutation<boolean, quitSessionRequestDto>({
       async queryFn(data) {
         try {
-          const response = await extUserJoinSessionApi(data);
+          const response = await quitSessionApi(data);
           return { data: response };
         } catch (e) {
           return {
@@ -153,6 +185,7 @@ export const sessionApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, arg) => [
         { type: "Session", id: arg.sessionId },
         { type: "Session", id: "PUBLIC_WAITING_LIST" },
+        { type: "Participant", id: arg.sessionId },
       ],
     }),
   }),
@@ -165,5 +198,6 @@ export const {
   useGetSessionByIdQuery,
   useGetSessionPublicDataByIdQuery,
   useJoinSessionMutation,
-  useExtUserJoinSessionMutation,
+  useGetSessionStatusByIdQuery,
+  useQuitSessionMutation,
 } = sessionApi;

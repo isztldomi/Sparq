@@ -70,6 +70,12 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+// Enum számmá alakítása
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Clear();
+    });
 
 builder.Services.AddAuthorization();
 builder.Services.AddAutomapper();

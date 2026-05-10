@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.Participant;
+using Sparq.Shared.Models.SessionDto;
 
 namespace Sparq.WebApi.Controllers
 {
@@ -14,41 +15,90 @@ namespace Sparq.WebApi.Controllers
         private readonly IMapper _mapper;
         private readonly IParticipantService _participantService;
         private readonly IUsersService _usersService;
+        private readonly ISessionService _sessionService;
 
-        public ParticipantController(IMapper mapper, IParticipantService participantService, IUsersService usersService)
+        public ParticipantController(IMapper mapper, IParticipantService participantService, IUsersService usersService, ISessionService sessionService)
         {
             _mapper = mapper;
             _participantService = participantService;
             _usersService = usersService;
+            _sessionService = sessionService;
         }
 
         [HttpGet("{sessionId}/is-joined")]
-        [Authorize]
-        public async Task<IActionResult> IsJoined([FromRoute] string sessionId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ParticipantIsJoinedResponseDto))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> IsJoined(
+            [FromRoute] string sessionId,
+            [FromQuery] string? extUserId = null)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
-            if (user == null)
-                return Unauthorized();
+            bool isJoined = false;
 
-            var isJoined = await _participantService.IsUserJoinedAsync(user.Id, sessionId);
+            // belső user
+            if (user != null)
+            {
+                isJoined = await _participantService.IsUserJoinedAsync(user.Id, sessionId);
+            }
+            // external user
+            else if (!string.IsNullOrWhiteSpace(extUserId))
+            {
+                isJoined = await _participantService.IsExtUserJoinedAsync(extUserId, sessionId);
+            }
 
-            ParticipantIsJoinedResponseDto result = new ParticipantIsJoinedResponseDto { IsJoined = isJoined };
+            var result = new ParticipantIsJoinedResponseDto
+            {
+                IsJoined = isJoined
+            };
 
             return Ok(result);
         }
 
-        [HttpGet("{sessionId}/ext-user-is-joined/{extUserId}")]
-        public async Task<IActionResult> IsJoined([FromRoute] string sessionId, [FromRoute] string extUserId)
+        [HttpGet("{sessionId}/participants")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ParticipantPublicListResponseDto>))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetParticipantsBySessionId(
+            [FromRoute] string sessionId,
+            [FromQuery] string? extUserId = null)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return NotFound();
+
+            // owner mindig láthatja
+            if (user != null && session.Snapshot.Quiz.OwnerId == user.Id)
+            {
+                var ownerParticipants = await _participantService.GetBySessionIdAsync(sessionId);
+
+                var ownerResult = _mapper.Map<IReadOnlyCollection<ParticipantPublicListResponseDto>>(ownerParticipants);
+
+                return Ok(ownerResult);
+            }
+
+            bool isAllowed = false;
+
+            // belső user
             if (user != null)
+            {
+                isAllowed = await _participantService.IsUserJoinedAsync(user.Id, sessionId);
+            }
+            // external user
+            else if (!string.IsNullOrWhiteSpace(extUserId))
+            {
+                isAllowed = await _participantService.IsExtUserJoinedAsync(extUserId, sessionId);
+            }
+
+            if (!isAllowed)
                 return Forbid();
 
-            var isJoined = await _participantService.IsExtUserJoinedAsync(extUserId, sessionId);
+            var participants = await _participantService.GetBySessionIdAsync(sessionId);
 
-            ParticipantIsJoinedResponseDto result = new ParticipantIsJoinedResponseDto { IsJoined = isJoined };
+            var result = _mapper.Map<IReadOnlyCollection<ParticipantPublicListResponseDto>>(participants);
 
             return Ok(result);
         }

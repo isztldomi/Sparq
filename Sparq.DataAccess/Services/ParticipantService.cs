@@ -113,5 +113,15 @@ namespace Sparq.DataAccess.Services
         {
             return await _context.Participants.AnyAsync(p => p.ExternalUserId == extUserId && p.SessionId == sessionId);
         }
+
+        public async Task<Participant?> GetIdByUserIdAndSessionIdAsync(string userId, string sessionId)
+        {
+            return await _context.Participants.FirstOrDefaultAsync(p => p.UserId == userId && p.SessionId == sessionId);
+        }
+
+        public async Task<Participant?> GetIdByExtUserIdAndSessionIdAsync(string extUserId, string sessionId)
+        {
+            return await _context.Participants.FirstOrDefaultAsync(p => p.ExternalUserId == extUserId && p.SessionId == sessionId);
+        }
     }
 }

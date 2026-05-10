@@ -3,24 +3,31 @@ import type {
   SnapshotMetaDetailsResponseDto,
 } from "../snapshot/snapshotTypes";
 
+export const SessionStatus = {
+  Created: 0,
+  Waiting: 1,
+  Running: 2,
+  Finished: 3,
+} as const;
+
+export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus];
+
 export type MyQuizSessionsListDto = {
   id: string;
   snapshotId: string;
   snapshot: SnapshotMetaDetailsResponseDto;
-  startedAt: Date;
-  endedAt: Date;
+  startedAt: string;
+  endedAt: string;
   currentQuestionId: string | null;
-  isWaiting: boolean;
-  isRunning: boolean;
+  status: SessionStatus;
 };
 
 export type CreatedSessionResponseDto = {
   id: string;
   snapshotId: string;
-  createdAt: Date;
+  createdAt: string;
   pinCode: string;
-  isWaiting: boolean;
-  isRunning: boolean;
+  status: SessionStatus;
 };
 
 export type CreateSessionRequestDto = {
@@ -38,4 +45,13 @@ export type JoinSessionRequestDto = {
   nickname: string;
 };
 
-export type JoinSessionExtUserResponseDto = { externalUserId: string };
+export type JoinSessionResponseDto = { externalUserId: string | null };
+
+export type SessionStatusResponseDto = {
+  status: SessionStatus;
+};
+
+export type quitSessionRequestDto = {
+  sessionId: string;
+  externalUserId: string | null;
+};

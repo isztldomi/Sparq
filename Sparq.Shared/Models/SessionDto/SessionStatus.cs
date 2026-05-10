@@ -4,8 +4,11 @@ using System.Text;
 
 namespace Sparq.Shared.Models.SessionDto
 {
-    public class JoinSessionExtUserResponseDto
+    public enum SessionStatus
     {
-        public string? ExternalUserId { get; set; }
+        Created = 0,
+        Waiting = 1,
+        Running = 2,
+        Finished = 3
     }
 }
