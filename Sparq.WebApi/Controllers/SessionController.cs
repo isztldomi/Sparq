@@ -7,7 +7,7 @@ using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.Page;
 using Sparq.Shared.Models.QuizDto;
 using Sparq.Shared.Models.SessionDto;
-using Sparq.SignalR.Notifiers;
+using Sparq.SignalR.Services;
 using System.Xml.Linq;
 
 namespace Sparq.WebApi.Controllers
@@ -22,8 +22,8 @@ namespace Sparq.WebApi.Controllers
         private readonly IUsersService _usersService;
         private readonly IQuizService _quizService;
         private readonly ISnapshotService _snapshotService;
-        private readonly ISessionNotifierService _sessionNotifier;
         private readonly IParticipantService _participantService;
+        private readonly ISessionsNotificationService _sessionsNotificationService;
 
         /// <summary>Ctor</summary>
         /// <param name="mapper">AutoMapper instance</param>
@@ -31,19 +31,19 @@ namespace Sparq.WebApi.Controllers
         /// <param name="usersService">User service dependency</param>
         /// <param name="quizService">Quiz service dependency</param>
         /// <param name="snapshotService">Snapshot service dependency</param>
-        /// <param name="sessionNotifier">Session notifier dependency</param>
         /// <param name="participantService">Participant service dependency</param>
+        /// <param name="sessionsNotificationService">Session notifier dependency</param>
         public SessionController(IMapper mapper, ISessionService sessionService, IUsersService usersService, 
-            IQuizService quizService, ISnapshotService snapshotService, ISessionNotifierService sessionNotifier,
-            IParticipantService participantService)
+            IQuizService quizService, ISnapshotService snapshotService, IParticipantService participantService,
+            ISessionsNotificationService sessionsNotificationService)
         {
             _mapper = mapper;
             _sessionService = sessionService;
             _usersService = usersService;
             _quizService = quizService;
             _snapshotService = snapshotService;
-            _sessionNotifier = sessionNotifier;
             _participantService = participantService;
+            _sessionsNotificationService = sessionsNotificationService;
         }
 
         /// <summary>Create session</summary>
@@ -123,8 +123,6 @@ namespace Sparq.WebApi.Controllers
 
             if (!success)
                 return NotFound("Session not found");
-
-            await _sessionNotifier.SessionWaitingActivated(sessionId);
 
             return NoContent();
         }
@@ -218,11 +216,11 @@ namespace Sparq.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> JoinSession([FromBody] JoinSessionRequestDto dto)
+        public async Task<IActionResult> JoinSession([FromBody] JoinSessionRequestDto joinSessionRequestDto)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
-            var session = await _sessionService.GetByIdAsync(dto.SessionId);
+            var session = await _sessionService.GetByIdAsync(joinSessionRequestDto.SessionId);
             if (session == null)
                 return NotFound("Session not found");
 
@@ -238,7 +236,7 @@ namespace Sparq.WebApi.Controllers
             if (session.Snapshot.Quiz.OwnerId == user?.Id)
                 return Forbid();
 
-            if (session.Snapshot.PinCode != dto.PinCode)
+            if (session.Snapshot.PinCode != joinSessionRequestDto.PinCode)
                 return BadRequest("Invalid pin code");
 
             bool isExternal = user == null;
@@ -249,7 +247,7 @@ namespace Sparq.WebApi.Controllers
                 UserId = isExternal ? null : user!.Id,
                 ExternalUserId = isExternal ? Guid.NewGuid().ToString() : null,
                 DisplayName = isExternal
-                    ? dto.Nickname!.Trim()
+                    ? joinSessionRequestDto.Nickname!.Trim()
                     : user!.NickName,
                 SessionId = session.Id,
                 Score = 0,
@@ -258,6 +256,8 @@ namespace Sparq.WebApi.Controllers
             };
 
             await _participantService.CreateAsync(participant);
+
+            await _sessionsNotificationService.NotifySessionParticipantsUpdatedAsync(session.Id);
 
             return Ok(new JoinSessionExtUserResponseDto
             {
@@ -311,6 +311,8 @@ namespace Sparq.WebApi.Controllers
                 return NotFound("Participant not found");
 
             var result = await _participantService.DeleteAsync(participant.Id);
+
+            await _sessionsNotificationService.NotifySessionParticipantsUpdatedAsync(session.Id);
 
             return Ok(result);
         }
