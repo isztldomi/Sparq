@@ -8,6 +8,6 @@ export type Quiz = {
   lastSnapshotId: string;
   snapshots: Snapshot[];
 
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };

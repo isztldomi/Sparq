@@ -16,7 +16,6 @@ namespace Sparq.Shared.Models.SessionDto
         public DateTime? EndedAt { get; set; }
         public string? CurrentQuestionId { get; set; }
         public string PinCode { get; set; } = string.Empty;
-        public bool IsWaiting { get; set; }
-        public bool IsRunning { get; set; }
+        public SessionStatus Status { get; set; }
     }
 }

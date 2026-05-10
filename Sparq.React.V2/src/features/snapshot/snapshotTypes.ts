@@ -40,7 +40,7 @@ export type SnapshotMetaDetailsResponseDto = {
   snapshotNumber: number;
   title: string;
   description: string;
-  createdAt: Date;
+  createdAt: string;
 };
 
 export type SnapshotMetaDetails2ResponseDto = {

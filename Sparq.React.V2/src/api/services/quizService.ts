@@ -6,6 +6,7 @@ import type {
 } from "@/features/quiz/quizTypes";
 import type { QuizResponseDto } from "@/features/quiz/quizTypes";
 import type { MyQuizSessionsListDto } from "@/features/session/sessionTypes";
+import { buildQuery } from "../core/queryString";
 
 export function createQuizApi(
   data: QuizCreateRequestDto,
@@ -17,7 +18,7 @@ export function getMyQuizzesApi(
   page: number,
   pageSize: number,
 ): Promise<PagedResult<MyQuizListDto>> {
-  return get(`/quiz/mine?page=${page}&pageSize=${pageSize}`);
+  return get(`/quiz/mine${buildQuery({ page, pageSize })}`);
 }
 
 export function getQuizByIdApi(id: string): Promise<QuizResponseDto> {
@@ -33,7 +34,7 @@ export function getQuizSessionsByIdApi(
   page: number,
   pageSize: number,
 ): Promise<PagedResult<MyQuizSessionsListDto>> {
-  return get(`/quiz/${id}/sessions?page=${page}&pageSize=${pageSize}`);
+  return get(`/quiz/${id}/sessions${buildQuery({ page, pageSize })}`);
 }
 
 export function ToggleVisibilityQuizByIdApi(id: string): Promise<void> {

@@ -12,7 +12,7 @@ namespace Sparq.DataAccess.Services
         Task<IReadOnlyCollection<Session>> GetAllAsync();
         Task<Session?> UpdateAsync(string id, Session updatedSession);
         Task<bool> DeleteAsync(string id); 
-        Task<bool> ActivateForWaitingByIdAsync(string id);
+        Task<bool> ActivateForWaitingByIdAsync(string id); 
         Task<(List<Session> Items, int TotalCount)> GetAllPublicWaitingSessionsPagedAsync(int page, int pageSize);
     }
 }

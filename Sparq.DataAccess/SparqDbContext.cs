@@ -42,6 +42,11 @@ namespace Sparq.DataAccess
                 .HasForeignKey(q => q.SnapshotId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Session>()
+                .Property(s => s.Status)
+                .HasConversion<int>()
+                .HasDefaultValue(SessionStatus.Created);
+
             modelBuilder.Entity<Question>()
                 .HasMany(q => q.Answers)
                 .WithOne(a => a.Question)

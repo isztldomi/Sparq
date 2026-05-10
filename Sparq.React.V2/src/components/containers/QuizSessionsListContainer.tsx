@@ -2,7 +2,10 @@ import { useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { BasePaginatedList } from "@/components/paginatedLists/BasePaginatedList";
 import { useGetQuizSessionsByIdQuery } from "@/features/quiz/quizApi";
-import type { MyQuizSessionsListDto } from "@/features/session/sessionTypes";
+import {
+  SessionStatus,
+  type MyQuizSessionsListDto,
+} from "@/features/session/sessionTypes";
 import { SessionStatusLabel } from "@/components/label/SessionStatusLabel";
 import { GreenButton } from "../buttons/greenButton";
 import { useActivateForWaitingSessionMutation } from "@/features/session/sessionApi";
@@ -71,47 +74,46 @@ export function QuizSessionsListContainer({
                 </p>
               </div>
               <div>
-                {!session.isWaiting &&
-                  !session.isRunning &&
-                  !session.endedAt && (
-                    <SessionStatusLabel variant="neutral">
-                      Not Started
-                    </SessionStatusLabel>
-                  )}
-                {session.isWaiting && (
+                {session.status === SessionStatus.Created && (
+                  <SessionStatusLabel variant="neutral">
+                    Not Started
+                  </SessionStatusLabel>
+                )}
+
+                {session.status === SessionStatus.Waiting && (
                   <SessionStatusLabel variant="warning">
                     Waiting
                   </SessionStatusLabel>
                 )}
-                {session.isRunning && (
+
+                {session.status === SessionStatus.Running && (
                   <SessionStatusLabel variant="error">
                     Running
                   </SessionStatusLabel>
                 )}
-                {session.endedAt && (
+
+                {session.status === SessionStatus.Finished && (
                   <SessionStatusLabel variant="info">Ended</SessionStatusLabel>
                 )}
               </div>
               <div>
-                {!session.isWaiting &&
-                  !session.isRunning &&
-                  !session.endedAt && (
-                    <GreenButton
-                      className="w-30 h-10"
-                      onClick={async () => {
-                        try {
-                          setActivatingId(session.id);
-                          await activateSession(session.id).unwrap();
-                        } finally {
-                          setActivatingId(null);
-                        }
-                      }}
-                      disabled={isActivating}
-                    >
-                      {isActivating ? "Activating..." : "Activate session"}
-                    </GreenButton>
-                  )}
-                {session.isWaiting && (
+                {session.status === SessionStatus.Created && (
+                  <GreenButton
+                    className="w-30 h-10"
+                    onClick={async () => {
+                      try {
+                        setActivatingId(session.id);
+                        await activateSession(session.id).unwrap();
+                      } finally {
+                        setActivatingId(null);
+                      }
+                    }}
+                    disabled={isActivating}
+                  >
+                    {isActivating ? "Activating..." : "Activate session"}
+                  </GreenButton>
+                )}
+                {session.status === SessionStatus.Waiting && (
                   <GreenButton
                     className="w-30 h-10"
                     onClick={() => navigate(`/session/${session.id}`)}

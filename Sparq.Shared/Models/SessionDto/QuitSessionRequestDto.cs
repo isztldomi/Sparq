@@ -4,8 +4,10 @@ using System.Text;
 
 namespace Sparq.Shared.Models.SessionDto
 {
-    public class JoinSessionExtUserResponseDto
+    public class QuitSessionRequestDto
     {
+        public required string SessionId { get; set; }
         public string? ExternalUserId { get; set; }
+
     }
 }

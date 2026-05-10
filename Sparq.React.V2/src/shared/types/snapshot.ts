@@ -8,7 +8,7 @@ export type Snapshot = {
   description: string;
   timeLimit: number;
   pinCode: string;
-  createdAt: Date;
+  createdAt: string;
   questions: Question[];
   //sessions: Session[];
 };

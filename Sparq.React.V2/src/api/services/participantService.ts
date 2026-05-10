@@ -1,15 +1,22 @@
-import type { ParticipantIsJoinedResponseDto } from "@/features/participant/participantTypes";
+import type {
+  ParticipantIsJoinedResponseDto,
+  ParticipantPublicListResponseDto,
+} from "@/features/participant/participantTypes";
 import { get } from "../http/http";
+import { buildQuery } from "@/api/core/queryString";
 
 export function isJoinedApi(
   sessionId: string,
+  extUserId?: string,
 ): Promise<ParticipantIsJoinedResponseDto> {
-  return get(`participant/${sessionId}/is-joined`);
+  return get(`participant/${sessionId}/is-joined${buildQuery({ extUserId })}`);
 }
 
-export function extUserIsJoinedApi(
+export function getParticipantsBySessionIdApi(
   sessionId: string,
-  extUserId: string,
-): Promise<ParticipantIsJoinedResponseDto> {
-  return get(`participant/${sessionId}/ext-user-is-joined/${extUserId}`);
+  extUserId?: string,
+): Promise<ParticipantPublicListResponseDto[]> {
+  return get(
+    `participant/${sessionId}/participants${buildQuery({ extUserId })}`,
+  );
 }

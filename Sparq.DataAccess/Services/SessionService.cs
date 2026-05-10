@@ -30,8 +30,6 @@ namespace Sparq.DataAccess.Services
             {
                 SnapshotId = snapshotId,
                 CreatedAt = DateTime.UtcNow,
-                IsWaiting = false,
-                IsRunning = false,
                 PinCode = snapshot.PinCode,
             };
 
@@ -78,8 +76,7 @@ namespace Sparq.DataAccess.Services
             existing.EndedAt = updatedSession.EndedAt;
             existing.CurrentQuestionId = updatedSession.CurrentQuestionId;
             existing.PinCode = updatedSession.PinCode;
-            existing.IsWaiting = updatedSession.IsWaiting;
-            existing.IsRunning = updatedSession.IsRunning;
+            existing.Status = updatedSession.Status;
 
             // navigation property
             existing.Snapshot = updatedSession.Snapshot;
@@ -98,7 +95,7 @@ namespace Sparq.DataAccess.Services
         {
             var session = await _context.Sessions.FindAsync(id);
 
-            if (session == null)
+            if (session == null || session.Status != SessionStatus.Created)
                 return false;
 
             _context.Sessions.Remove(session);
@@ -118,7 +115,7 @@ namespace Sparq.DataAccess.Services
             if (session == null)
                 return false;
 
-            session.IsWaiting = true;
+            session.Status = SessionStatus.Waiting;
 
             await _context.SaveChangesAsync();
 
@@ -131,7 +128,7 @@ namespace Sparq.DataAccess.Services
                 .Include(s => s.Snapshot)
                 .ThenInclude(s => s.Quiz)
                 .Where(s =>
-                    s.IsWaiting &&
+                    s.Status == SessionStatus.Waiting &&
                     s.Snapshot != null &&
                     s.Snapshot.Quiz != null &&
                     s.Snapshot.Quiz.IsPublic &&

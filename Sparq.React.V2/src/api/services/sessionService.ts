@@ -3,10 +3,13 @@ import { post, patch, get } from "../http/http";
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
-  JoinSessionExtUserResponseDto,
+  JoinSessionResponseDto,
   JoinSessionRequestDto,
+  quitSessionRequestDto,
   SessionPublicWaitingListDto,
+  SessionStatusResponseDto,
 } from "@/features/session/sessionTypes";
+import { buildQuery } from "../core/queryString";
 
 export function createSessionApi(
   data: CreateSessionRequestDto,
@@ -22,7 +25,7 @@ export function getAllPublicWaitingSessionsApi(
   page: number,
   pageSize: number,
 ): Promise<PagedResult<SessionPublicWaitingListDto>> {
-  return get(`/session/public-waiting?page=${page}&pageSize=${pageSize}`);
+  return get(`/session/public-waiting${buildQuery({ page, pageSize })}`);
 }
 
 export function getSessionByIdApi(
@@ -37,12 +40,19 @@ export function getSessionPublicDataByIdApi(
   return get(`/session/${sessionId}/public`);
 }
 
-export function joinSessionApi(data: JoinSessionRequestDto): Promise<void> {
+export function joinSessionApi(
+  data: JoinSessionRequestDto,
+): Promise<JoinSessionResponseDto> {
   return post("/session/join", data);
 }
 
-export function extUserJoinSessionApi(
-  data: JoinSessionRequestDto,
-): Promise<JoinSessionExtUserResponseDto> {
-  return post("/session/ext-user-join", data);
+export function getSessionStatusByIdApi(
+  sessionId: string,
+  extUserId?: string,
+): Promise<SessionStatusResponseDto> {
+  return get(`/session/${sessionId}/status${buildQuery({ extUserId })}`);
+}
+
+export function quitSessionApi(data: quitSessionRequestDto): Promise<boolean> {
+  return post("/session/quit", data);
 }
