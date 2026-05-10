@@ -7,12 +7,12 @@ using Scalar.AspNetCore;
 using Sparq.DataAccess;
 using Sparq.DataAccess.Config;
 using Sparq.DataAccess.Models;
-using Sparq.SignalR.Hubs;
-using Sparq.SignalR.Notifiers;
 using Sparq.WebApi.Infrastructure;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using Sparq.SignalR;
+using Sparq.SignalR.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -82,10 +82,15 @@ builder.Services.AddAutomapper();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ExceptionToProblemDetailsHandler>();
 // SIGNALR REGISZTRÁCIÓ
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
+builder.Services.AddSignalRServices();
 // saját realtime service (SignalR wrapper)
-builder.Services.AddScoped<ISessionNotifierService, SessionNotifierService>();
+// builder.Services.AddScoped<ISessionNotifierService, SessionNotifierService>();
 
 
 var app = builder.Build();
@@ -108,7 +113,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // SIGNALR HUB MAPPING
-app.MapHub<SessionHub>("/sessionHub");
+app.MapHub<SessionsHub>("/sessionsHub");
 
 if (!app.Environment.IsEnvironment("IntegrationTest"))
 {

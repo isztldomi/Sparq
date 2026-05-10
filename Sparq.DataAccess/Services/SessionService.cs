@@ -126,7 +126,7 @@ namespace Sparq.DataAccess.Services
         {
             var query = _context.Sessions
                 .Include(s => s.Snapshot)
-                .ThenInclude(s => s.Quiz)
+                .ThenInclude(s => s!.Quiz)
                 .Where(s =>
                     s.Status == SessionStatus.Waiting &&
                     s.Snapshot != null &&
