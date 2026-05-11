@@ -200,8 +200,8 @@ namespace Sparq.WebApi.Controllers
             if (quiz == null)
                 return NotFound("Quiz not found");
             
-            if (quiz.IsPublic == false)
-                return Forbid();
+            // if (quiz.IsPublic == false)
+            //     return Forbid();
 
             if (session.Status != DataAccess.Models.SessionStatus.Waiting)
                 return Forbid();

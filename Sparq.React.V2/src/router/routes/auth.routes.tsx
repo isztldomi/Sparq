@@ -8,6 +8,7 @@ import { QuizModifyPage } from "@/pages/QuizModifyPage";
 import { QuizSessionsPage } from "@/pages/QuizSessionsPage";
 import { RequireSessionAccess } from "@/components/guards/RequireSessionAccess";
 import { SessionParticipantPage } from "@/pages/SessionParticipantPage";
+import { SessionManagePage } from "@/pages/SessionManagePage";
 
 export const authRoutes: RouteObject[] = [
   {
@@ -56,6 +57,14 @@ export const authRoutes: RouteObject[] = [
       <RequireSessionAccess>
         <SessionParticipantPage />
       </RequireSessionAccess>
+    ),
+  },
+  {
+    path: "/session/:sessionId/manage",
+    element: (
+      <RequireAuth>
+        <SessionManagePage />
+      </RequireAuth>
     ),
   },
 ];
