@@ -16,6 +16,7 @@ export function SessionJoinPage() {
   const { sessionId } = useParams();
 
   const { data: user, isLoading, error } = useGetCurrentUserQuery();
+  const [joinFailed, setJoinFailed] = useState(false);
 
   const {
     data: sessionData,
@@ -41,6 +42,7 @@ export function SessionJoinPage() {
   }>({});
 
   async function handleJoin() {
+    setJoinFailed(false);
     const isGuest = !user;
 
     const resultPin = pinCodeSchema.safeParse(pincode);
@@ -73,13 +75,13 @@ export function SessionJoinPage() {
     try {
       const res = await joinSession(payload).unwrap();
 
-      // 👇 unified response kezelés
       if (res.externalUserId) {
         localStorage.setItem(sessionId, res.externalUserId);
       }
 
       navigate(`/session/${sessionId}`);
     } catch (err) {
+      setJoinFailed(true);
       console.error("Join failed:", err);
     }
   }
@@ -131,7 +133,11 @@ export function SessionJoinPage() {
           <input
             type="text"
             placeholder="Enter session PIN code"
-            className="w-full p-2 border border-gray-300 rounded mt-2"
+            className={`w-full p-2 border rounded mt-2 transition-colors ${
+              errors.pincode || joinFailed
+                ? "border-red-500 focus:border-red-500 outline-none"
+                : "border-gray-300"
+            }`}
             value={pincode}
             onChange={(e) => setPincode(e.target.value)}
           />
