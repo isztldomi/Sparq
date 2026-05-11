@@ -7,5 +7,6 @@ namespace Sparq.Shared.SignalR.HubInterfaces
     public interface ISessionsClient
     {
         Task SessionParticipantsUpdated(string sessionId);
+        Task SessionDeactivated(string sessionId);
     }
 }

@@ -7,5 +7,6 @@ namespace Sparq.SignalR.Services
     public interface ISessionsNotificationService
     {
         Task NotifySessionParticipantsUpdatedAsync(string sessionId);
+        Task NotifySessionDeactivatedAsync(string sessionId);
     }
 }

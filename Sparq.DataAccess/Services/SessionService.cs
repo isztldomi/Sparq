@@ -140,5 +140,22 @@ namespace Sparq.DataAccess.Services
                 .ToList();
             return (items, totalCount);
         }
+
+        public async Task<bool> DeactivateSessionAsync(string id)
+        {
+            var session = await _context.Sessions
+                .Include(s => s.Snapshot)
+                .Include(s => s.Participants)
+                .Include(s => s.Messages)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (session == null)
+                return false;
+            var participants = session.Participants.ToList();
+            if (participants.Count > 0)
+                return false;
+            session.Status = SessionStatus.Created;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

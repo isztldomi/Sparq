@@ -40,6 +40,10 @@ export function SessionWaitingContainer({ sessionId, extUserId }: Props) {
     onParticipantsUpdated: async () => {
       await refetchParticipants();
     },
+    onSessionDeactivated: async () => {
+      localStorage.removeItem(sessionId);
+      navigate("/session/notFound");
+    },
   });
 
   async function handleLeave() {

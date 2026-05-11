@@ -22,5 +22,12 @@ namespace Sparq.SignalR.Services
                 .Group($"session:{sessionId}")
                 .SessionParticipantsUpdated(sessionId);
         }
+
+        public async Task NotifySessionDeactivatedAsync(string sessionId)
+        {
+            await _hubContext.Clients
+                .Group($"session:{sessionId}")
+                .SessionDeactivated(sessionId);
+        }
     }
 }

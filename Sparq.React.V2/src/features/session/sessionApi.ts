@@ -3,6 +3,8 @@ import { toApiError } from "@/api/core/toApiError";
 import {
   activateForWaitingSessionApi,
   createSessionApi,
+  deactivateSessionApi,
+  deleteSessionApi,
   getAllPublicWaitingSessionsApi,
   getSessionByIdApi,
   getSessionPublicDataByIdApi,
@@ -188,6 +190,43 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Participant", id: arg.sessionId },
       ],
     }),
+
+    deleteSession: builder.mutation<boolean, string>({
+      async queryFn(sessionId) {
+        try {
+          await deleteSessionApi(sessionId);
+          return { data: true };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      invalidatesTags: (_result, _error, sessionId) => [
+        { type: "Session", id: sessionId },
+        { type: "Session", id: "LIST" },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
+        { type: "Participant", id: sessionId },
+      ],
+    }),
+    deactivateSession: builder.mutation<boolean, string>({
+      async queryFn(sessionId) {
+        try {
+          await deactivateSessionApi(sessionId);
+          return { data: true };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      invalidatesTags: (_result, _error, sessionId) => [
+        { type: "Session", id: sessionId },
+        { type: "Session", id: "LIST" },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
+        { type: "Participant", id: sessionId },
+      ],
+    }),
   }),
 });
 
@@ -200,4 +239,6 @@ export const {
   useJoinSessionMutation,
   useGetSessionStatusByIdQuery,
   useQuitSessionMutation,
+  useDeleteSessionMutation,
+  useDeactivateSessionMutation,
 } = sessionApi;

@@ -355,5 +355,70 @@ namespace Sparq.WebApi.Controllers
                 Status = (Shared.Models.SessionDto.SessionStatus)session.Status
             });
         }
+
+        [HttpDelete("{sessionId}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteSession([FromRoute] string sessionId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return NotFound();
+
+            if (user!.Id != session.Snapshot!.Quiz!.OwnerId)
+                return Forbid();
+
+            if (session.Status != DataAccess.Models.SessionStatus.Created)
+                return Forbid();
+
+            var result = await _sessionService.DeleteAsync(sessionId);
+
+            return Ok(result);
+        }
+
+        [HttpPatch("{sessionId}/deactivate")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeactivateSession([FromRoute] string sessionId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return NotFound();
+
+            if (user!.Id != session.Snapshot!.Quiz!.OwnerId)
+                return Forbid();
+
+            if (session.Status != DataAccess.Models.SessionStatus.Waiting)
+                return Forbid();
+
+            var participants = await _participantService.GetAllParticipantsBySessionIdAsync(sessionId);
+
+            foreach (var participant in participants)
+            {
+                await _participantService.DeleteAsync(participant.Id);
+            }
+
+            await _sessionsNotificationService.NotifySessionDeactivatedAsync(sessionId);
+
+            var result = await _sessionService.DeactivateSessionAsync(sessionId); 
+            
+            return Ok(result);
+        }
     }
 } 

@@ -1,5 +1,5 @@
 import type { PagedResult } from "@/features/page/pageTypes";
-import { post, patch, get } from "../http/http";
+import { post, patch, get, del } from "../http/http";
 import type {
   CreatedSessionResponseDto,
   CreateSessionRequestDto,
@@ -55,4 +55,12 @@ export function getSessionStatusByIdApi(
 
 export function quitSessionApi(data: quitSessionRequestDto): Promise<boolean> {
   return post("/session/quit", data);
+}
+
+export function deleteSessionApi(sessionId: string): Promise<boolean> {
+  return del(`/session/${sessionId}`);
+}
+
+export function deactivateSessionApi(sessionId: string): Promise<boolean> {
+  return patch(`/session/${sessionId}/deactivate`);
 }

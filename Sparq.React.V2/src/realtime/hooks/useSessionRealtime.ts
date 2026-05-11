@@ -4,24 +4,35 @@ import { joinSessionGroup } from "../services/sessionsRealtimeService";
 type Props = {
   sessionId: string;
   onParticipantsUpdated: () => void | Promise<void>;
+  onSessionDeactivated?: () => void | Promise<void>;
 };
 
 export function useSessionRealtime({
   sessionId,
   onParticipantsUpdated,
+  onSessionDeactivated,
 }: Props) {
   useEffect(() => {
     let connectionRef: any;
-    let handler: (() => void) | null = null;
+
+    let participantsHandler: (() => void | Promise<void>) | null = null;
+
+    let deactivatedHandler: (() => void | Promise<void>) | null = null;
 
     async function setup() {
       connectionRef = await joinSessionGroup(sessionId);
 
-      handler = async () => {
+      participantsHandler = async () => {
         await onParticipantsUpdated();
       };
 
-      connectionRef.on("SessionParticipantsUpdated", handler);
+      deactivatedHandler = async () => {
+        await onSessionDeactivated?.();
+      };
+
+      connectionRef.on("SessionParticipantsUpdated", participantsHandler);
+
+      connectionRef.on("SessionDeactivated", deactivatedHandler);
 
       connectionRef.onreconnected(async () => {
         await connectionRef.invoke("JoinSessionGroup", sessionId);
@@ -31,11 +42,17 @@ export function useSessionRealtime({
     setup();
 
     return () => {
-      if (!connectionRef || !handler) return;
+      if (!connectionRef) return;
 
-      connectionRef.off("SessionParticipantsUpdated", handler);
+      if (participantsHandler) {
+        connectionRef.off("SessionParticipantsUpdated", participantsHandler);
+      }
+
+      if (deactivatedHandler) {
+        connectionRef.off("SessionDeactivated", deactivatedHandler);
+      }
 
       connectionRef.invoke("LeaveSessionGroup", sessionId).catch(() => {});
     };
-  }, [sessionId, onParticipantsUpdated]);
+  }, [sessionId, onParticipantsUpdated, onSessionDeactivated]);
 }
