@@ -8,8 +8,13 @@ import {
 } from "@/features/session/sessionTypes";
 import { SessionStatusLabel } from "@/components/label/SessionStatusLabel";
 import { GreenButton } from "../buttons/greenButton";
-import { useActivateForWaitingSessionMutation } from "@/features/session/sessionApi";
+import {
+  useActivateForWaitingSessionMutation,
+  useDeactivateSessionMutation,
+  useDeleteSessionMutation,
+} from "@/features/session/sessionApi";
 import { InlineLoading } from "../loadings/InlineLoading";
+import { RedButton } from "../buttons/redButton";
 
 type Props = {
   page: number;
@@ -38,6 +43,15 @@ export function QuizSessionsListContainer({
       skip: !quizId,
     },
   );
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [deleteSession, { isLoading: isDeleting }] = useDeleteSessionMutation();
+
+  const [deactivateId, setDeactivateId] = useState<string | null>(null);
+
+  const [deactivateSession, { isLoading: isDeactivating }] =
+    useDeactivateSessionMutation();
 
   if (isError) {
     return <Navigate to="/my-quizzes/notFound" replace />;
@@ -96,30 +110,65 @@ export function QuizSessionsListContainer({
                   <SessionStatusLabel variant="info">Ended</SessionStatusLabel>
                 )}
               </div>
-              <div>
+              <div className="flex flex-col gap-2">
                 {session.status === SessionStatus.Created && (
-                  <GreenButton
-                    className="w-30 h-10"
-                    onClick={async () => {
-                      try {
-                        setActivatingId(session.id);
-                        await activateSession(session.id).unwrap();
-                      } finally {
-                        setActivatingId(null);
-                      }
-                    }}
-                    disabled={isActivating}
-                  >
-                    {isActivating ? "Activating..." : "Activate session"}
-                  </GreenButton>
+                  <>
+                    <GreenButton
+                      className="w-35 h-10"
+                      onClick={async () => {
+                        try {
+                          setActivatingId(session.id);
+                          await activateSession(session.id).unwrap();
+                        } finally {
+                          setActivatingId(null);
+                        }
+                      }}
+                      disabled={isActivating}
+                    >
+                      {isActivating ? "Activating..." : "Activate session"}
+                    </GreenButton>
+
+                    <RedButton
+                      className="w-35 h-10"
+                      onClick={async () => {
+                        try {
+                          setDeletingId(session.id);
+
+                          await deleteSession(session.id).unwrap();
+                        } finally {
+                          setDeletingId(null);
+                        }
+                      }}
+                      disabled={isDeleting}
+                    >
+                      Delete Session
+                    </RedButton>
+                  </>
                 )}
                 {session.status === SessionStatus.Waiting && (
-                  <GreenButton
-                    className="w-30 h-10"
-                    onClick={() => navigate(`/session/${session.id}/manage`)}
-                  >
-                    Manage session
-                  </GreenButton>
+                  <>
+                    <GreenButton
+                      className="w-35 h-10"
+                      onClick={() => navigate(`/session/${session.id}/manage`)}
+                    >
+                      Manage session
+                    </GreenButton>
+                    <RedButton
+                      className="w-35 h-10"
+                      onClick={async () => {
+                        try {
+                          setDeactivateId(session.id);
+
+                          await deactivateSession(session.id).unwrap();
+                        } finally {
+                          setDeactivateId(null);
+                        }
+                      }}
+                      disabled={isDeactivating}
+                    >
+                      Deactivate Session
+                    </RedButton>
+                  </>
                 )}
               </div>
             </>

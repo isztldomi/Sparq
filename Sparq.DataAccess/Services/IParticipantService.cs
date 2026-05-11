@@ -17,5 +17,6 @@ namespace Sparq.DataAccess.Services
         Task<bool> IsExtUserJoinedAsync(string extUserId, string sessionId);
         Task<Participant?> GetIdByUserIdAndSessionIdAsync(string userId, string sessionId);
         Task<Participant?> GetIdByExtUserIdAndSessionIdAsync(string extUserId, string sessionId);
+        Task<IReadOnlyCollection<Participant>> GetAllParticipantsBySessionIdAsync(string sessionId);
     }
 }
