@@ -4,26 +4,34 @@ import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
 import {
   useGetSessionByIdQuery,
   useGetSessionPublicDataByIdQuery,
+  useStartSessionMutation,
 } from "@/features/session/sessionApi";
 import { useNavigate } from "react-router-dom";
 import { GreenRedCheckbox } from "../checkbox/greenRedCheckbox";
 import { SessionStatus } from "@/features/session/sessionTypes";
 import { SessionStatusLabel } from "../label/SessionStatusLabel";
+import { GreenButton } from "../buttons/greenButton";
 
-type Props = {
+type SessionManageMetaDetailsContainerProps = {
   sessionId: string;
+  sessionData?: ReturnType<typeof useGetSessionByIdQuery>["data"];
+  isSessionLoading?: boolean;
+  isSessionError?: boolean;
 };
 
-export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
+export function SessionManageMetaDetailsContainer({
+  sessionId,
+  sessionData,
+  isSessionLoading,
+  isSessionError,
+}: SessionManageMetaDetailsContainerProps) {
   const navigate = useNavigate();
 
-  const [isBlurred, setIsBlurred] = useState(true);
+  const [isSessionIdBlurred, setIsSessionIdBlurred] = useState(true);
+  const [isSessionPinCodeBlurred, setIsSessionPinCodeBlurred] = useState(true);
 
-  const {
-    data: sessionData,
-    isLoading: isSessionLoading,
-    isError: isSessionError,
-  } = useGetSessionByIdQuery(sessionId);
+  const [startSession, { isLoading: isStartSessionLoading }] =
+    useStartSessionMutation();
 
   const {
     data: publicSessionData,
@@ -31,7 +39,7 @@ export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
     isError: isPublicSessionError,
   } = useGetSessionPublicDataByIdQuery(sessionId);
 
-  if (isSessionLoading || isPublicSessionLoading) {
+  if (isSessionLoading || isPublicSessionLoading || isStartSessionLoading) {
     return <LoadingIndicator />;
   }
 
@@ -49,10 +57,10 @@ export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
     <div className="w-full rounded-lg bg-[var(--surface-4)] p-5 flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex flex-wrap items-center gap-2">
-          Snapshot id:
+          Session id:
           <div
             className={`bg-[var(--surface-5)] p-4 rounded-lg transition-all text-[var(--error-text)] duration-200 ${
-              isBlurred ? "blur-sm select-none" : ""
+              isSessionIdBlurred ? "blur-sm select-none" : ""
             }`}
           >
             {sessionData.id}
@@ -60,10 +68,30 @@ export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
         </div>
 
         <GreenRedCheckbox
-          value={isBlurred}
-          onChange={setIsBlurred}
-          trueLabel="Hide"
-          falseLabel="Show"
+          value={isSessionIdBlurred}
+          onChange={setIsSessionIdBlurred}
+          trueLabel="Show"
+          falseLabel="Hide"
+          className="rounded-lg text-sm w-20 h-10"
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          Session PinCode:
+          <div
+            className={`bg-[var(--surface-5)] p-4 rounded-lg transition-all text-[var(--error-text)] duration-200 ${
+              isSessionPinCodeBlurred ? "blur-sm select-none" : ""
+            }`}
+          >
+            {sessionData.pinCode}
+          </div>
+        </div>
+
+        <GreenRedCheckbox
+          value={isSessionPinCodeBlurred}
+          onChange={setIsSessionPinCodeBlurred}
+          trueLabel="Show"
+          falseLabel="Hide"
           className="rounded-lg text-sm w-20 h-10"
         />
       </div>
@@ -73,7 +101,7 @@ export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
       <div className="flex flex-wrap whitespace-pre-wrap">
         Description: <p>{publicSessionData.snapshot.description}</p>
       </div>
-      <div className="flex flex-wrap whitespace-pre-wrap gap-2">
+      <div className="flex flex-wrap items-center whitespace-pre-wrap gap-2">
         Status:
         <div>
           {sessionData.status === SessionStatus.Created && (
@@ -92,6 +120,16 @@ export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
 
           {sessionData.status === SessionStatus.Finished && (
             <SessionStatusLabel variant="info">Ended</SessionStatusLabel>
+          )}
+        </div>
+        <div>
+          {sessionData.status === SessionStatus.Waiting && (
+            <GreenButton
+              className="w-20 h-10"
+              onClick={() => startSession(sessionData.id)}
+            >
+              Start
+            </GreenButton>
           )}
         </div>
       </div>

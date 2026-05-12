@@ -11,6 +11,7 @@ import {
   getSessionStatusByIdApi,
   joinSessionApi,
   quitSessionApi,
+  startSessionApi,
 } from "@/api/services/sessionService";
 
 import type {
@@ -227,6 +228,18 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Participant", id: sessionId },
       ],
     }),
+    startSession: builder.mutation<boolean, string>({
+      async queryFn(sessionId) {
+        try {
+          await startSessionApi(sessionId);
+          return { data: true };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -241,4 +254,5 @@ export const {
   useQuitSessionMutation,
   useDeleteSessionMutation,
   useDeactivateSessionMutation,
+  useStartSessionMutation,
 } = sessionApi;

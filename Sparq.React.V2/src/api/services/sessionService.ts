@@ -64,3 +64,7 @@ export function deleteSessionApi(sessionId: string): Promise<boolean> {
 export function deactivateSessionApi(sessionId: string): Promise<boolean> {
   return patch(`/session/${sessionId}/deactivate`);
 }
+
+export function startSessionApi(sessionId: string): Promise<boolean> {
+  return patch(`/session/${sessionId}/start`);
+}

@@ -5,12 +5,22 @@ import {
 } from "@/features/participant/participantApi";
 import { useSessionRealtime } from "@/realtime/hooks/useSessionRealtime";
 import { RedButton } from "../buttons/redButton";
+import type { useGetSessionByIdQuery } from "@/features/session/sessionApi";
+import { SessionStatus } from "@/features/session/sessionTypes";
 
-type Props = {
+type SessionManageParticipantsContainerProps = {
   sessionId: string;
+  sessionData?: ReturnType<typeof useGetSessionByIdQuery>["data"];
+  isSessionLoading?: boolean;
+  isSessionError?: boolean;
 };
 
-export function SessionManageParticipantsContainer({ sessionId }: Props) {
+export function SessionManageParticipantsContainer({
+  sessionId,
+  sessionData,
+  isSessionLoading,
+  isSessionError,
+}: SessionManageParticipantsContainerProps) {
   const {
     data: participantData,
     isLoading,
@@ -64,19 +74,20 @@ export function SessionManageParticipantsContainer({ sessionId }: Props) {
 
                 <span className="text-xs opacity-60">{participant.id}</span>
               </div>
-
-              <RedButton
-                className="w-20 h-10"
-                onClick={() =>
-                  deleteParticipant({
-                    sessionId,
-                    participantId: participant.id,
-                  })
-                }
-                disabled={isDeleting}
-              >
-                Remove
-              </RedButton>
+              {sessionData.status === SessionStatus.Waiting && (
+                <RedButton
+                  className="w-20 h-10"
+                  onClick={() =>
+                    deleteParticipant({
+                      sessionId,
+                      participantId: participant.id,
+                    })
+                  }
+                  disabled={isDeleting}
+                >
+                  Remove
+                </RedButton>
+              )}
             </div>
           ))}
         </div>

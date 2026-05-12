@@ -80,7 +80,7 @@ export function SessionWaitingContainer({ sessionId, extUserId }: Props) {
         <h1 className="text-xl text-[var(--text-h)]">Waiting Room</h1>
 
         <RedButton className="w-30 h-10" onClick={handleLeave}>
-          Leave
+          Quit
         </RedButton>
       </div>
 
