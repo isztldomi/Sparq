@@ -1,44 +1,33 @@
 import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
+
 import {
   useDeleteParticipantFromSessionByIdMutation,
   useGetParticipantsBySessionIdQuery,
 } from "@/features/participant/participantApi";
-import { useSessionRealtime } from "@/realtime/hooks/useSessionRealtime";
+
+import { useSessionParticipantsUpdated } from "@/realtime/sessions/hooks/useSessionParticipantsUpdated";
+
 import { RedButton } from "../buttons/redButton";
-import type { useGetSessionByIdQuery } from "@/features/session/sessionApi";
+
+import { useSessionManageContext } from "@/realtime/sessions/context/useSessionManageContext";
+
 import { SessionStatus } from "@/features/session/sessionTypes";
 
-type SessionManageParticipantsContainerProps = {
-  sessionId: string;
-  sessionData?: ReturnType<typeof useGetSessionByIdQuery>["data"];
-  isSessionLoading?: boolean;
-  isSessionError?: boolean;
-};
+export function SessionManageParticipantsContainer() {
+  const { sessionId, sessionData } = useSessionManageContext();
 
-export function SessionManageParticipantsContainer({
-  sessionId,
-  sessionData,
-  isSessionLoading,
-  isSessionError,
-}: SessionManageParticipantsContainerProps) {
+  useSessionParticipantsUpdated();
+
   const {
     data: participantData,
     isLoading,
     isError,
-    refetch,
   } = useGetParticipantsBySessionIdQuery({
     sessionId,
   });
 
   const [deleteParticipant, { isLoading: isDeleting }] =
     useDeleteParticipantFromSessionByIdMutation();
-
-  useSessionRealtime({
-    sessionId,
-    onParticipantsUpdated: async () => {
-      await refetch();
-    },
-  });
 
   if (isLoading) {
     return <LoadingIndicator />;
@@ -54,43 +43,30 @@ export function SessionManageParticipantsContainer({
 
   return (
     <div className="w-full rounded-lg bg-[var(--surface-4)] p-5 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg">Participants ({participantData.length})</h2>
-      </div>
+      <h2>Participants ({participantData.length})</h2>
 
       {participantData.length === 0 ? (
-        <div className="rounded-lg bg-[var(--surface-5)] p-4">
-          No participants yet.
-        </div>
+        <div>No participants</div>
       ) : (
-        <div className="flex flex-col gap-2">
-          {participantData.map((participant) => (
-            <div
-              key={participant.id}
-              className="flex items-center justify-between rounded-lg bg-[var(--surface-5)] p-3"
-            >
-              <div className="flex flex-col">
-                <span className="font-medium">{participant.displayName}</span>
+        participantData.map((p) => (
+          <div key={p.id} className="flex justify-between">
+            <div>{p.displayName}</div>
 
-                <span className="text-xs opacity-60">{participant.id}</span>
-              </div>
-              {sessionData.status === SessionStatus.Waiting && (
-                <RedButton
-                  className="w-20 h-10"
-                  onClick={() =>
-                    deleteParticipant({
-                      sessionId,
-                      participantId: participant.id,
-                    })
-                  }
-                  disabled={isDeleting}
-                >
-                  Remove
-                </RedButton>
-              )}
-            </div>
-          ))}
-        </div>
+            {sessionData.status === SessionStatus.Waiting && (
+              <RedButton
+                onClick={() =>
+                  deleteParticipant({
+                    sessionId,
+                    participantId: p.id,
+                  })
+                }
+                disabled={isDeleting}
+              >
+                Remove
+              </RedButton>
+            )}
+          </div>
+        ))
       )}
     </div>
   );

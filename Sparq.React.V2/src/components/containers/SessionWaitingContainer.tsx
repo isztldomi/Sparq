@@ -1,11 +1,18 @@
 import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
+
 import { useGetParticipantsBySessionIdQuery } from "@/features/participant/participantApi";
+
 import {
   useGetSessionPublicDataByIdQuery,
   useQuitSessionMutation,
 } from "@/features/session/sessionApi";
-import { useSessionRealtime } from "@/realtime/hooks/useSessionRealtime";
+
+import { useSessionParticipantsUpdated } from "@/realtime/sessions/hooks/useSessionParticipantsUpdated";
+
+import { useSessionDeactivated } from "@/realtime/sessions/hooks/useSessionDeactivated";
+
 import { RedButton } from "../buttons/redButton";
+
 import { useNavigate } from "react-router-dom";
 
 type Props = {
@@ -20,7 +27,6 @@ export function SessionWaitingContainer({ sessionId, extUserId }: Props) {
     data: participantData,
     isLoading: isParticipantLoading,
     isError: isParticipantError,
-    refetch: refetchParticipants,
   } = useGetParticipantsBySessionIdQuery({
     sessionId,
     extUserId,
@@ -35,16 +41,9 @@ export function SessionWaitingContainer({ sessionId, extUserId }: Props) {
   const [quitSession, { isLoading: isQuitSessionLoading }] =
     useQuitSessionMutation();
 
-  useSessionRealtime({
-    sessionId,
-    onParticipantsUpdated: async () => {
-      await refetchParticipants();
-    },
-    onSessionDeactivated: async () => {
-      localStorage.removeItem(sessionId);
-      navigate("/session/notFound");
-    },
-  });
+  useSessionParticipantsUpdated(sessionId);
+
+  useSessionDeactivated(sessionId);
 
   async function handleLeave() {
     try {
