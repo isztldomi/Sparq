@@ -29,5 +29,6 @@ namespace Sparq.SignalR.Services
                 .Group($"session:{sessionId}")
                 .SessionDeactivated(sessionId);
         }
+
     }
 }

@@ -19,7 +19,7 @@ export function SessionManagePage() {
       <div className="pt-4">
         <SessionManageMetaDetailsContainer sessionId={sessionId!} />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
         <SessionManageParticipantsContainer sessionId={sessionId!} />
         <div>asd</div>
       </div>
