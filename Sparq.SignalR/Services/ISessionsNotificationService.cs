@@ -9,5 +9,6 @@ namespace Sparq.SignalR.Services
         Task NotifySessionParticipantsUpdatedAsync(string sessionId);
         Task NotifySessionDeactivatedAsync(string sessionId);
         Task NotifyOnClientDisconnectionAsync(string connectionId);
+        Task NotifySessionStart(string sessionId);
     }
 }

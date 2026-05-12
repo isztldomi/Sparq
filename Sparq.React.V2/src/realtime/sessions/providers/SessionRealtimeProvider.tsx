@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-
 import type { HubConnection } from "@microsoft/signalr";
 
 import { SessionRealtimeContext } from "../context/SessionRealtimeContext";
 
-import { joinSessionGroup } from "../sessionGroups";
+import { createSessionConnection } from "../handlers/createSessionConnection";
+import { registerSessionConnectionLifecycle } from "../handlers/registerSessionConnectionLifecycle";
+import { registerSessionStartHandler } from "../handlers/registerSessionStartHandler";
 
 type Props = {
   sessionId: string;
-
   children: React.ReactNode;
 };
 
@@ -20,41 +20,49 @@ export function SessionRealtimeProvider({ sessionId, children }: Props) {
   useEffect(() => {
     let mounted = true;
 
+    // cleanup függvények tárolása
+    // (SignalR eventekhez)
+    let cleanupSessionStart: (() => void) | undefined;
+
     async function setup() {
-      const conn = await joinSessionGroup(sessionId);
+      // 1. Connection létrehozása
+      const conn = await createSessionConnection(sessionId);
 
-      conn.onreconnected(async () => {
-        await joinSessionGroup(sessionId);
+      // 2. Lifecycle (reconnect, close stb.)
+      registerSessionConnectionLifecycle({
+        connection: conn,
+        sessionId,
+        setIsConnected,
       });
 
-      conn.onclose(() => {
-        setIsConnected(false);
+      // 3. SESSION START event handler regisztrálása
+      cleanupSessionStart = registerSessionStartHandler({
+        connection: conn,
       });
 
-      conn.onreconnecting(() => {
-        setIsConnected(false);
-      });
-
+      // 4. state update (csak ha még mounted)
       if (!mounted) return;
 
       setConnection(conn);
-
       setIsConnected(conn.state === "Connected");
     }
 
     setup();
 
+    // CLEANUP
     return () => {
       mounted = false;
+
+      // event listener törlés
+      cleanupSessionStart?.();
     };
   }, [sessionId]);
 
+  // context value
   const value = useMemo(
     () => ({
       sessionId,
-
       connection,
-
       isConnected,
     }),
     [sessionId, connection, isConnected],

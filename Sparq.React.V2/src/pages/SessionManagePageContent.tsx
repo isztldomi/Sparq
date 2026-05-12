@@ -6,7 +6,13 @@ import { SessionManageParticipantsContainer } from "@/components/containers/Sess
 
 import { useNavigate } from "react-router-dom";
 
-export function SessionManagePageContent() {
+interface SessionManagePageContentProps {
+  data: any;
+}
+
+export function SessionManagePageContent({
+  data,
+}: SessionManagePageContentProps) {
   const navigate = useNavigate();
 
   return (
