@@ -30,5 +30,9 @@ namespace Sparq.SignalR.Services
                 .SessionDeactivated(sessionId);
         }
 
+        public Task NotifyOnClientDisconnectionAsync(string connectionId)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

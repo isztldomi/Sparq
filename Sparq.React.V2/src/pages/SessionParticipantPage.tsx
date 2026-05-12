@@ -1,8 +1,12 @@
-import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
-import { SessionStatus } from "@/features/session/sessionTypes";
-import { useGetSessionStatusByIdQuery } from "@/features/session/sessionApi";
 import { useParams } from "react-router-dom";
-import { SessionWaitingContainer } from "@/components/containers/SessionWaitingContainer";
+
+import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
+
+import { useGetSessionStatusByIdQuery } from "@/features/session/sessionApi";
+
+import { SessionRealtimeProvider } from "@/realtime/sessions/providers/SessionRealtimeProvider";
+
+import { ParticipantPageContent } from "@/components/containers/ParticipantPageContent";
 
 export function SessionParticipantPage() {
   const { sessionId } = useParams();
@@ -16,30 +20,16 @@ export function SessionParticipantPage() {
     extUserId,
   });
 
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
+  if (isLoading) return <LoadingIndicator />;
+  if (isError || !data) return <div>Something went wrong.</div>;
 
-  if (isError || !data) {
-    return <div>Something went wrong.</div>;
-  }
-
-  switch (data.status) {
-    case SessionStatus.Created:
-      return <div>This session is just created.</div>;
-
-    case SessionStatus.Waiting:
-      return (
-        <SessionWaitingContainer sessionId={sessionId!} extUserId={extUserId} />
-      );
-
-    case SessionStatus.Running:
-      return <div>SessionRunningPage</div>;
-
-    case SessionStatus.Finished:
-      return <div>SessionFinishedPage</div>;
-
-    default:
-      return <div>Unknown session status.</div>;
-  }
+  return (
+    <SessionRealtimeProvider sessionId={sessionId!}>
+      <ParticipantPageContent
+        sessionId={sessionId!}
+        extUserId={extUserId}
+        data={data}
+      />
+    </SessionRealtimeProvider>
+  );
 }
