@@ -347,7 +347,7 @@ namespace Sparq.WebApi.Controllers
                 isAllowed = await _participantService.IsExtUserJoinedAsync(extUserId, sessionId);
             }
 
-            if (!isAllowed)
+            if (!isAllowed && (user == null || user.Id != session.Snapshot!.Quiz!.OwnerId))
                 return Forbid();
 
             return Ok(new SessionStatusResponseDto
@@ -450,6 +450,7 @@ namespace Sparq.WebApi.Controllers
                 return Forbid();
 
             var result = await _sessionService.StartSessionAsync(sessionId);
+            await _sessionsNotificationService.NotifySessionStart(sessionId);
 
             return Ok(result);
         }

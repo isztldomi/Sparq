@@ -30,6 +30,11 @@ namespace Sparq.SignalR.Services
                 .SessionDeactivated(sessionId);
         }
 
+        public async Task NotifySessionStart(string sessionId)
+        {
+            await _hubContext.Clients.Group($"session:{sessionId}").SessionStart(sessionId);
+        }
+
         public Task NotifyOnClientDisconnectionAsync(string connectionId)
         {
             return Task.CompletedTask;
