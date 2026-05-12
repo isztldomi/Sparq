@@ -54,7 +54,7 @@ export function QuizSessionsListContainer({
     useDeactivateSessionMutation();
 
   if (isError) {
-    return <Navigate to="/my-quizzes/notFound" replace />;
+    navigate("/my-quizzes/notFound");
   }
 
   return (

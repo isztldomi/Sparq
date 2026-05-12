@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.Participant;
 using Sparq.Shared.Models.SessionDto;
+using Sparq.SignalR.Services;
 
 namespace Sparq.WebApi.Controllers
 {
@@ -16,13 +17,15 @@ namespace Sparq.WebApi.Controllers
         private readonly IParticipantService _participantService;
         private readonly IUsersService _usersService;
         private readonly ISessionService _sessionService;
+        private readonly ISessionsNotificationService _sessionsNotificationService;
 
-        public ParticipantController(IMapper mapper, IParticipantService participantService, IUsersService usersService, ISessionService sessionService)
+        public ParticipantController(IMapper mapper, IParticipantService participantService, IUsersService usersService, ISessionService sessionService, ISessionsNotificationService sessionsNotificationService)
         {
             _mapper = mapper;
             _participantService = participantService;
             _usersService = usersService;
             _sessionService = sessionService;
+            _sessionsNotificationService = sessionsNotificationService;
         }
 
         [HttpGet("{sessionId}/is-joined")]
@@ -99,6 +102,36 @@ namespace Sparq.WebApi.Controllers
             var participants = await _participantService.GetBySessionIdAsync(sessionId);
 
             var result = _mapper.Map<IReadOnlyCollection<ParticipantPublicListResponseDto>>(participants);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{sessionId}/{participantId}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ParticipantPublicListResponseDto>))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteParticipantFromSessionById([FromRoute] string sessionId, [FromRoute] string participantId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Forbid();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return NotFound();
+
+            if (session.Snapshot!.Quiz!.OwnerId != user.Id)
+                return Forbid();
+
+            if (session.Status != DataAccess.Models.SessionStatus.Waiting)
+                return Forbid();
+
+            var result = await _participantService.DeleteAsync(participantId);
+
+            await _sessionsNotificationService.NotifySessionParticipantsUpdatedAsync(sessionId);
 
             return Ok(result);
         }

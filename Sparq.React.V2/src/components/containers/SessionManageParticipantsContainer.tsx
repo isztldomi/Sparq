@@ -1,6 +1,10 @@
 import { LoadingIndicator } from "@/components/loadings/LoadingIndicator";
-import { useGetParticipantsBySessionIdQuery } from "@/features/participant/participantApi";
+import {
+  useDeleteParticipantFromSessionByIdMutation,
+  useGetParticipantsBySessionIdQuery,
+} from "@/features/participant/participantApi";
 import { useSessionRealtime } from "@/realtime/hooks/useSessionRealtime";
+import { RedButton } from "../buttons/redButton";
 
 type Props = {
   sessionId: string;
@@ -15,6 +19,9 @@ export function SessionManageParticipantsContainer({ sessionId }: Props) {
   } = useGetParticipantsBySessionIdQuery({
     sessionId,
   });
+
+  const [deleteParticipant, { isLoading: isDeleting }] =
+    useDeleteParticipantFromSessionByIdMutation();
 
   useSessionRealtime({
     sessionId,
@@ -39,8 +46,6 @@ export function SessionManageParticipantsContainer({ sessionId }: Props) {
     <div className="w-full rounded-lg bg-[var(--surface-4)] p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg">Participants ({participantData.length})</h2>
-
-        <div className="text-sm opacity-70">Realtime synced</div>
       </div>
 
       {participantData.length === 0 ? (
@@ -60,7 +65,18 @@ export function SessionManageParticipantsContainer({ sessionId }: Props) {
                 <span className="text-xs opacity-60">{participant.id}</span>
               </div>
 
-              <div className="text-sm opacity-70">Joined</div>
+              <RedButton
+                className="w-20 h-10"
+                onClick={() =>
+                  deleteParticipant({
+                    sessionId,
+                    participantId: participant.id,
+                  })
+                }
+                disabled={isDeleting}
+              >
+                Remove
+              </RedButton>
             </div>
           ))}
         </div>

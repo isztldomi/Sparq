@@ -2,7 +2,7 @@ import type {
   ParticipantIsJoinedResponseDto,
   ParticipantPublicListResponseDto,
 } from "@/features/participant/participantTypes";
-import { get } from "../http/http";
+import { get, del } from "../http/http";
 import { buildQuery } from "@/api/core/queryString";
 
 export function isJoinedApi(
@@ -19,4 +19,11 @@ export function getParticipantsBySessionIdApi(
   return get(
     `participant/${sessionId}/participants${buildQuery({ extUserId })}`,
   );
+}
+
+export function deleteParticipantFromSessionByIdApi(
+  sessionId: string,
+  participantId: string,
+): Promise<boolean> {
+  return del(`participant/${sessionId}/${participantId}`);
 }

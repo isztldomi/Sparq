@@ -55,7 +55,7 @@ export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
               isBlurred ? "blur-sm select-none" : ""
             }`}
           >
-            {sessionData.snapshotId}
+            {sessionData.id}
           </div>
         </div>
 
@@ -74,7 +74,7 @@ export function SessionManageMetaDetailsContainer({ sessionId }: Props) {
         Description: <p>{publicSessionData.snapshot.description}</p>
       </div>
       <div className="flex flex-wrap whitespace-pre-wrap gap-2">
-        Statusz:
+        Status:
         <div>
           {sessionData.status === SessionStatus.Created && (
             <SessionStatusLabel variant="neutral">

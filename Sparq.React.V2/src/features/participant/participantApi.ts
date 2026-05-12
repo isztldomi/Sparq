@@ -1,6 +1,7 @@
 import { baseApi } from "@/features/base/baseApi";
 import { toApiError } from "@/api/core/toApiError";
 import {
+  deleteParticipantFromSessionByIdApi,
   getParticipantsBySessionIdApi,
   isJoinedApi,
 } from "@/api/services/participantService";
@@ -52,8 +53,28 @@ export const participantApi = baseApi.injectEndpoints({
             ]
           : [{ type: "Participant", id: sessionId }],
     }),
+    deleteParticipantFromSessionById: builder.mutation<
+      boolean,
+      { sessionId: string; participantId: string }
+    >({
+      async queryFn({ sessionId, participantId }) {
+        try {
+          return {
+            data: await deleteParticipantFromSessionByIdApi(
+              sessionId,
+              participantId,
+            ),
+          };
+        } catch (e) {
+          return { error: toApiError(e) };
+        }
+      },
+    }),
   }),
 });
 
-export const { useIsJoinedQuery, useGetParticipantsBySessionIdQuery } =
-  participantApi;
+export const {
+  useIsJoinedQuery,
+  useGetParticipantsBySessionIdQuery,
+  useDeleteParticipantFromSessionByIdMutation,
+} = participantApi;
