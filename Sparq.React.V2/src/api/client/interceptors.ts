@@ -6,9 +6,7 @@ let isRefreshing = false;
 let queue: ((token: string) => void)[] = [];
 
 export function setupInterceptors() {
-  // =====================
   // REQUEST INTERCEPTOR
-  // =====================
   apiClient.interceptors.request.use((config) => {
     const auth = getAuth();
 
@@ -20,16 +18,12 @@ export function setupInterceptors() {
     return config;
   });
 
-  // =====================
   // RESPONSE INTERCEPTOR
-  // =====================
   apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      // =====================
       // 401 HANDLING
-      // =====================
       if (
         error.response?.status === 401 &&
         !originalRequest._retry &&

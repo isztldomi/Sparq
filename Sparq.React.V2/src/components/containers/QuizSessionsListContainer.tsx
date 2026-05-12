@@ -90,7 +90,7 @@ export function QuizSessionsListContainer({
               <div>
                 {session.status === SessionStatus.Created && (
                   <SessionStatusLabel variant="neutral">
-                    Not Started
+                    Not activated
                   </SessionStatusLabel>
                 )}
 
@@ -169,6 +169,14 @@ export function QuizSessionsListContainer({
                       Deactivate Session
                     </RedButton>
                   </>
+                )}
+                {session.status === SessionStatus.Running && (
+                  <GreenButton
+                    className="w-35 h-10"
+                    onClick={() => navigate(`/session/${session.id}/manage`)}
+                  >
+                    Manage session
+                  </GreenButton>
                 )}
               </div>
             </>

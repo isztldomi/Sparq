@@ -203,7 +203,7 @@ namespace Sparq.WebApi.Controllers
             // if (quiz.IsPublic == false)
             //     return Forbid();
 
-            if (session.Status != DataAccess.Models.SessionStatus.Waiting)
+            if (session.Status == DataAccess.Models.SessionStatus.Created)
                 return Forbid();
 
             var mapped = _mapper.Map<SessionPublicWaitingListDto>(session);
@@ -418,6 +418,39 @@ namespace Sparq.WebApi.Controllers
 
             var result = await _sessionService.DeactivateSessionAsync(sessionId); 
             
+            return Ok(result);
+        }
+
+        [HttpPatch("{sessionId}/start")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> StartSession([FromRoute] string sessionId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return NotFound();
+
+            if (user!.Id != session.Snapshot!.Quiz!.OwnerId)
+                return Forbid();
+
+            if (session.Status != DataAccess.Models.SessionStatus.Waiting)
+                return Forbid();
+
+            var participants = await _participantService.GetAllParticipantsBySessionIdAsync(sessionId);
+
+            if (!participants.Any())
+                return Forbid();
+
+            var result = await _sessionService.StartSessionAsync(sessionId);
+
             return Ok(result);
         }
     }
