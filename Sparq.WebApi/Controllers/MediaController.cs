@@ -15,14 +15,17 @@ namespace Sparq.WebApi.Controllers
     {
         private readonly IMediaService _mediaService;
         private readonly IUsersService _usersService;
+        private readonly IParticipantService _participantService;
 
         /// <summary>Ctor</summary>
         /// <param name="mediaService">Media service dependency</param>
         /// <param name="usersService">User service dependency</param>
-        public MediaController(IMediaService mediaService, IUsersService usersService)
+        /// <param name="participantService">Participant service dependency</param>
+        public MediaController(IMediaService mediaService, IUsersService usersService, IParticipantService participantService)
         {
             _mediaService = mediaService;
             _usersService = usersService;
+            _participantService = participantService;
         }
 
         /// <summary>Upload file</summary>
@@ -86,6 +89,41 @@ namespace Sparq.WebApi.Controllers
                 }.ToString();
 
             return File(result.Stream, dto.ContentType);
+        }
+        [HttpGet("{id}/session/{sessionId}")]
+        public async Task<IActionResult> GetForSession(
+            string id,
+            string sessionId,
+            [FromQuery] string? extUserId = null)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            Participant participant;
+
+            if (user == null)
+            {
+                if (string.IsNullOrWhiteSpace(extUserId))
+                    return Forbid();
+
+                participant = (await _participantService.GetIdByExtUserIdAndSessionIdAsync(extUserId, sessionId))!;
+            }
+            else
+            {
+                participant = (await _participantService.GetIdByUserIdAndSessionIdAsync(user.Id, sessionId))!;
+            }
+
+            if (participant == null)
+                return Forbid();
+
+            var result = await _mediaService.GetFileAsync(id);
+
+            Response.Headers.ContentDisposition =
+                new ContentDispositionHeaderValue("inline")
+                {
+                    FileNameStar = result.Media.FileName
+                }.ToString();
+
+            return File(result.Stream, result.Media.ContentType);
         }
     }
 }

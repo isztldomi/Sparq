@@ -1,5 +1,9 @@
 import { baseApi } from "@/features/base/baseApi";
-import { getMediaBlobApi, uploadMediaApi } from "@/api/services/mediaService";
+import {
+  getMediaBlobApi,
+  getMediaBlobSessionApi,
+  uploadMediaApi,
+} from "@/api/services/mediaService";
 import { toApiError } from "@/api/core/toApiError";
 
 export const mediaApi = baseApi.injectEndpoints({
@@ -33,6 +37,20 @@ export const mediaApi = baseApi.injectEndpoints({
 
       providesTags: [],
     }),
+    getMediaBlobSession: builder.query<
+      Blob,
+      { sessionId: string; mediaId: string; extUserId?: string }
+    >({
+      async queryFn({ sessionId, mediaId, extUserId }) {
+        try {
+          return {
+            data: await getMediaBlobSessionApi(sessionId, mediaId, extUserId),
+          };
+        } catch (e) {
+          return { error: toApiError(e) };
+        }
+      },
+    }),
   }),
 });
 
@@ -40,4 +58,5 @@ export const {
   useUploadMediaMutation,
   useGetMediaBlobQuery,
   useLazyGetMediaBlobQuery,
+  useGetMediaBlobSessionQuery,
 } = mediaApi;

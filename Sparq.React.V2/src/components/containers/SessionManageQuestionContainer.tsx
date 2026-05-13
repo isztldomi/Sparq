@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import { useNextQuestionSessionMutation } from "@/features/session/sessionApi";
-import {
-  useGetCurrentQuestionWithoutResultQuery,
-  useGetCurrentQuestionWithResultQuery,
-} from "@/features/question/questionApi";
+
+import { useGetCurrentQuestionWithResultQuery } from "@/features/question/questionApi";
+
+import { useGetMediaBlobQuery } from "@/features/media/mediaApi";
+
 import { LoadingIndicator } from "../loadings/LoadingIndicator";
 import { GreenRedCheckbox } from "../checkbox/greenRedCheckbox";
 import { GreenButton } from "../buttons/greenButton";
@@ -14,19 +16,43 @@ type Props = {
 
 export function SessionManageQuestionContainer({ sessionId }: Props) {
   const [showCorrect, setShowCorrect] = useState(false);
+
   const [now, setNow] = useState(Date.now());
 
   const [nextQuestion, { isLoading: isNextLoading }] =
     useNextQuestionSessionMutation();
 
   // ----------------------------
-  // QUERY (OWNER ALWAYS NO RESULT)
+  // QUERY
   // ----------------------------
   const { data, isLoading, isError } = useGetCurrentQuestionWithResultQuery({
     sessionId,
   });
 
   const question = data?.question;
+
+  // ----------------------------
+  // IMAGE
+  // ----------------------------
+  const mediaId = question?.mediaId;
+
+  const { data: imageBlob } = useGetMediaBlobQuery(mediaId!, {
+    skip: !mediaId,
+  });
+
+  const imageUrl = useMemo(() => {
+    if (!imageBlob) return undefined;
+
+    return URL.createObjectURL(imageBlob);
+  }, [imageBlob]);
+
+  useEffect(() => {
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [imageUrl]);
 
   // ----------------------------
   // LIVE TICK
@@ -63,7 +89,9 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
   // ----------------------------
   // LOADING / ERROR
   // ----------------------------
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
 
   if (isError) {
     return (
@@ -118,17 +146,31 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
         <span>{question.text}</span>
       </div>
 
+      {/* MEDIA */}
+      {imageUrl && (
+        <div className="bg-[var(--surface-5)] p-4 rounded">
+          <img
+            src={imageUrl}
+            alt={question.title}
+            className="w-full max-h-[400px] object-contain rounded-lg"
+          />
+        </div>
+      )}
+
       {/* TIMER */}
       <div className="bg-[var(--surface-5)] p-4 rounded flex flex-col gap-2">
         <div className="flex justify-between text-sm">
           <span>Time left</span>
+
           <span>{Math.ceil(timeLeft / 1000)}s</span>
         </div>
 
         <div className="w-full h-2 bg-gray-700 rounded overflow-hidden">
           <div
             className="h-2 bg-green-500 transition-all"
-            style={{ width: `${progress}%` }}
+            style={{
+              width: `${progress}%`,
+            }}
           />
         </div>
       </div>
@@ -157,7 +199,11 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
 
       {/* ACTIONS */}
       <div className="flex justify-end pt-2">
-        <GreenButton onClick={handleNext} className="w-40 h-10">
+        <GreenButton
+          onClick={handleNext}
+          className="w-40 h-10"
+          disabled={isNextLoading}
+        >
           Next question
         </GreenButton>
       </div>

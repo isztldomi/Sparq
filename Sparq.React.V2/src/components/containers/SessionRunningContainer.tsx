@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
   useGetCurrentQuestionWithoutResultQuery,
   useGetCurrentQuestionWithResultQuery,
 } from "@/features/question/questionApi";
+
+import { useGetMediaBlobSessionQuery } from "@/features/media/mediaApi";
 
 type Props = {
   sessionId: string;
@@ -41,6 +43,36 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   const question = data?.question;
 
   // ----------------------------
+  // IMAGE
+  // ----------------------------
+  const mediaId = question?.mediaId;
+
+  const { data: imageBlob } = useGetMediaBlobSessionQuery(
+    {
+      sessionId,
+      mediaId: mediaId!,
+      extUserId,
+    },
+    {
+      skip: !mediaId,
+    },
+  );
+
+  const imageUrl = useMemo(() => {
+    if (!imageBlob) return undefined;
+
+    return URL.createObjectURL(imageBlob);
+  }, [imageBlob]);
+
+  useEffect(() => {
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [imageUrl]);
+
+  // ----------------------------
   // CLOCK (UI refresh)
   // ----------------------------
   useEffect(() => {
@@ -74,7 +106,9 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   // ----------------------------
   // LOADING / ERROR
   // ----------------------------
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (isError || !data) {
     return (
@@ -116,17 +150,31 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
           <span>{question?.text}</span>
         </div>
 
+        {/* IMAGE */}
+        {imageUrl && (
+          <div className="bg-[var(--surface-5)] p-5 rounded-lg">
+            <img
+              src={imageUrl}
+              alt={question?.title}
+              className="w-full max-h-[400px] object-contain rounded-lg"
+            />
+          </div>
+        )}
+
         {/* TIMER */}
         <div className="flex flex-col gap-2 bg-[var(--surface-5)] p-4 rounded-lg">
           <div className="flex justify-between text-sm">
             <span>Time left</span>
+
             <span>{Math.ceil(timeLeft / 1000)}s</span>
           </div>
 
           <div className="w-full h-2 bg-gray-700 rounded overflow-hidden">
             <div
               className="h-2 bg-green-500 transition-all"
-              style={{ width: `${progress}%` }}
+              style={{
+                width: `${progress}%`,
+              }}
             />
           </div>
         </div>

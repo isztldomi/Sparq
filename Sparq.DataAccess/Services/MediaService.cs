@@ -78,6 +78,15 @@ namespace Sparq.DataAccess.Services
 
             return true;
         }
+
+        public async Task<(Media Media, Stream Stream)> GetFileAsync(string id)
+        {
+            var media = await _context.Media
+                .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
+            if (media == null)
+                throw new Exception("Not found");
+            return (media, await _storage.DownloadAsync(media.StorageKey));
+        }
     }
 
 }
