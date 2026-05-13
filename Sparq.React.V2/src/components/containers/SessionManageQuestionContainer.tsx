@@ -96,8 +96,15 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
   if (isError) {
     return (
       <div className="flex justify-center bg-[var(--surface-4)] rounded-lg p-4">
-        <GreenButton onClick={handleNext} className="w-40 h-10">
-          Start first question
+        <GreenButton
+          onClick={handleNext}
+          className="w-40 h-30 flex flex-col justify-center gap-1"
+        >
+          <p>Start first question</p>
+
+          <div className="w-full border-t border-[var(--success-text)] my-2" />
+
+          <p>End Session</p>
         </GreenButton>
       </div>
     );

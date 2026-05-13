@@ -8,6 +8,7 @@ import type {
   quitSessionRequestDto,
   SessionPublicWaitingListDto,
   SessionStatusResponseDto,
+  SessionLeaderboardDto,
 } from "@/features/session/sessionTypes";
 import { buildQuery } from "../core/queryString";
 
@@ -71,4 +72,11 @@ export function startSessionApi(sessionId: string): Promise<boolean> {
 
 export function nextQuestionSessionApi(sessionId: string): Promise<boolean> {
   return patch(`/session/${sessionId}/nextQuestion`);
+}
+
+export function leadboardSessionApi(
+  sessionId: string,
+  extUserId?: string,
+): Promise<SessionLeaderboardDto> {
+  return get(`/session/${sessionId}/leaderboard${buildQuery({ extUserId })}`);
 }

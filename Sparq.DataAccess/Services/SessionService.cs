@@ -174,5 +174,20 @@ namespace Sparq.DataAccess.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> EndSessionAsync(string id)
+        {
+            var session = await _context.Sessions
+                .Include(s => s.Snapshot)
+                .Include(s => s.Participants)
+                .Include(s => s.Messages)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (session == null)
+                return false;
+            session.Status = SessionStatus.Finished;
+            session.EndedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

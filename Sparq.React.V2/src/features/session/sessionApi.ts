@@ -10,6 +10,7 @@ import {
   getSessionPublicDataByIdApi,
   getSessionStatusByIdApi,
   joinSessionApi,
+  leadboardSessionApi,
   nextQuestionSessionApi,
   quitSessionApi,
   startSessionApi,
@@ -21,6 +22,7 @@ import type {
   JoinSessionRequestDto,
   JoinSessionResponseDto,
   quitSessionRequestDto,
+  SessionLeaderboardDto,
   SessionPublicWaitingListDto,
   SessionStatusResponseDto,
 } from "./sessionTypes";
@@ -264,6 +266,25 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Participant", id: sessionId },
       ],
     }),
+    leaderboardSession: builder.query<
+      SessionLeaderboardDto,
+      { sessionId: string; extUserId?: string }
+    >({
+      async queryFn({ sessionId, extUserId }) {
+        try {
+          const res = await leadboardSessionApi(sessionId, extUserId);
+          return { data: res };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+
+      providesTags: (_result, _error, arg) => [
+        { type: "Leaderboard", id: arg.sessionId },
+      ],
+    }),
   }),
 });
 
@@ -280,4 +301,5 @@ export const {
   useDeactivateSessionMutation,
   useStartSessionMutation,
   useNextQuestionSessionMutation,
+  useLeaderboardSessionQuery,
 } = sessionApi;
