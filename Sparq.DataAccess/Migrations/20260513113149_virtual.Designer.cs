@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sparq.DataAccess;
@@ -11,9 +12,11 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    partial class SparqDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260513113149_virtual")]
+    partial class @virtual
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,9 +279,6 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<string>("QuestionId")
                         .HasColumnType("text");
 
-                    b.Property<string>("SessionId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AnswerId");
@@ -286,8 +286,6 @@ namespace Sparq.DataAccess.Migrations
                     b.HasIndex("ParticipantId");
 
                     b.HasIndex("QuestionId");
-
-                    b.HasIndex("SessionId");
 
                     b.ToTable("ParticipantAnswers");
                 });
@@ -676,31 +674,21 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Answer", "Answer")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("AnswerId");
 
                     b.HasOne("Sparq.DataAccess.Models.Participant", "Participant")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("ParticipantId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ParticipantId");
 
                     b.HasOne("Sparq.DataAccess.Models.Question", "Question")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Sparq.DataAccess.Models.Session", "Session")
-                        .WithMany()
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("QuestionId");
 
                     b.Navigation("Answer");
 
                     b.Navigation("Participant");
 
                     b.Navigation("Question");
-
-                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Question", b =>

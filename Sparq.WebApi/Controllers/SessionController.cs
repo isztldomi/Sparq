@@ -23,6 +23,8 @@ namespace Sparq.WebApi.Controllers
         private readonly IQuizService _quizService;
         private readonly ISnapshotService _snapshotService;
         private readonly IParticipantService _participantService;
+        private readonly IQuestionService _questionService;
+        private readonly ISessionQuestionStateService _sessionQuestionStateService;
         private readonly ISessionsNotificationService _sessionsNotificationService;
 
         /// <summary>Ctor</summary>
@@ -32,9 +34,12 @@ namespace Sparq.WebApi.Controllers
         /// <param name="quizService">Quiz service dependency</param>
         /// <param name="snapshotService">Snapshot service dependency</param>
         /// <param name="participantService">Participant service dependency</param>
+        /// <param name="questionService">Question service dependency</param>
+        /// <param name="sessionQuestionStateService">Session question state service dependency</param>
         /// <param name="sessionsNotificationService">Session notifier dependency</param>
         public SessionController(IMapper mapper, ISessionService sessionService, IUsersService usersService, 
             IQuizService quizService, ISnapshotService snapshotService, IParticipantService participantService,
+            IQuestionService questionService, ISessionQuestionStateService sessionQuestionStateService,
             ISessionsNotificationService sessionsNotificationService)
         {
             _mapper = mapper;
@@ -43,6 +48,8 @@ namespace Sparq.WebApi.Controllers
             _quizService = quizService;
             _snapshotService = snapshotService;
             _participantService = participantService;
+            _questionService = questionService;
+            _sessionQuestionStateService = sessionQuestionStateService;
             _sessionsNotificationService = sessionsNotificationService;
         }
 
@@ -453,6 +460,66 @@ namespace Sparq.WebApi.Controllers
             await _sessionsNotificationService.NotifySessionStart(sessionId);
 
             return Ok(result);
+        }
+
+        [HttpPatch("{sessionId}/nextQuestion")]
+        public async Task<IActionResult> NextQuestionSession([FromRoute] string sessionId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return NotFound();
+
+            if (session.Snapshot!.Quiz!.OwnerId != user.Id)
+                return Forbid();
+
+            if (session.Status != DataAccess.Models.SessionStatus.Running)
+                return Forbid();
+
+            if (session.CurrentQuestionId == null)
+            {
+                var question = await _questionService
+                    .GetBySessionIdAndOrderAsync(sessionId, 0);
+
+                if (question == null)
+                    return NotFound("First question not found.");
+
+                session.CurrentQuestionId = question.Id;
+
+                await _sessionQuestionStateService.CreateAsync(sessionId, question.Id);
+
+                await _sessionService.UpdateAsync(session.Id, session);
+
+                return Ok(true);
+            }
+            else
+            {
+                var currentQuestionState = await _sessionQuestionStateService.GetActiveBySessionIdAsync(sessionId);
+                if (currentQuestionState == null)
+                    return Ok(false);
+                if (currentQuestionState!.EndsAt > DateTime.UtcNow)
+                    return BadRequest("Current question is still active.");
+                await _sessionQuestionStateService.DeactivateCurrentAsync(sessionId);
+                var question = await _questionService
+                    .GetBySessionIdAndOrderAsync(sessionId, session.CurrentQuestion!.Order + 1);
+
+                if (question == null)
+                    return Ok(false);
+
+                session.CurrentQuestionId = question.Id;
+
+                await _sessionQuestionStateService.CreateAsync(sessionId, question.Id);
+
+                await _sessionService.UpdateAsync(session.Id, session);
+
+                return Ok(true);
+            }
+
         }
     }
 } 

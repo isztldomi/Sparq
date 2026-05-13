@@ -24,5 +24,7 @@ namespace Sparq.DataAccess.Models
         public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
         public virtual ICollection<ParticipantAnswer> ParticipantAnswers { get; set; } = new List<ParticipantAnswer>();
         public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+        public virtual ICollection<SessionQuestionState> SessionQuestionStates { get; set; }
+            = new List<SessionQuestionState>();
     }
 }

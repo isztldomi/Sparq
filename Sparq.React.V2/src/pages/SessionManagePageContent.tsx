@@ -3,14 +3,17 @@ import { GreenButton } from "@/components/buttons/greenButton";
 import { SessionManageMetaDetailsContainer } from "@/components/containers/SessionManageMetaDetailsContainer";
 
 import { SessionManageParticipantsContainer } from "@/components/containers/SessionManageParticipantsContainer";
+import { SessionManageQuestionContainer } from "@/components/containers/SessionManageQuestionContainer";
 
 import { useNavigate } from "react-router-dom";
 
 interface SessionManagePageContentProps {
+  sessionId: string;
   data: any;
 }
 
 export function SessionManagePageContent({
+  sessionId,
   data,
 }: SessionManagePageContentProps) {
   const navigate = useNavigate();
@@ -32,7 +35,7 @@ export function SessionManagePageContent({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
         <SessionManageParticipantsContainer />
 
-        <div>asd</div>
+        <SessionManageQuestionContainer sessionId={sessionId} />
       </div>
     </div>
   );

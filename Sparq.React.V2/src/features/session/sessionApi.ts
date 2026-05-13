@@ -10,6 +10,7 @@ import {
   getSessionPublicDataByIdApi,
   getSessionStatusByIdApi,
   joinSessionApi,
+  nextQuestionSessionApi,
   quitSessionApi,
   startSessionApi,
 } from "@/api/services/sessionService";
@@ -239,6 +240,29 @@ export const sessionApi = baseApi.injectEndpoints({
           };
         }
       },
+      invalidatesTags: (_result, _error, sessionId) => [
+        { type: "Session", id: sessionId },
+        { type: "Session", id: "LIST" },
+        { type: "Session", id: "PUBLIC_WAITING_LIST" },
+      ],
+    }),
+    nextQuestionSession: builder.mutation<boolean, string>({
+      async queryFn(sessionId) {
+        try {
+          const res = await nextQuestionSessionApi(sessionId);
+          return { data: res };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+
+      invalidatesTags: (_result, _error, sessionId) => [
+        { type: "Question", id: `${sessionId}-current` },
+        { type: "Session", id: sessionId },
+        { type: "Participant", id: sessionId },
+      ],
     }),
   }),
 });
@@ -255,4 +279,5 @@ export const {
   useDeleteSessionMutation,
   useDeactivateSessionMutation,
   useStartSessionMutation,
+  useNextQuestionSessionMutation,
 } = sessionApi;

@@ -12,10 +12,10 @@ namespace Sparq.DataAccess.Models
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string? SessionId { get; set; }
         [ForeignKey("SessionId")]
-        public Session? Session { get; set; }
+        public virtual Session? Session { get; set; }
         public string? QuestionId { get; set; }
-        [ForeignKey(nameof(QuestionId))]
-        public Question? Question { get; set; }
+        [ForeignKey("QuestionId")]
+        public virtual Question? Question { get; set; }
         public int Order { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? EndsAt { get; set; }

@@ -88,5 +88,18 @@ namespace Sparq.DataAccess.Services
 
             return true;
         }
+
+        public async Task<Question?> GetBySessionIdAndOrderAsync(string sessionId, int order)
+        {
+            return await _context.Questions
+                .Include(q => q.Snapshot)
+                .Include(q => q.Answers)
+                .Include(q => q.ParticipantAnswers)
+                .Include(q => q.Messages)
+                .FirstOrDefaultAsync(q =>
+                    q.Order == order &&
+                    q.Snapshot != null &&
+                    q.Snapshot.Sessions.Any(s => s.Id == sessionId));
+        }
     }
 }
