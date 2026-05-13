@@ -15,5 +15,7 @@ namespace Sparq.DataAccess.Services
         Task<IReadOnlyCollection<ParticipantAnswer>> GetByParticipantIdAsync(string participantId);
         Task<IReadOnlyCollection<ParticipantAnswer>> GetByQuestionIdAsync(string questionId);
         Task<ParticipantAnswer?> GetParticipantAnswerAsync(string sessionId, string questionId, string? userId, string? extUserId);
+        Task<IReadOnlyCollection<ParticipantAnswer>> GetBySessionAndQuestionAsync(string sessionId, string questionId);
+        Task<IReadOnlyCollection<ParticipantAnswer>> GetBySessionAsync(string sessionId);
     }
 }

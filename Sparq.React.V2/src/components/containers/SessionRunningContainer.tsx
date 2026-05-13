@@ -8,6 +8,8 @@ import {
 
 import { useGetMediaBlobSessionQuery } from "@/features/media/mediaApi";
 
+import { useSubmitAnswerMutation } from "@/features/answer/answerApi";
+
 type Props = {
   sessionId: string;
   extUserId?: string;
@@ -17,7 +19,12 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   const navigate = useNavigate();
 
   const [showResult, setShowResult] = useState(false);
+
   const [now, setNow] = useState(Date.now());
+
+  const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
+
+  const [submitAnswer, { isLoading: isSubmitting }] = useSubmitAnswerMutation();
 
   // ----------------------------
   // QUERIES
@@ -36,11 +43,11 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
 
   const data = activeQuery.data;
 
+  const question = data?.question;
+
   const isLoading = withoutResultQuery.isLoading || withResultQuery.isLoading;
 
   const isError = withoutResultQuery.isError || withResultQuery.isError;
-
-  const question = data?.question;
 
   // ----------------------------
   // IMAGE
@@ -73,7 +80,7 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   }, [imageUrl]);
 
   // ----------------------------
-  // CLOCK (UI refresh)
+  // CLOCK
   // ----------------------------
   useEffect(() => {
     const interval = setInterval(() => {
@@ -84,7 +91,7 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   }, []);
 
   // ----------------------------
-  // TIMER → SWITCH TO RESULT API
+  // TIMER
   // ----------------------------
   useEffect(() => {
     if (!data?.endsAt) return;
@@ -104,11 +111,25 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   }, [data?.endsAt]);
 
   // ----------------------------
+  // ANSWER SUBMIT
+  // ----------------------------
+  const handleAnswer = async (answerId: string) => {
+    if (!question) return;
+
+    setSelectedAnswerId(answerId);
+
+    await submitAnswer({
+      sessionId,
+      questionId: question.id,
+      answerId,
+      extUserId,
+    });
+  };
+
+  // ----------------------------
   // LOADING / ERROR
   // ----------------------------
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
 
   if (isError || !data) {
     return (
@@ -165,7 +186,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
         <div className="flex flex-col gap-2 bg-[var(--surface-5)] p-4 rounded-lg">
           <div className="flex justify-between text-sm">
             <span>Time left</span>
-
             <span>{Math.ceil(timeLeft / 1000)}s</span>
           </div>
 
@@ -185,17 +205,21 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
 
           {question?.answers?.length ? (
             question.answers.map((a: any) => {
+              const isSelected = selectedAnswerId === a.id;
+
               const isCorrect = showResult && a.isCorrect;
 
               return (
                 <button
                   key={a.id}
-                  onClick={() => {}}
-                  disabled={showResult}
+                  onClick={() => handleAnswer(a.id)}
+                  disabled={showResult || isSubmitting || !!selectedAnswerId}
                   className={`p-3 rounded transition-all ${
                     isCorrect
                       ? "bg-[var(--success-bg)] text-[var(--success-text)]"
-                      : "bg-[var(--surface-6)] hover:opacity-80"
+                      : isSelected
+                        ? "bg-[var(--error-bg)] text-[var(--error-text)]"
+                        : "bg-[var(--surface-6)] hover:opacity-80"
                   }`}
                 >
                   {a.text}

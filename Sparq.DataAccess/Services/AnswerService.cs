@@ -80,5 +80,16 @@ namespace Sparq.DataAccess.Services
 
             return true;
         }
+
+        public async Task<IReadOnlyCollection<Answer>> GetByIdsAsync(IReadOnlyCollection<string> answerIds)
+        {
+            if (answerIds == null || answerIds.Count == 0)
+                return new List<Answer>();
+
+            return await _context.Answers
+                .AsNoTracking()
+                .Where(a => answerIds.Contains(a.Id))
+                .ToListAsync();
+        }
     }
 }

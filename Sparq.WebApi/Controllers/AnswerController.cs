@@ -2,6 +2,7 @@
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.AnswerDto;
+using Sparq.Shared.Models.SessionDto;
 
 namespace Sparq.WebApi.Controllers
 {
@@ -32,6 +33,7 @@ namespace Sparq.WebApi.Controllers
             _participantAnswerService = participantAnswerService;
         }
         [HttpPost("submit")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> SubmitAnswer([FromBody] SubmitAnswerRequestDto dto)
         {
             var user = await _usersService.GetCurrentUserAsync();
@@ -97,5 +99,81 @@ namespace Sparq.WebApi.Controllers
 
             return Ok(true);
         }
+
+        [HttpGet("session/{sessionId}/question/{questionId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionQuestionAnswersResponseDto))]
+        public async Task<IActionResult> GetSessionQuestionAnswers(string sessionId, string questionId, string? extUserId)
+        {
+            var user = await _usersService.GetCurrentUserAsync();
+
+            var state = await _sessionQuestionStateService
+                .GetActiveBySessionIdAsync(sessionId);
+
+            if (state == null)
+                return NotFound();
+
+            Participant? participant;
+
+            if (user == null)
+            {
+                if (string.IsNullOrWhiteSpace(extUserId))
+                    return Forbid();
+
+                participant = await _participantService
+                    .GetIdByExtUserIdAndSessionIdAsync(extUserId, sessionId);
+            }
+            else
+            {
+                participant = await _participantService
+                    .GetIdByUserIdAndSessionIdAsync(user.Id, sessionId);
+            }
+
+            if (participant == null)
+                return Forbid();
+
+            var participantAnswers =
+                await _participantAnswerService
+                    .GetBySessionAndQuestionAsync(sessionId, questionId);
+
+            participantAnswers = participantAnswers
+                .Where(pa => pa.ParticipantId == participant.Id)
+                .ToList();
+
+            var answerIds = participantAnswers
+                .Select(x => x.AnswerId)
+                .Distinct()
+                .ToList();
+
+            var answers = await _answerService
+                .GetByIdsAsync(answerIds);
+
+            var result = participantAnswers.Select(pa =>
+            {
+                var answer = answers.FirstOrDefault(a => a.Id == pa.AnswerId);
+
+                return new ParticipantAnswerDto
+                {
+                    ParticipantId = pa.ParticipantId,
+                    UserId = pa.Participant?.UserId,
+                    ExtUserId = pa.Participant?.ExternalUserId,
+
+                    AnswerId = pa.AnswerId,
+                    AnswerText = answer?.Text ?? string.Empty,
+
+                    IsCorrect = pa.IsCorrect,
+                    PointsEarned = pa.PointsEarned,
+                    AnsweredAt = pa.AnsweredAt
+                };
+            }).ToList();
+
+            return Ok(new SessionQuestionAnswersResponseDto
+            {
+                SessionId = sessionId,
+                QuestionId = questionId,
+                Answers = result
+            });
+        }
+
+        
     }
 }
