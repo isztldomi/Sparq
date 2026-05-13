@@ -16,5 +16,6 @@ namespace Sparq.DataAccess.Services
         Task<(List<Session> Items, int TotalCount)> GetAllPublicWaitingSessionsPagedAsync(int page, int pageSize);
         Task<bool> DeactivateSessionAsync(string id);
         Task<bool> StartSessionAsync(string id);
+        Task<bool> EndSessionAsync(string id);
     }
 }

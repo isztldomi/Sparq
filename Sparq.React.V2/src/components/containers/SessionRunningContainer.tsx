@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Check, CircleGauge } from "lucide-react";
 
 import {
   useGetCurrentQuestionWithoutResultQuery,
@@ -7,8 +8,10 @@ import {
 } from "@/features/question/questionApi";
 
 import { useGetMediaBlobSessionQuery } from "@/features/media/mediaApi";
-
+import { useLeaderboardSessionQuery } from "@/features/session/sessionApi";
 import { useSubmitAnswerMutation } from "@/features/answer/answerApi";
+import { InlineLoading } from "../loadings/InlineLoading";
+import { LoadingIndicator } from "../loadings/LoadingIndicator";
 
 type Props = {
   sessionId: string;
@@ -38,6 +41,14 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
     { sessionId, extUserId },
     { skip: !showResult },
   );
+
+  const { data: leaderboard, isLoading: leaderboardLoading } =
+    useLeaderboardSessionQuery(
+      { sessionId, extUserId },
+      {
+        skip: !showResult,
+      },
+    );
 
   const activeQuery = showResult ? withResultQuery : withoutResultQuery;
 
@@ -129,15 +140,10 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   // ----------------------------
   // LOADING / ERROR
   // ----------------------------
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingIndicator />;
 
   if (isError || !data) {
-    return (
-      <div>
-        Error loading session question
-        <button onClick={() => navigate(-1)}>Go back</button>
-      </div>
-    );
+    return <LoadingIndicator />;
   }
 
   // ----------------------------
@@ -231,9 +237,36 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
           )}
         </div>
 
-        {/* RESULT STATE */}
+        {/* RESULT STATE + leaderboard */}
         {showResult && (
-          <div className="bg-green-500 p-3 rounded">Results unlocked 🎉</div>
+          <div className="bg-[var(--surface-5)] p-5 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3"> Leaderboard</h3>
+
+            {leaderboardLoading && <InlineLoading />}
+
+            {!leaderboardLoading && leaderboard?.entries?.length ? (
+              <div className="flex flex-col gap-2">
+                {leaderboard.entries.map((e, index) => (
+                  <div
+                    key={e.participantId}
+                    className="flex justify-between p-3 rounded bg-[var(--surface-6)]"
+                  >
+                    <span>
+                      #{index + 1} {e.displayName ?? "Unknown"}
+                    </span>
+
+                    <div className="flex gap-3">
+                      <span>{e.totalPoints} pts</span>
+                      <span>{e.correctAnswers}</span>
+                      <Check />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              !leaderboardLoading && <span>No results yet</span>
+            )}
+          </div>
         )}
       </div>
     </div>

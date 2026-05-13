@@ -12,6 +12,7 @@ export const baseApi = createApi({
     "Question",
     "Answer",
     "SessionQuestionAnswers",
+    "Leaderboard",
   ],
   endpoints: () => ({}),
 });

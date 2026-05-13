@@ -55,3 +55,17 @@ export type quitSessionRequestDto = {
   sessionId: string;
   externalUserId: string | null;
 };
+
+export type SessionLeaderboardDto = {
+  sessionId: string;
+  entries: LeaderboardEntryDto[];
+};
+
+export type LeaderboardEntryDto = {
+  participantId: string;
+  displayName: string;
+  userId: string | null;
+  extUserId: string | null;
+  totalPoints: number;
+  correctAnswers: number;
+};

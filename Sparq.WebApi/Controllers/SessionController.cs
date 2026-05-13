@@ -504,7 +504,10 @@ namespace Sparq.WebApi.Controllers
             {
                 var currentQuestionState = await _sessionQuestionStateService.GetActiveBySessionIdAsync(sessionId);
                 if (currentQuestionState == null)
+                {
+                    await _sessionService.EndSessionAsync(sessionId);
                     return Ok(false);
+                }
                 if (currentQuestionState!.EndsAt > DateTime.UtcNow)
                     return BadRequest("Current question is still active.");
                 await _sessionQuestionStateService.DeactivateCurrentAsync(sessionId);
