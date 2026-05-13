@@ -1,4 +1,5 @@
-﻿using Sparq.DataAccess.Models;
+﻿using Sparq.DataAccess.Migrations;
+using Sparq.DataAccess.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,5 +13,6 @@ namespace Sparq.DataAccess.Services
         Task<IReadOnlyCollection<Answer>> GetAllAsync();
         Task<Answer?> UpdateAsync(string id, Answer updatedAnswer);
         Task<bool> DeleteAsync(string id);
+        Task<IReadOnlyCollection<Answer>> GetByIdsAsync(IReadOnlyCollection<string> answerIds);
     }
 }

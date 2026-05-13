@@ -25,6 +25,7 @@ namespace Sparq.WebApi.Controllers
         private readonly IParticipantService _participantService;
         private readonly IQuestionService _questionService;
         private readonly ISessionQuestionStateService _sessionQuestionStateService;
+        private readonly IParticipantAnswerService _participantAnswerService;
         private readonly ISessionsNotificationService _sessionsNotificationService;
 
         /// <summary>Ctor</summary>
@@ -36,11 +37,12 @@ namespace Sparq.WebApi.Controllers
         /// <param name="participantService">Participant service dependency</param>
         /// <param name="questionService">Question service dependency</param>
         /// <param name="sessionQuestionStateService">Session question state service dependency</param>
+        /// <param name="participantAnswerService">Participant answer service dependency</param>
         /// <param name="sessionsNotificationService">Session notifier dependency</param>
         public SessionController(IMapper mapper, ISessionService sessionService, IUsersService usersService, 
             IQuizService quizService, ISnapshotService snapshotService, IParticipantService participantService,
             IQuestionService questionService, ISessionQuestionStateService sessionQuestionStateService,
-            ISessionsNotificationService sessionsNotificationService)
+            IParticipantAnswerService participantAnswerService, ISessionsNotificationService sessionsNotificationService)
         {
             _mapper = mapper;
             _sessionService = sessionService;
@@ -50,6 +52,7 @@ namespace Sparq.WebApi.Controllers
             _participantService = participantService;
             _questionService = questionService;
             _sessionQuestionStateService = sessionQuestionStateService;
+            _participantAnswerService = participantAnswerService;
             _sessionsNotificationService = sessionsNotificationService;
         }
 
@@ -519,7 +522,72 @@ namespace Sparq.WebApi.Controllers
 
                 return Ok(true);
             }
+        }
 
+        [HttpGet("{sessionId}/leaderboard")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionLeaderboardDto))]
+        public async Task<IActionResult> GetSessionLeaderboard(string sessionId, string? extUserId)
+        {
+            var state = await _sessionQuestionStateService
+                .GetActiveBySessionIdAsync(sessionId);
+
+            var session = await _sessionService.GetByIdAsync(sessionId);
+
+            if (state == null || session == null)
+                return NotFound();
+
+            var user = await _usersService.GetCurrentUserAsync();
+
+            Participant? participant = null;
+
+            if (user != null)
+            {
+                participant = await _participantService
+                    .GetIdByUserIdAndSessionIdAsync(user.Id, sessionId);
+            }
+            else if (!string.IsNullOrWhiteSpace(extUserId))
+            {
+                participant = await _participantService
+                    .GetIdByExtUserIdAndSessionIdAsync(extUserId, sessionId);
+            }
+
+            var isOwner = user != null && session.Snapshot!.Quiz!.OwnerId == user.Id;
+
+            var isParticipant = participant != null;
+
+            if (!isOwner && !isParticipant)
+                return Forbid();
+
+            var allParticipantAnswers =
+                await _participantAnswerService
+                    .GetBySessionAsync(sessionId);
+
+            var grouped = allParticipantAnswers
+                .GroupBy(x => x.ParticipantId)
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    return new LeaderboardEntryDto
+                    {
+                        ParticipantId = g.Key,
+                        DisplayName = first.Participant!.DisplayName,
+                        UserId = first.Participant?.UserId,
+                        ExtUserId = first.Participant?.ExternalUserId,
+
+                        TotalPoints = g.Sum(x => x.PointsEarned),
+                        CorrectAnswers = g.Count(x => x.IsCorrect)
+                    };
+                })
+                .OrderByDescending(x => x.TotalPoints)
+                .ThenByDescending(x => x.CorrectAnswers)
+                .ToList();
+
+            return Ok(new SessionLeaderboardDto
+            {
+                SessionId = sessionId,
+                Entries = grouped
+            });
         }
     }
 } 

@@ -113,5 +113,25 @@ namespace Sparq.DataAccess.Services
 
             return await query.FirstOrDefaultAsync();
         }
+
+        public async Task<IReadOnlyCollection<ParticipantAnswer>> GetBySessionAndQuestionAsync(string sessionId, string questionId)
+        {
+            return await _context.ParticipantAnswers
+                .Where(pa =>
+                    pa.SessionId == sessionId &&
+                    pa.QuestionId == questionId)
+                .Include(pa => pa.Participant)
+                .Include(pa => pa.Answer)
+                .Include(pa => pa.Question)
+                .ToListAsync();
+        }
+
+        public async Task<IReadOnlyCollection<ParticipantAnswer>> GetBySessionAsync(string sessionId)
+        {
+            return await _context.ParticipantAnswers
+                .Include(x => x.Participant)
+                .Where(x => x.SessionId == sessionId)
+                .ToListAsync();
+        }
     }
 }
