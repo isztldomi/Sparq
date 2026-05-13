@@ -10,6 +10,7 @@ namespace Sparq.DataAccess.Services
     {
         Task<Media> UploadAsync(IFormFile file, string userId);
         Task<(Media Media, Stream Stream)> GetFileAsync(string id, string userId);
+        Task<(Media Media, Stream Stream)> GetFileAsync(string id);
         Task<bool> DeleteAsync(string id, string userId);
     }
 }

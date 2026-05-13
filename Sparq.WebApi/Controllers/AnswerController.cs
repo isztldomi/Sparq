@@ -52,13 +52,11 @@ namespace Sparq.WebApi.Controllers
                 if (string.IsNullOrWhiteSpace(dto.ExtUserId))
                     return Forbid();
 
-                participant = await _participantService
-                    .GetIdByExtUserIdAndSessionIdAsync(dto.ExtUserId, dto.SessionId);
+                participant = (await _participantService.GetIdByExtUserIdAndSessionIdAsync(dto.ExtUserId, dto.SessionId))!;
             }
             else
             {
-                participant = await _participantService
-                    .GetIdByUserIdAndSessionIdAsync(user.Id, dto.SessionId);
+                participant = (await _participantService.GetIdByUserIdAndSessionIdAsync(user.Id, dto.SessionId))!;
             }
 
             if (participant == null)
@@ -69,7 +67,6 @@ namespace Sparq.WebApi.Controllers
             if (answer == null || answer.QuestionId != dto.QuestionId)
                 return BadRequest("Invalid answer");
 
-            // helyes: session + question alapú duplikáció
             var existing = await _participantAnswerService.GetParticipantAnswerAsync(
                 dto.SessionId,
                 dto.QuestionId,
