@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sparq.DataAccess;
@@ -11,9 +12,11 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    partial class SparqDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260513103955_sessionQuestionState_connection")]
+    partial class sessionQuestionState_connection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,9 +279,6 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<string>("QuestionId")
                         .HasColumnType("text");
 
-                    b.Property<string>("SessionId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AnswerId");
@@ -286,8 +286,6 @@ namespace Sparq.DataAccess.Migrations
                     b.HasIndex("ParticipantId");
 
                     b.HasIndex("QuestionId");
-
-                    b.HasIndex("SessionId");
 
                     b.ToTable("ParticipantAnswers");
                 });
@@ -370,6 +368,9 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<string>("CurrentQuestionId")
                         .HasColumnType("text");
 
+                    b.Property<string>("CurrentSessionQuestionStateId")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -390,6 +391,8 @@ namespace Sparq.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CurrentQuestionId");
+
+                    b.HasIndex("CurrentSessionQuestionStateId");
 
                     b.HasIndex("SnapshotId");
 
@@ -425,7 +428,7 @@ namespace Sparq.DataAccess.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("SessionQuestionStates");
+                    b.ToTable("SessionQuestionState");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Snapshot", b =>
@@ -676,31 +679,21 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Answer", "Answer")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("AnswerId");
 
                     b.HasOne("Sparq.DataAccess.Models.Participant", "Participant")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("ParticipantId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ParticipantId");
 
                     b.HasOne("Sparq.DataAccess.Models.Question", "Question")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Sparq.DataAccess.Models.Session", "Session")
-                        .WithMany()
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("QuestionId");
 
                     b.Navigation("Answer");
 
                     b.Navigation("Participant");
 
                     b.Navigation("Question");
-
-                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Question", b =>
@@ -739,8 +732,11 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Question", "CurrentQuestion")
                         .WithMany()
-                        .HasForeignKey("CurrentQuestionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CurrentQuestionId");
+
+                    b.HasOne("Sparq.DataAccess.Models.SessionQuestionState", "CurrentSessionQuestionState")
+                        .WithMany()
+                        .HasForeignKey("CurrentSessionQuestionStateId");
 
                     b.HasOne("Sparq.DataAccess.Models.Snapshot", "Snapshot")
                         .WithMany("Sessions")
@@ -748,20 +744,20 @@ namespace Sparq.DataAccess.Migrations
 
                     b.Navigation("CurrentQuestion");
 
+                    b.Navigation("CurrentSessionQuestionState");
+
                     b.Navigation("Snapshot");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.SessionQuestionState", b =>
                 {
                     b.HasOne("Sparq.DataAccess.Models.Question", "Question")
-                        .WithMany("SessionQuestionStates")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("QuestionId");
 
                     b.HasOne("Sparq.DataAccess.Models.Session", "Session")
-                        .WithMany("SessionQuestionStates")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("SessionId");
 
                     b.Navigation("Question");
 
@@ -797,8 +793,6 @@ namespace Sparq.DataAccess.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("ParticipantAnswers");
-
-                    b.Navigation("SessionQuestionStates");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Quiz", b =>
@@ -811,8 +805,6 @@ namespace Sparq.DataAccess.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("Participants");
-
-                    b.Navigation("SessionQuestionStates");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Snapshot", b =>

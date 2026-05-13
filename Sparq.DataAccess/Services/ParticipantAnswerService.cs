@@ -89,5 +89,29 @@ namespace Sparq.DataAccess.Services
                 .Include(pa => pa.Answer)
                 .ToListAsync();
         }
+
+        public async Task<ParticipantAnswer?> GetParticipantAnswerAsync(string sessionId, string questionId, string? userId, string? extUserId)
+        {
+            var query = _context.ParticipantAnswers
+                .AsQueryable()
+                .Where(pa =>
+                    pa.SessionId == sessionId &&
+                    pa.QuestionId == questionId);
+
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                query = query.Where(pa => pa.Participant!.UserId == userId);
+            }
+            else if (!string.IsNullOrWhiteSpace(extUserId))
+            {
+                query = query.Where(pa => pa.Participant!.ExternalUserId == extUserId);
+            }
+            else
+            {
+                return null;
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
     }
 }

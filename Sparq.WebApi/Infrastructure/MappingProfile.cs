@@ -5,6 +5,7 @@ using Sparq.Shared.Models.Participant;
 using Sparq.Shared.Models.QuestionDto;
 using Sparq.Shared.Models.QuizDto;
 using Sparq.Shared.Models.SessionDto;
+using Sparq.Shared.Models.SessionQuestion;
 using Sparq.Shared.Models.SnapshotDto;
 using Sparq.Shared.Models.UserDto;
 
@@ -39,11 +40,18 @@ namespace Sparq.WebApi.Infrastructure
             CreateMap<Session, SessionListDto>(MemberList.Destination);
             CreateMap<Session, CreateSessionResponseDto>(MemberList.Destination);
 
+            CreateMap<SessionQuestionState, CurrentSessionQuestionStateWithoutResultDto>(MemberList.Destination);
+            CreateMap<SessionQuestionState, CurrentSessionQuestionStateWithResultDto>(MemberList.Destination);
+
+            CreateMap<Question, CurrentQuestionWithoutResultDto>(MemberList.Destination);
+            CreateMap<Question, CurrentQuestionWithResultDto>(MemberList.Destination);
             CreateMap<Question, QuestionResponseDto>(MemberList.Destination);
             CreateMap<QuestionCreateRequestDto, Question>()
                 .ForMember(dest => dest.Media, opt => opt.Ignore())
                 .ForMember(dest => dest.Snapshot, opt => opt.Ignore());
 
+            CreateMap<Answer, CurrentQuestionAnswerWithoutResultDto>(MemberList.Destination);
+            CreateMap<Answer, CurrentQuestionAnswerWithResultDto>(MemberList.Destination);
             CreateMap<Answer, AnswerResponseDto>(MemberList.Destination);
             CreateMap<AnswerCreateRequestDto, Answer>(MemberList.Destination);
 

@@ -55,6 +55,7 @@ namespace Sparq.DataAccess
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<ISnapshotService, SnapshotService>();
             services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<ISessionQuestionStateService, SessionQuestionStateService>();
 
             // Add email sending service
 

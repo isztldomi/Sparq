@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sparq.DataAccess;
@@ -11,9 +12,11 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    partial class SparqDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260513144220_answers")]
+    partial class answers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,6 +270,9 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("ParticipantAnswerId")
+                        .HasColumnType("text");
+
                     b.Property<string>("ParticipantId")
                         .HasColumnType("text");
 
@@ -282,6 +288,8 @@ namespace Sparq.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AnswerId");
+
+                    b.HasIndex("ParticipantAnswerId");
 
                     b.HasIndex("ParticipantId");
 
@@ -679,6 +687,10 @@ namespace Sparq.DataAccess.Migrations
                         .HasForeignKey("AnswerId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("Sparq.DataAccess.Models.ParticipantAnswer", null)
+                        .WithMany("ParticipantAnswers")
+                        .HasForeignKey("ParticipantAnswerId");
+
                     b.HasOne("Sparq.DataAccess.Models.Participant", "Participant")
                         .WithMany("ParticipantAnswers")
                         .HasForeignKey("ParticipantId")
@@ -787,6 +799,11 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.Navigation("Messages");
 
+                    b.Navigation("ParticipantAnswers");
+                });
+
+            modelBuilder.Entity("Sparq.DataAccess.Models.ParticipantAnswer", b =>
+                {
                     b.Navigation("ParticipantAnswers");
                 });
 

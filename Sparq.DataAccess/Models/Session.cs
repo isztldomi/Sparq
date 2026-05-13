@@ -16,10 +16,13 @@ namespace Sparq.DataAccess.Models
         public DateTime? CreatedAt { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }
-        public int? CurrentQuestionId { get; set; }
+        public string? CurrentQuestionId { get; set; }
+        [ForeignKey("CurrentQuestionId")]
+        public virtual Question? CurrentQuestion { get; set; }
         public string? PinCode { get; set; }
         public SessionStatus Status { get; set; }
         public virtual ICollection<Participant> Participants { get; set; } = new List<Participant>();
         public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+        public virtual ICollection<SessionQuestionState> SessionQuestionStates { get; set; } = new List<SessionQuestionState>();
     }
 }

@@ -43,17 +43,25 @@ export function SessionManageParticipantsContainer() {
 
   return (
     <div className="w-full rounded-lg bg-[var(--surface-4)] p-5 flex flex-col gap-4">
-      <h2>Participants ({participantData.length})</h2>
+      <h2 className="text-lg font-semibold">
+        Participants ({participantData.length})
+      </h2>
 
       {participantData.length === 0 ? (
-        <div>No participants</div>
+        <div className="flex items-center justify-between rounded-lg bg-[var(--surface-5)] p-3">
+          No participants
+        </div>
       ) : (
         participantData.map((p) => (
-          <div key={p.id} className="flex justify-between">
+          <div
+            key={p.id}
+            className="flex items-center justify-between rounded-lg bg-[var(--surface-5)] p-3"
+          >
             <div>{p.displayName}</div>
 
             {sessionData.status === SessionStatus.Waiting && (
               <RedButton
+                className="w-20 h-10"
                 onClick={() =>
                   deleteParticipant({
                     sessionId,

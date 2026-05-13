@@ -24,7 +24,10 @@ export function registerSessionStartHandler({ connection }: Params) {
     console.log("SESSION START:", sessionId);
 
     store.dispatch(
-      sessionApi.util.invalidateTags([{ type: "Session", id: sessionId }]),
+      sessionApi.util.invalidateTags([
+        { type: "Session", id: sessionId },
+        { type: "Session", id: "LIST" },
+      ]),
     );
   };
 

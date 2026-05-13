@@ -17,7 +17,7 @@ export function SessionManagePage() {
   return (
     <SessionManageProvider sessionId={sessionId!}>
       <SessionRealtimeProvider sessionId={sessionId!}>
-        <SessionManagePageContent data={data} />
+        <SessionManagePageContent sessionId={sessionId!} data={data} />
       </SessionRealtimeProvider>
     </SessionManageProvider>
   );

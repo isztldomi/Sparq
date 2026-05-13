@@ -10,6 +10,9 @@ namespace Sparq.DataAccess.Models
     {
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string? SessionId { get; set; }
+        [ForeignKey("SessionId")]
+        public virtual Session? Session { get; set; }
         public string? ParticipantId { get; set; }
         [ForeignKey("ParticipantId")]
         public virtual Participant? Participant { get; set; }

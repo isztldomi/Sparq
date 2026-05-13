@@ -1,6 +1,7 @@
 import { SessionStatus } from "@/features/session/sessionTypes";
 import { useSessionParticipantsUpdated } from "@/realtime/sessions/hooks/useSessionParticipantsUpdated";
 import { SessionWaitingContainer } from "./SessionWaitingContainer";
+import { SessionRunningContainer } from "./SessionRunningContainer";
 
 export function ParticipantPageContent({ sessionId, extUserId, data }: any) {
   useSessionParticipantsUpdated();
@@ -15,7 +16,9 @@ export function ParticipantPageContent({ sessionId, extUserId, data }: any) {
       );
 
     case SessionStatus.Running:
-      return <div>SessionRunningPage</div>;
+      return (
+        <SessionRunningContainer sessionId={sessionId} extUserId={extUserId} />
+      );
 
     case SessionStatus.Finished:
       return <div>SessionFinishedPage</div>;

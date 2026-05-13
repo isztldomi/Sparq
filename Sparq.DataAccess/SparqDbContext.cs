@@ -20,7 +20,7 @@ namespace Sparq.DataAccess
         public DbSet<ParticipantAnswer> ParticipantAnswers { get; set; } = null!;
         public DbSet<Message> Messages { get; set; } = null!;
         public DbSet<Media> Media { get; set; } = null!;
-
+        public DbSet<SessionQuestionState> SessionQuestionStates { get; set; } = null!;
 
         public SparqDbContext(DbContextOptions<SparqDbContext> options) : base(options)
         {
@@ -46,6 +46,11 @@ namespace Sparq.DataAccess
                 .Property(s => s.Status)
                 .HasConversion<int>()
                 .HasDefaultValue(SessionStatus.Created);
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.CurrentQuestion)
+                .WithMany()
+                .HasForeignKey(s => s.CurrentQuestionId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Question>()
                 .HasMany(q => q.Answers)
@@ -57,6 +62,41 @@ namespace Sparq.DataAccess
                 .WithMany()
                 .HasForeignKey(q => q.MediaId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<SessionQuestionState>()
+                .HasOne(sqs => sqs.Question)
+                .WithMany(q => q.SessionQuestionStates)
+                .HasForeignKey(sqs => sqs.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SessionQuestionState>()
+                .HasOne(sqs => sqs.Session)
+                .WithMany(s => s.SessionQuestionStates)
+                .HasForeignKey(sqs => sqs.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ParticipantAnswer>()
+                .HasOne(pa => pa.Session)
+                .WithMany()
+                .HasForeignKey(pa => pa.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ParticipantAnswer>()
+                .HasOne(pa => pa.Participant)
+                .WithMany(p => p.ParticipantAnswers)
+                .HasForeignKey(pa => pa.ParticipantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ParticipantAnswer>()
+                .HasOne(pa => pa.Question)
+                .WithMany(q => q.ParticipantAnswers)
+                .HasForeignKey(pa => pa.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ParticipantAnswer>()
+                .HasOne(pa => pa.Answer)
+                .WithMany(a => a.ParticipantAnswers)
+                .HasForeignKey(pa => pa.AnswerId)
+                .OnDelete(DeleteBehavior.Cascade);
+            // modelBuilder.Entity<ParticipantAnswer>()
+            //     .HasIndex(x => new { x.SessionId, x.ParticipantId, x.QuestionId })
+            //     .IsUnique();
         }
     }
 }
