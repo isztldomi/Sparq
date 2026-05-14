@@ -9,6 +9,7 @@ namespace Sparq.DataAccess.Services
     {
         Task<Session?> CreateAsync(string snapshotId);
         Task<Session?> GetByIdAsync(string id);
+        Task<bool> ExistsAsync(string id);
         Task<IReadOnlyCollection<Session>> GetAllAsync();
         Task<Session?> UpdateAsync(string id, Session updatedSession);
         Task<bool> DeleteAsync(string id); 

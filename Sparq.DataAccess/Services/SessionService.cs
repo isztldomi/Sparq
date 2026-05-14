@@ -49,6 +49,12 @@ namespace Sparq.DataAccess.Services
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
+        public async Task<bool> ExistsAsync(string id)
+        {
+            return await _context.Sessions
+                .AnyAsync(s => s.Id == id);
+        }
+
         // READ all
         public async Task<IReadOnlyCollection<Session>> GetAllAsync()
         {

@@ -13,5 +13,5 @@ export const answerSchema = z.object({
 
 export const answersSchema = z
   .array(answerSchema)
-  .min(1, "At least one answer is required")
+  .min(2, "At least one answer is required")
   .max(10, "Maximum 10 answers allowed");
