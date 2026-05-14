@@ -1,18 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.Page;
 using Sparq.Shared.Models.QuizDto;
 using Sparq.Shared.Models.SessionDto;
-using System.Security.Claims;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>Quiz API</summary>
+    /// <summary>Quiz controller</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class QuizController : ControllerBase
@@ -25,14 +22,17 @@ namespace Sparq.WebApi.Controllers
         /// <param name="mapper">Mapper for DTO mapping</param>
         /// <param name="quizService">Quiz service dependency</param>
         /// <param name="usersService">User service dependency</param>
-        public QuizController(IMapper mapper, IQuizService quizService, IUsersService usersService)
+        public QuizController(
+            IMapper mapper,
+            IQuizService quizService,
+            IUsersService usersService)
         {
             _mapper = mapper;
             _quizService = quizService;
             _usersService = usersService;
         }
 
-        /// <summary>Get quiz</summary>
+        /// <summary>Get quiz by id</summary>
         /// <param name="id">Quiz identifier</param>
         /// <returns>The requested quiz.</returns>
         /// <remarks>Returns the quiz only if the current user is the owner.</remarks>
@@ -55,9 +55,7 @@ namespace Sparq.WebApi.Controllers
                 return NotFound();
 
             if (quizEntity.OwnerId != user.Id)
-            {
                 return Forbid();
-            }
 
             var response = _mapper.Map<QuizResponseDto>(quizEntity);
 
@@ -80,7 +78,7 @@ namespace Sparq.WebApi.Controllers
         /// <param name="quizCreateRequestDto">Quiz creation payload</param>
         /// <returns>The created quiz.</returns>
         /// <remarks>
-        /// Creates a quiz with snapshots and assigns the current user as owner.
+        /// Creates a quiz and assigns the current user as owner.
         /// </remarks>
         [HttpPost]
         [Authorize]
@@ -88,18 +86,12 @@ namespace Sparq.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Create([FromBody] QuizCreateRequestDto quizCreateRequestDto)
         {
-            var quiz = _mapper.Map<Quiz>(quizCreateRequestDto);
-
             var user = await _usersService.GetCurrentUserAsync();
 
             if (user == null)
                 return Unauthorized();
 
-            //foreach (var snapshot in quiz.Snapshots!)
-            //{
-            //    snapshot.CreatedAt = DateTime.UtcNow;
-            //}
-
+            var quiz = _mapper.Map<Quiz>(quizCreateRequestDto);
             quiz.OwnerId = user.Id;
 
             var savedQuiz = await _quizService.CreateAsync(quiz);
@@ -109,10 +101,10 @@ namespace Sparq.WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = quizResponseDto.Id }, quizResponseDto);
         }
 
-        /// <summary>My quizzes</summary>
+        /// <summary>Get my quizzes</summary>
         /// <param name="page">Page number</param>
         /// <param name="pageSize">Page size</param>
-        /// <returns>Paginated quizzes.</returns>
+        /// <returns>Paginated list of user's quizzes.</returns>
         /// <remarks>Returns quizzes owned by the current user.</remarks>
         [HttpGet("mine")]
         [Authorize]
@@ -131,25 +123,24 @@ namespace Sparq.WebApi.Controllers
             if (user == null)
                 return Unauthorized();
 
-            var (items, totalCount) = await _quizService.GetByUserPagedAsync(user.Id, page, pageSize);
+            var (items, totalCount) =
+                await _quizService.GetByUserPagedAsync(user.Id, page, pageSize);
 
             var mapped = _mapper.Map<List<MyQuizListDto>>(items);
 
-            var result = new PagedResult<MyQuizListDto>
+            return Ok(new PagedResult<MyQuizListDto>
             {
                 Items = mapped,
                 TotalCount = totalCount,
                 Page = page,
                 PageSize = pageSize
-            };
-
-            return Ok(result);
+            });
         }
 
         /// <summary>Deactivate quiz</summary>
         /// <param name="id">Quiz identifier</param>
         /// <returns>No content.</returns>
-        /// <remarks>Deactivates the quiz owned by the current user.</remarks>
+        /// <remarks>Deactivates a quiz owned by the current user.</remarks>
         [HttpPatch("{id}/deactivate")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -176,7 +167,7 @@ namespace Sparq.WebApi.Controllers
             return NoContent();
         }
 
-        /// <summary>Quiz sessions</summary>
+        /// <summary>Get quiz sessions</summary>
         /// <param name="quizId">Quiz identifier</param>
         /// <param name="page">Page number</param>
         /// <param name="pageSize">Page size</param>
@@ -209,22 +200,24 @@ namespace Sparq.WebApi.Controllers
             if (quiz.OwnerId != user.Id)
                 return Forbid();
 
-            var (items, totalCount) = await _quizService
-                .GetQuizSessionsPagedAsync(quizId, page, pageSize);
+            var (items, totalCount) =
+                await _quizService.GetQuizSessionsPagedAsync(quizId, page, pageSize);
 
             var mapped = _mapper.Map<List<SessionListDto>>(items);
 
-            var result = new PagedResult<SessionListDto>
+            return Ok(new PagedResult<SessionListDto>
             {
                 Items = mapped,
                 TotalCount = totalCount,
                 Page = page,
                 PageSize = pageSize
-            };
-
-            return Ok(result);
+            });
         }
 
+        /// <summary>Toggle quiz visibility</summary>
+        /// <param name="quizId">Quiz identifier</param>
+        /// <returns>No content.</returns>
+        /// <remarks>Toggles public/private visibility of a quiz.</remarks>
         [HttpPatch("{quizId}/toggle-visibility")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -234,15 +227,22 @@ namespace Sparq.WebApi.Controllers
         public async Task<IActionResult> ToggleVisibility(string quizId)
         {
             var user = await _usersService.GetCurrentUserAsync();
+
             if (user == null)
                 return Unauthorized();
+
             var quiz = await _quizService.GetByIdAsync(quizId);
+
             if (quiz == null)
                 return NotFound();
+
             if (quiz.OwnerId != user.Id)
                 return Forbid();
+
             quiz.IsPublic = !quiz.IsPublic;
+
             await _quizService.UpdateAsync(quizId, quiz);
+
             return NoContent();
         }
     }

@@ -219,6 +219,7 @@ namespace Sparq.DataAccess.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
+                    SessionId = table.Column<string>(type: "text", nullable: true),
                     ParticipantId = table.Column<string>(type: "text", nullable: true),
                     QuestionId = table.Column<string>(type: "text", nullable: true),
                     AnswerId = table.Column<string>(type: "text", nullable: true),
@@ -233,7 +234,8 @@ namespace Sparq.DataAccess.Migrations
                         name: "FK_ParticipantAnswers_Answers_AnswerId",
                         column: x => x.AnswerId,
                         principalTable: "Answers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -242,6 +244,7 @@ namespace Sparq.DataAccess.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: true),
+                    ExternalUserId = table.Column<string>(type: "text", nullable: true),
                     DisplayName = table.Column<string>(type: "text", nullable: false),
                     SessionId = table.Column<string>(type: "text", nullable: true),
                     Score = table.Column<int>(type: "integer", nullable: false),
@@ -337,19 +340,53 @@ namespace Sparq.DataAccess.Migrations
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     StartedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     EndedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CurrentQuestionId = table.Column<int>(type: "integer", nullable: true),
+                    CurrentQuestionId = table.Column<string>(type: "text", nullable: true),
                     PinCode = table.Column<string>(type: "text", nullable: true),
-                    IsWaiting = table.Column<bool>(type: "boolean", nullable: false),
-                    IsRunning = table.Column<bool>(type: "boolean", nullable: false)
+                    Status = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Sessions", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Sessions_Questions_CurrentQuestionId",
+                        column: x => x.CurrentQuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
                         name: "FK_Sessions_Snapshots_SnapshotId",
                         column: x => x.SnapshotId,
                         principalTable: "Snapshots",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SessionQuestionStates",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    SessionId = table.Column<string>(type: "text", nullable: true),
+                    QuestionId = table.Column<string>(type: "text", nullable: true),
+                    Order = table.Column<int>(type: "integer", nullable: false),
+                    StartedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EndsAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SessionQuestionStates", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SessionQuestionStates_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SessionQuestionStates_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -430,6 +467,11 @@ namespace Sparq.DataAccess.Migrations
                 column: "QuestionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ParticipantAnswers_SessionId",
+                table: "ParticipantAnswers",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Participants_SessionId",
                 table: "Participants",
                 column: "SessionId");
@@ -458,6 +500,21 @@ namespace Sparq.DataAccess.Migrations
                 name: "IX_Quizzes_OwnerId",
                 table: "Quizzes",
                 column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SessionQuestionStates_QuestionId",
+                table: "SessionQuestionStates",
+                column: "QuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SessionQuestionStates_SessionId",
+                table: "SessionQuestionStates",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sessions_CurrentQuestionId",
+                table: "Sessions",
+                column: "CurrentQuestionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sessions_SnapshotId",
@@ -503,14 +560,24 @@ namespace Sparq.DataAccess.Migrations
                 table: "ParticipantAnswers",
                 column: "ParticipantId",
                 principalTable: "Participants",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ParticipantAnswers_Questions_QuestionId",
                 table: "ParticipantAnswers",
                 column: "QuestionId",
                 principalTable: "Questions",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ParticipantAnswers_Sessions_SessionId",
+                table: "ParticipantAnswers",
+                column: "SessionId",
+                principalTable: "Sessions",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Participants_Sessions_SessionId",
@@ -568,6 +635,9 @@ namespace Sparq.DataAccess.Migrations
                 name: "ParticipantAnswers");
 
             migrationBuilder.DropTable(
+                name: "SessionQuestionStates");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -577,10 +647,10 @@ namespace Sparq.DataAccess.Migrations
                 name: "Participants");
 
             migrationBuilder.DropTable(
-                name: "Questions");
+                name: "Sessions");
 
             migrationBuilder.DropTable(
-                name: "Sessions");
+                name: "Questions");
 
             migrationBuilder.DropTable(
                 name: "Media");

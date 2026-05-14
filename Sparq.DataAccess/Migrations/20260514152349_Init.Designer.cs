@@ -12,8 +12,8 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    [Migration("20260509204726_externalUserId")]
-    partial class externalUserId
+    [Migration("20260514152349_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -279,6 +279,9 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<string>("QuestionId")
                         .HasColumnType("text");
 
+                    b.Property<string>("SessionId")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AnswerId");
@@ -286,6 +289,8 @@ namespace Sparq.DataAccess.Migrations
                     b.HasIndex("ParticipantId");
 
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("SessionId");
 
                     b.ToTable("ParticipantAnswers");
                 });
@@ -365,17 +370,11 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CurrentQuestionId")
-                        .HasColumnType("integer");
+                    b.Property<string>("CurrentQuestionId")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsRunning")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsWaiting")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("PinCode")
                         .HasColumnType("text");
@@ -386,11 +385,50 @@ namespace Sparq.DataAccess.Migrations
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CurrentQuestionId");
 
                     b.HasIndex("SnapshotId");
 
                     b.ToTable("Sessions");
+                });
+
+            modelBuilder.Entity("Sparq.DataAccess.Models.SessionQuestionState", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("QuestionId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SessionId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("SessionQuestionStates");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Snapshot", b =>
@@ -641,21 +679,31 @@ namespace Sparq.DataAccess.Migrations
                 {
                     b.HasOne("Sparq.DataAccess.Models.Answer", "Answer")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("AnswerId");
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sparq.DataAccess.Models.Participant", "Participant")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("ParticipantId");
+                        .HasForeignKey("ParticipantId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sparq.DataAccess.Models.Question", "Question")
                         .WithMany("ParticipantAnswers")
-                        .HasForeignKey("QuestionId");
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Sparq.DataAccess.Models.Session", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Answer");
 
                     b.Navigation("Participant");
 
                     b.Navigation("Question");
+
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Question", b =>
@@ -692,11 +740,35 @@ namespace Sparq.DataAccess.Migrations
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Session", b =>
                 {
+                    b.HasOne("Sparq.DataAccess.Models.Question", "CurrentQuestion")
+                        .WithMany()
+                        .HasForeignKey("CurrentQuestionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Sparq.DataAccess.Models.Snapshot", "Snapshot")
                         .WithMany("Sessions")
                         .HasForeignKey("SnapshotId");
 
+                    b.Navigation("CurrentQuestion");
+
                     b.Navigation("Snapshot");
+                });
+
+            modelBuilder.Entity("Sparq.DataAccess.Models.SessionQuestionState", b =>
+                {
+                    b.HasOne("Sparq.DataAccess.Models.Question", "Question")
+                        .WithMany("SessionQuestionStates")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Sparq.DataAccess.Models.Session", "Session")
+                        .WithMany("SessionQuestionStates")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Snapshot", b =>
@@ -728,6 +800,8 @@ namespace Sparq.DataAccess.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("ParticipantAnswers");
+
+                    b.Navigation("SessionQuestionStates");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Quiz", b =>
@@ -740,6 +814,8 @@ namespace Sparq.DataAccess.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("Participants");
+
+                    b.Navigation("SessionQuestionStates");
                 });
 
             modelBuilder.Entity("Sparq.DataAccess.Models.Snapshot", b =>

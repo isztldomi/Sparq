@@ -8,7 +8,7 @@ using Sparq.SignalR.Services;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>Question</summary>
+    /// <summary>Question controller</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class QuestionController : ControllerBase
@@ -23,15 +23,20 @@ namespace Sparq.WebApi.Controllers
 
         /// <summary>Ctor</summary>
         /// <param name="mapper">AutoMapper instance</param>
-        /// <param name="usersService">User service dependency</param>
         /// <param name="questionService">Question service dependency</param>
+        /// <param name="sessionService">Session service dependency</param>
+        /// <param name="usersService">User service dependency</param>
         /// <param name="participantService">Participant service dependency</param>
         /// <param name="sessionQuestionStateService">Session question state service dependency</param>
-        /// <param name="sessionsNotificationService">Session notifier dependency</param>
-
-        public QuestionController(IMapper mapper, IQuestionService questionService,
-            ISessionService sessionService, IUsersService usersService, IParticipantService participantService,
-            ISessionQuestionStateService sessionQuestionStateService, ISessionsNotificationService sessionsNotificationService)
+        /// <param name="sessionsNotificationService">Session notification service dependency</param>
+        public QuestionController(
+            IMapper mapper,
+            IQuestionService questionService,
+            ISessionService sessionService,
+            IUsersService usersService,
+            IParticipantService participantService,
+            ISessionQuestionStateService sessionQuestionStateService,
+            ISessionsNotificationService sessionsNotificationService)
         {
             _mapper = mapper;
             _questionService = questionService;
@@ -42,6 +47,14 @@ namespace Sparq.WebApi.Controllers
             _sessionsNotificationService = sessionsNotificationService;
         }
 
+        /// <summary>Get current question (without result)</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="extUserId">External user identifier (optional)</param>
+        /// <returns>Current session question state without result.</returns>
+        /// <remarks>
+        /// Returns the active question for a session without revealing correct answers.
+        /// Accessible for owner and participants.
+        /// </remarks>
         [HttpGet("{sessionId}/without-result")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CurrentSessionQuestionStateWithoutResultDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -99,6 +112,14 @@ namespace Sparq.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>Get current question (with result)</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="extUserId">External user identifier (optional)</param>
+        /// <returns>Current session question state with result.</returns>
+        /// <remarks>
+        /// Returns the active question including correct answers and results.
+        /// Only available to owners or participants after the question has ended.
+        /// </remarks>
         [HttpGet("{sessionId}/with-result")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CurrentSessionQuestionStateWithResultDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -149,8 +170,6 @@ namespace Sparq.WebApi.Controllers
                 if (!isParticipant)
                     return Forbid();
 
-                // 🔥 EZ A LÉNYEG:
-                // csak akkor láthatja a resultot, ha lejárt az idő
                 if (questionState.EndsAt != null &&
                     questionState.EndsAt > DateTime.UtcNow)
                 {

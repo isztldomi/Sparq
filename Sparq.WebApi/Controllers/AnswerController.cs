@@ -6,6 +6,7 @@ using Sparq.Shared.Models.SessionDto;
 
 namespace Sparq.WebApi.Controllers
 {
+    /// <summary>Answer controller</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AnswerController : ControllerBase
@@ -17,6 +18,13 @@ namespace Sparq.WebApi.Controllers
         private readonly IAnswerService _answerService;
         private readonly IParticipantAnswerService _participantAnswerService;
 
+        /// <summary>Ctor</summary>
+        /// <param name="usersService">User service dependency</param>
+        /// <param name="participantService">Participant service dependency</param>
+        /// <param name="sessionQuestionStateService">Session question state service dependency</param>
+        /// <param name="questionService">Question service dependency</param>
+        /// <param name="answerService">Answer service dependency</param>
+        /// <param name="participantAnswerService">Participant answer service dependency</param>
         public AnswerController(
             IUsersService usersService,
             IParticipantService participantService,
@@ -32,8 +40,17 @@ namespace Sparq.WebApi.Controllers
             _answerService = answerService;
             _participantAnswerService = participantAnswerService;
         }
+
+        /// <summary>Submit answer</summary>
+        /// <param name="dto">Answer submission request</param>
+        /// <returns>True if submission succeeded.</returns>
+        /// <remarks>Stores a participant's answer for a question in a session.</remarks>
         [HttpPost("submit")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> SubmitAnswer([FromBody] SubmitAnswerRequestDto dto)
         {
             var user = await _usersService.GetCurrentUserAsync();
@@ -54,11 +71,13 @@ namespace Sparq.WebApi.Controllers
                 if (string.IsNullOrWhiteSpace(dto.ExtUserId))
                     return Forbid();
 
-                participant = (await _participantService.GetIdByExtUserIdAndSessionIdAsync(dto.ExtUserId, dto.SessionId))!;
+                participant = (await _participantService
+                    .GetIdByExtUserIdAndSessionIdAsync(dto.ExtUserId, dto.SessionId))!;
             }
             else
             {
-                participant = (await _participantService.GetIdByUserIdAndSessionIdAsync(user.Id, dto.SessionId))!;
+                participant = (await _participantService
+                    .GetIdByUserIdAndSessionIdAsync(user.Id, dto.SessionId))!;
             }
 
             if (participant == null)
@@ -100,9 +119,20 @@ namespace Sparq.WebApi.Controllers
             return Ok(true);
         }
 
+        /// <summary>Get session question answers</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="questionId">Question identifier</param>
+        /// <param name="extUserId">External user identifier (optional)</param>
+        /// <returns>List of participant answers for the question.</returns>
+        /// <remarks>Returns all answers submitted by the current participant for a session question.</remarks>
         [HttpGet("session/{sessionId}/question/{questionId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionQuestionAnswersResponseDto))]
-        public async Task<IActionResult> GetSessionQuestionAnswers(string sessionId, string questionId, string? extUserId)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetSessionQuestionAnswers(
+            string sessionId,
+            string questionId,
+            string? extUserId)
         {
             var user = await _usersService.GetCurrentUserAsync();
 
@@ -145,7 +175,7 @@ namespace Sparq.WebApi.Controllers
                 .ToList();
 
             var answers = await _answerService
-                .GetByIdsAsync(answerIds);
+                .GetByIdsAsync(answerIds!);
 
             var result = participantAnswers.Select(pa =>
             {
@@ -153,11 +183,11 @@ namespace Sparq.WebApi.Controllers
 
                 return new ParticipantAnswerDto
                 {
-                    ParticipantId = pa.ParticipantId,
+                    ParticipantId = pa.ParticipantId!,
                     UserId = pa.Participant?.UserId,
                     ExtUserId = pa.Participant?.ExternalUserId,
 
-                    AnswerId = pa.AnswerId,
+                    AnswerId = pa.AnswerId!,
                     AnswerText = answer?.Text ?? string.Empty,
 
                     IsCorrect = pa.IsCorrect,
@@ -173,7 +203,5 @@ namespace Sparq.WebApi.Controllers
                 Answers = result
             });
         }
-
-        
     }
 }
