@@ -70,6 +70,7 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+
 // Enum számmá alakítása
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -124,7 +125,9 @@ if (!app.Environment.IsEnvironment("IntegrationTest"))
     {
         throw new InvalidOperationException("Missing configuration: SeedSettings:ImageSource");
     }
-    DbInitializer.Initialize(context, imageSource);
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+    DbInitializer.Initialize(context, imageSource, userManager);
 }
 
 
