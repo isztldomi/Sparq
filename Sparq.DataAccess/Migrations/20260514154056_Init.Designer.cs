@@ -12,7 +12,7 @@ using Sparq.DataAccess;
 namespace Sparq.DataAccess.Migrations
 {
     [DbContext(typeof(SparqDbContext))]
-    [Migration("20260514152349_Init")]
+    [Migration("20260514154056_Init")]
     partial class Init
     {
         /// <inheritdoc />
