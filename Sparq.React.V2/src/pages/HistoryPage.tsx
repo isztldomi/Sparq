@@ -38,7 +38,7 @@ export function HistoryPage() {
           <div className="flex justify-between items-center p-4 rounded-lg bg-[var(--surface-4)]">
             <div className="flex flex-col">
               <span className="text-lg font-medium">
-                Session {session.snapshotTitle}
+                {session.snapshotTitle}
               </span>
             </div>
             <GreenButton

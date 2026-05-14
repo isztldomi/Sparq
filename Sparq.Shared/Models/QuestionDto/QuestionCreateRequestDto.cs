@@ -27,26 +27,16 @@ namespace Sparq.Shared.Models.QuestionDto
         public int Point { get; set; }
 
         [Required(ErrorMessage = "At least one answer is required.")]
-        [MinLength(1, ErrorMessage = "At least one answer must be provided.")]
+        [MinLength(2, ErrorMessage = "At least 2 answers must be provided.")]
         [MaxLength(10, ErrorMessage = "A maximum of 10 answers is allowed.")]
         public List<AnswerCreateRequestDto> Answers { get; set; } = new();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            Console.WriteLine($"Answers count: {Answers?.Count}");
-
-            if (Answers != null)
-            {
-                foreach (var a in Answers)
-                {
-                    Console.WriteLine($"Answer: {a.Text} IsCorrect: {a.IsCorrect}");
-                }
-            }
-
-            if (Answers == null || !Answers.Any())
+            if (Answers == null || Answers.Count < 2)
             {
                 yield return new ValidationResult(
-                    "At least one answer is required.",
+                    "At least two answers are required.",
                     new[] { nameof(Answers) });
 
                 yield break;

@@ -631,7 +631,7 @@ namespace Sparq.WebApi.Controllers
                 .Where(p => p.Session != null && p.SessionId != null)
                 .Select(p => new MySessionListDto
                 {
-                    SnapshotTitle = p.Session.Snapshot.Title,
+                    SnapshotTitle = p.Session!.Snapshot!.Title!,
                     SessionId = p.SessionId!,
                     StartedAt = p.Session.StartedAt != null ? (DateTime)p.Session.StartedAt : DateTime.MaxValue, // ha még nem kezdődött volna el
                 })
