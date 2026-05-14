@@ -2,6 +2,7 @@
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Sparq.DataAccess.Models;
 using Sparq.DataAccess.Services;
 using Sparq.Shared.Models.Page;
@@ -507,7 +508,6 @@ namespace Sparq.WebApi.Controllers
                 var currentQuestionState = await _sessionQuestionStateService.GetActiveBySessionIdAsync(sessionId);
                 if (currentQuestionState == null)
                 {
-                    await _sessionService.EndSessionAsync(sessionId);
                     return Ok(false);
                 }
                 if (currentQuestionState!.EndsAt > DateTime.UtcNow)
@@ -517,7 +517,12 @@ namespace Sparq.WebApi.Controllers
                     .GetBySessionIdAndOrderAsync(sessionId, session.CurrentQuestion!.Order + 1);
 
                 if (question == null)
+                {
+                    await _sessionService.EndSessionAsync(sessionId);
+                    await _sessionsNotificationService.NotifySessionEnd(sessionId);
+                    await _sessionsNotificationService.NotifySessionNextQuestion(sessionId);
                     return Ok(false);
+                }
 
                 session.CurrentQuestionId = question.Id;
 
@@ -594,6 +599,54 @@ namespace Sparq.WebApi.Controllers
             {
                 SessionId = sessionId,
                 Entries = grouped
+            });
+        }
+
+        [HttpGet("history")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResult<MySessionListDto>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetHistory(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+                return BadRequest("Invalid paging parameters.");
+
+            var user = await _usersService.GetCurrentUserAsync();
+
+            if (user == null)
+                return Unauthorized();
+
+            var baseQuery = _participantService.GetUserSessionQuery(user.Id);
+
+            var totalCount = await baseQuery
+                .Select(p => p.SessionId)
+                .Where(id => id != null)
+                .Distinct()
+                .CountAsync();
+
+            var items = await baseQuery
+                .Where(p => p.Session != null && p.SessionId != null)
+                .Select(p => new MySessionListDto
+                {
+                    SnapshotTitle = p.Session.Snapshot.Title,
+                    SessionId = p.SessionId!,
+                    StartedAt = p.Session.StartedAt != null ? (DateTime)p.Session.StartedAt : DateTime.MaxValue, // ha még nem kezdődött volna el
+                })
+                .Distinct()
+                .OrderByDescending(x => x.StartedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(new PagedResult<MySessionListDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
             });
         }
     }

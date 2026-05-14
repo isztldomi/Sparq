@@ -171,6 +171,7 @@ namespace Sparq.DataAccess.Services
             if (participants.Count == 0)
                 return false;
             session.Status = SessionStatus.Running;
+            session.StartedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
         }

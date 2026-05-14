@@ -106,7 +106,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   // ----------------------------
   useEffect(() => {
     if (!data?.endsAt) return;
-
     const remaining = new Date(data.endsAt).getTime() - Date.now();
 
     if (remaining <= 0) {

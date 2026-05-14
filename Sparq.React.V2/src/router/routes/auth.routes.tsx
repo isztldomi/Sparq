@@ -9,6 +9,7 @@ import { QuizSessionsPage } from "@/pages/QuizSessionsPage";
 import { RequireSessionAccess } from "@/components/guards/RequireSessionAccess";
 import { SessionParticipantPage } from "@/pages/SessionParticipantPage";
 import { SessionManagePage } from "@/pages/SessionManagePage";
+import { SessionHistoryPage } from "@/pages/SessionHistoryPage";
 
 export const authRoutes: RouteObject[] = [
   {
@@ -32,6 +33,14 @@ export const authRoutes: RouteObject[] = [
     element: (
       <RequireAuth>
         <HistoryPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/history/:sessionId",
+    element: (
+      <RequireAuth>
+        <SessionHistoryPage />
       </RequireAuth>
     ),
   },

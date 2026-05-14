@@ -33,9 +33,8 @@ export function SessionManagePageContent({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-        <SessionManageParticipantsContainer />
-
         <SessionManageQuestionContainer sessionId={sessionId} />
+        <SessionManageParticipantsContainer />
       </div>
     </div>
   );
