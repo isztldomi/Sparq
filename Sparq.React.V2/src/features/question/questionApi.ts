@@ -31,7 +31,7 @@ export const questionApi = baseApi.injectEndpoints({
       },
 
       providesTags: (_result, _error, { sessionId }) => [
-        { type: "Question", id: `${sessionId}-current` },
+        { type: "Question", id: `${sessionId}-current-without-result` },
       ],
     }),
 
@@ -53,7 +53,7 @@ export const questionApi = baseApi.injectEndpoints({
       },
 
       providesTags: (_result, _error, { sessionId }) => [
-        { type: "Question", id: `${sessionId}-current` },
+        { type: "Question", id: `${sessionId}-current-with-result` },
       ],
     }),
   }),
