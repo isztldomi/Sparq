@@ -14,6 +14,7 @@ import {
   nextQuestionSessionApi,
   quitSessionApi,
   startSessionApi,
+  historyApi,
 } from "@/api/services/sessionService";
 
 import type {
@@ -21,6 +22,7 @@ import type {
   CreateSessionRequestDto,
   JoinSessionRequestDto,
   JoinSessionResponseDto,
+  MySessionListDto,
   quitSessionRequestDto,
   SessionLeaderboardDto,
   SessionPublicWaitingListDto,
@@ -285,6 +287,31 @@ export const sessionApi = baseApi.injectEndpoints({
         { type: "Leaderboard", id: arg.sessionId },
       ],
     }),
+    history: builder.query<
+      PagedResult<MySessionListDto>,
+      { page: number; pageSize: number }
+    >({
+      async queryFn({ page, pageSize }) {
+        try {
+          const res = await historyApi(page, pageSize);
+          return { data: res };
+        } catch (e) {
+          return {
+            error: toApiError(e),
+          };
+        }
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              { type: "History", id: "LIST" },
+              ...result.items.map((x) => ({
+                type: "History" as const,
+                id: x.sessionId,
+              })),
+            ]
+          : [{ type: "History", id: "LIST" }],
+    }),
   }),
 });
 
@@ -302,4 +329,5 @@ export const {
   useStartSessionMutation,
   useNextQuestionSessionMutation,
   useLeaderboardSessionQuery,
+  useHistoryQuery,
 } = sessionApi;

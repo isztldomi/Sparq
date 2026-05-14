@@ -9,6 +9,7 @@ import type {
   SessionPublicWaitingListDto,
   SessionStatusResponseDto,
   SessionLeaderboardDto,
+  MySessionListDto,
 } from "@/features/session/sessionTypes";
 import { buildQuery } from "../core/queryString";
 
@@ -79,4 +80,11 @@ export function leadboardSessionApi(
   extUserId?: string,
 ): Promise<SessionLeaderboardDto> {
   return get(`/session/${sessionId}/leaderboard${buildQuery({ extUserId })}`);
+}
+
+export function historyApi(
+  page: number,
+  pageSize: number,
+): Promise<PagedResult<MySessionListDto>> {
+  return get(`/session/history${buildQuery({ page, pageSize })}`);
 }

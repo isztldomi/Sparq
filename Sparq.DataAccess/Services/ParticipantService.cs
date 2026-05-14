@@ -131,5 +131,11 @@ namespace Sparq.DataAccess.Services
                 .Include(p => p.User)
                 .ToListAsync();
         }
+
+        public IQueryable<Participant> GetUserSessionQuery(string userId)
+        {
+            return _context.Participants
+                .Where(p => p.UserId == userId && p.Session != null);
+        }
     }
 }

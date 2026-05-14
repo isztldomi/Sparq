@@ -69,3 +69,9 @@ export type LeaderboardEntryDto = {
   totalPoints: number;
   correctAnswers: number;
 };
+
+export type MySessionListDto = {
+  snapshotTitle: string;
+  sessionId: string;
+  startAt: string;
+};

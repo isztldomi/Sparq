@@ -7,6 +7,7 @@ import { createSessionConnection } from "../handlers/createSessionConnection";
 import { registerSessionConnectionLifecycle } from "../handlers/registerSessionConnectionLifecycle";
 import { registerSessionStartHandler } from "../handlers/registerSessionStartHandler";
 import { registerSessionNextQuestionHandler } from "../handlers/registerSessionNextQuestion";
+import { registerSessionEndHandler } from "../handlers/registerSessionEndHandler";
 
 type Props = {
   sessionId: string;
@@ -25,6 +26,7 @@ export function SessionRealtimeProvider({ sessionId, children }: Props) {
     // (SignalR eventekhez)
     let cleanupSessionStart: (() => void) | undefined;
     let cleanupSessionNextQuestion: (() => void) | undefined;
+    let cleanupSessionEnd: (() => void) | undefined;
 
     async function setup() {
       // 1. Connection létrehozása
@@ -47,6 +49,11 @@ export function SessionRealtimeProvider({ sessionId, children }: Props) {
         connection: conn,
       });
 
+      // 3. SESSION END event handler regisztrálása
+      cleanupSessionEnd = registerSessionEndHandler({
+        connection: conn,
+      });
+
       // 4. state update (csak ha még mounted)
       if (!mounted) return;
 
@@ -63,6 +70,7 @@ export function SessionRealtimeProvider({ sessionId, children }: Props) {
       // event listener törlés
       cleanupSessionStart?.();
       cleanupSessionNextQuestion?.();
+      cleanupSessionEnd?.();
       connection?.stop().catch(() => {
         // ignore
       });
