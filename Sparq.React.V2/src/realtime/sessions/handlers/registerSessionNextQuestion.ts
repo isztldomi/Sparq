@@ -1,0 +1,47 @@
+import { sessionApi } from "@/features/session/sessionApi";
+import { store } from "@/app/store";
+import type { HubConnection } from "@microsoft/signalr";
+
+/**
+ * PARAMS:
+ * - connection: a SignalR kapcsolat (HubConnection)
+ */
+type Params = {
+  connection: HubConnection;
+};
+
+/**
+ * SessionNextQuestion event handler
+ *
+ * Ez akkor fut le, amikor a backend ezt hívja:
+ *    Clients.Group(...).SessionNextQuestion(sessionId)
+ */
+export function registerSessionNextQuestionHandler({ connection }: Params) {
+  /**
+   * Ez a függvény fog lefutni minden "SessionNextQuestion" eventnél
+   */
+  const handler = (sessionId: string) => {
+    console.log("SESSION NEXT QUESTION EVENT RECEIVED:", sessionId);
+
+    store.dispatch(
+      sessionApi.util.invalidateTags([
+        { type: "Question", id: `${sessionId}-current-without-result` },
+        { type: "Question", id: `${sessionId}-current-with-result` },
+        { type: "Session", id: sessionId },
+      ]),
+    );
+  };
+
+  /**
+   * Feliratkozás a SignalR eventre
+   */
+  connection.on("SessionNextQuestion", handler);
+
+  /**
+   * 👉 Cleanup function
+   * Fontos: reconnect / unmount esetén ne maradjon bent listener
+   */
+  return () => {
+    connection.off("SessionNextQuestion", handler);
+  };
+}

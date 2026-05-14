@@ -143,6 +143,10 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
   if (isLoading) return <LoadingIndicator />;
 
   if (isError || !data) {
+    if (withResultQuery.isError) {
+      setShowResult(false);
+      setSelectedAnswerId(null);
+    }
     return <LoadingIndicator />;
   }
 

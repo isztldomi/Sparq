@@ -498,6 +498,8 @@ namespace Sparq.WebApi.Controllers
 
                 await _sessionService.UpdateAsync(session.Id, session);
 
+                await _sessionsNotificationService.NotifySessionNextQuestion(sessionId);
+
                 return Ok(true);
             }
             else
@@ -522,6 +524,8 @@ namespace Sparq.WebApi.Controllers
                 await _sessionQuestionStateService.CreateAsync(sessionId, question.Id);
 
                 await _sessionService.UpdateAsync(session.Id, session);
+
+                await _sessionsNotificationService.NotifySessionNextQuestion(sessionId);
 
                 return Ok(true);
             }
