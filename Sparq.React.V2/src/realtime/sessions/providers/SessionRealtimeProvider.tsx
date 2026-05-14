@@ -22,39 +22,31 @@ export function SessionRealtimeProvider({ sessionId, children }: Props) {
   useEffect(() => {
     let mounted = true;
 
-    // cleanup függvények tárolása
-    // (SignalR eventekhez)
     let cleanupSessionStart: (() => void) | undefined;
     let cleanupSessionNextQuestion: (() => void) | undefined;
     let cleanupSessionEnd: (() => void) | undefined;
 
     async function setup() {
-      // 1. Connection létrehozása
       const conn = await createSessionConnection(sessionId);
 
-      // 2. Lifecycle (reconnect, close stb.)
       registerSessionConnectionLifecycle({
         connection: conn,
         sessionId,
         setIsConnected,
       });
 
-      // 3. SESSION START event handler regisztrálása
       cleanupSessionStart = registerSessionStartHandler({
         connection: conn,
       });
 
-      // 4. SESSION NEXT QUESTION event handler regisztrálása
       cleanupSessionNextQuestion = registerSessionNextQuestionHandler({
         connection: conn,
       });
 
-      // 3. SESSION END event handler regisztrálása
       cleanupSessionEnd = registerSessionEndHandler({
         connection: conn,
       });
 
-      // 4. state update (csak ha még mounted)
       if (!mounted) return;
 
       setConnection(conn);
@@ -63,7 +55,6 @@ export function SessionRealtimeProvider({ sessionId, children }: Props) {
 
     setup();
 
-    // CLEANUP
     return () => {
       mounted = false;
 
@@ -71,13 +62,10 @@ export function SessionRealtimeProvider({ sessionId, children }: Props) {
       cleanupSessionStart?.();
       cleanupSessionNextQuestion?.();
       cleanupSessionEnd?.();
-      connection?.stop().catch(() => {
-        // ignore
-      });
+      connection?.stop().catch(() => {});
     };
   }, [sessionId]);
 
-  // context value
   const value = useMemo(
     () => ({
       sessionId,

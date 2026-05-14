@@ -2,8 +2,7 @@
 
 :root {
   /* =========================
-     BASE PALETTE (NYERS SZÍNEK)
-     Ezek a TE színeid – ne használd közvetlenül komponensekben
+     BASE PALETTE
      ========================= */
 
   --color-bg-main: #121212;
@@ -28,7 +27,7 @@
   --color-warning-text: #facc15;
 
   /* =========================
-     SEMANTIC TOKENS (EZT HASZNÁLD!)
+     SEMANTIC TOKENS
      ========================= */
 
   /* Alap oldal */

@@ -15,7 +15,6 @@ namespace Sparq.DataAccess.Services
             _context = context;
         }
 
-        // CREATE
         public async Task<Session?> CreateAsync(string snapshotId)
         {
             var snapshot = await _context.Snapshots
@@ -39,7 +38,6 @@ namespace Sparq.DataAccess.Services
             return session;
         }
 
-        // READ by id
         public async Task<Session?> GetByIdAsync(string id)
         {
             return await _context.Sessions
@@ -55,7 +53,6 @@ namespace Sparq.DataAccess.Services
                 .AnyAsync(s => s.Id == id);
         }
 
-        // READ all
         public async Task<IReadOnlyCollection<Session>> GetAllAsync()
         {
             return await _context.Sessions
@@ -63,7 +60,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // UPDATE
         public async Task<Session?> UpdateAsync(string id, Session updatedSession)
         {
             var existing = await _context.Sessions
@@ -74,20 +70,16 @@ namespace Sparq.DataAccess.Services
             if (existing == null)
                 return null;
 
-            // Snapshot kapcsolat
             existing.SnapshotId = updatedSession.SnapshotId;
 
-            // runtime state mezők
             existing.StartedAt = updatedSession.StartedAt;
             existing.EndedAt = updatedSession.EndedAt;
             existing.CurrentQuestionId = updatedSession.CurrentQuestionId;
             existing.PinCode = updatedSession.PinCode;
             existing.Status = updatedSession.Status;
 
-            // navigation property
             existing.Snapshot = updatedSession.Snapshot;
 
-            // collections
             existing.Participants = updatedSession.Participants;
             existing.Messages = updatedSession.Messages;
 
@@ -96,7 +88,6 @@ namespace Sparq.DataAccess.Services
             return existing;
         }
 
-        // DELETE
         public async Task<bool> DeleteAsync(string id)
         {
             var session = await _context.Sessions.FindAsync(id);

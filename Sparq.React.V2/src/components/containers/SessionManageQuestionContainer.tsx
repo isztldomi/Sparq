@@ -22,18 +22,12 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
   const [nextQuestion, { isLoading: isNextLoading }] =
     useNextQuestionSessionMutation();
 
-  // ----------------------------
-  // QUERY
-  // ----------------------------
   const { data, isLoading, isError } = useGetCurrentQuestionWithResultQuery({
     sessionId,
   });
 
   const question = data?.question;
 
-  // ----------------------------
-  // IMAGE
-  // ----------------------------
   const mediaId = question?.mediaId;
 
   const { data: imageBlob } = useGetMediaBlobQuery(mediaId!, {
@@ -54,9 +48,6 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
     };
   }, [imageUrl]);
 
-  // ----------------------------
-  // LIVE TICK
-  // ----------------------------
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(Date.now());
@@ -65,9 +56,6 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
     return () => clearInterval(interval);
   }, []);
 
-  // ----------------------------
-  // TIMER
-  // ----------------------------
   const timeLeft = data?.endsAt
     ? Math.max(0, new Date(data.endsAt).getTime() - now)
     : 0;
@@ -79,16 +67,10 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
 
   const progress = totalTime ? (timeLeft / totalTime) * 100 : 0;
 
-  // ----------------------------
-  // NEXT QUESTION
-  // ----------------------------
   const handleNext = async () => {
     await nextQuestion(sessionId);
   };
 
-  // ----------------------------
-  // LOADING / ERROR
-  // ----------------------------
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -106,9 +88,6 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
     );
   }
 
-  // ----------------------------
-  // NO ACTIVE QUESTION
-  // ----------------------------
   if (!question) {
     return (
       <div className="p-4 bg-[var(--surface-4)] rounded-lg flex flex-col gap-3">
@@ -121,9 +100,6 @@ export function SessionManageQuestionContainer({ sessionId }: Props) {
     );
   }
 
-  // ----------------------------
-  // RENDER
-  // ----------------------------
   return (
     <div className="flex flex-col gap-4 bg-[var(--surface-4)] p-4 rounded-lg">
       {/* HEADER */}

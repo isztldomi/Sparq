@@ -15,7 +15,6 @@ namespace Sparq.DataAccess.Services
             _context = context;
         }
 
-        // CREATE
         public async Task<Answer> CreateAsync(Answer answer)
         {
             _context.Answers.Add(answer);
@@ -24,7 +23,6 @@ namespace Sparq.DataAccess.Services
             return answer;
         }
 
-        // READ by id
         public async Task<Answer?> GetByIdAsync(string id)
         {
             return await _context.Answers
@@ -33,7 +31,6 @@ namespace Sparq.DataAccess.Services
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        // READ all
         public async Task<IReadOnlyCollection<Answer>> GetAllAsync()
         {
             return await _context.Answers
@@ -41,7 +38,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // UPDATE
         public async Task<Answer?> UpdateAsync(string id, Answer updatedAnswer)
         {
             var existing = await _context.Answers
@@ -51,15 +47,12 @@ namespace Sparq.DataAccess.Services
             if (existing == null)
                 return null;
 
-            // scalar mezők
             existing.QuestionId = updatedAnswer.QuestionId;
             existing.Text = updatedAnswer.Text;
             existing.IsCorrect = updatedAnswer.IsCorrect;
 
-            // navigation property
             existing.Question = updatedAnswer.Question;
 
-            // collection
             existing.ParticipantAnswers = updatedAnswer.ParticipantAnswers;
 
             await _context.SaveChangesAsync();
@@ -67,7 +60,6 @@ namespace Sparq.DataAccess.Services
             return existing;
         }
 
-        // DELETE
         public async Task<bool> DeleteAsync(string id)
         {
             var answer = await _context.Answers.FindAsync(id);

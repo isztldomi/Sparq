@@ -4,7 +4,7 @@ import type { AuthState } from "@/features/auth/authTypes";
 const initialState: AuthState = {
   token: null,
   refreshToken: null,
-  loading: false, // opcionális, akár ki is veheted később
+  loading: false, //
 };
 
 const authSlice = createSlice({

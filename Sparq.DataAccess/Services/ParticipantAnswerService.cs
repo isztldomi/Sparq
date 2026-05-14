@@ -15,19 +15,15 @@ namespace Sparq.DataAccess.Services
             _context = context;
         }
 
-        // CREATE (válasz leadás)
         public async Task<ParticipantAnswer> CreateAsync(ParticipantAnswer participantAnswer)
         {
             participantAnswer.AnsweredAt = DateTime.UtcNow;
 
-            // pontszám számítás logika helye
             if (participantAnswer.Answer != null)
             {
                 participantAnswer.IsCorrect = participantAnswer.Answer.IsCorrect;
 
-                participantAnswer.PointsEarned = participantAnswer.IsCorrect
-                    ? 1 // vagy Question.Point stb.
-                    : 0;
+                participantAnswer.PointsEarned = participantAnswer.IsCorrect ? 1 : 0;
             }
 
             _context.ParticipantAnswers.Add(participantAnswer);
@@ -36,7 +32,6 @@ namespace Sparq.DataAccess.Services
             return participantAnswer;
         }
 
-        // READ by id
         public async Task<ParticipantAnswer?> GetByIdAsync(string id)
         {
             return await _context.ParticipantAnswers
@@ -46,7 +41,6 @@ namespace Sparq.DataAccess.Services
                 .FirstOrDefaultAsync(pa => pa.Id == id);
         }
 
-        // READ all
         public async Task<IReadOnlyCollection<ParticipantAnswer>> GetAllAsync()
         {
             return await _context.ParticipantAnswers
@@ -56,7 +50,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // DELETE
         public async Task<bool> DeleteAsync(string id)
         {
             var entity = await _context.ParticipantAnswers.FindAsync(id);
@@ -70,7 +63,6 @@ namespace Sparq.DataAccess.Services
             return true;
         }
 
-        // Participant válaszai
         public async Task<IReadOnlyCollection<ParticipantAnswer>> GetByParticipantIdAsync(string participantId)
         {
             return await _context.ParticipantAnswers
@@ -80,7 +72,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // Kérdésre adott válaszok
         public async Task<IReadOnlyCollection<ParticipantAnswer>> GetByQuestionIdAsync(string questionId)
         {
             return await _context.ParticipantAnswers

@@ -12,12 +12,10 @@ type Props = {
 };
 
 export function SessionManageProvider({ sessionId, children }: Props) {
-  // 1. ALWAYS CALL HOOK FIRST (guard nélkül is)
   const queryResult = useGetSessionByIdQuery(sessionId ?? "");
 
   const { data, isLoading, isError } = queryResult;
 
-  // 2. derived values
   const isReady = !!sessionId && !!data;
 
   const value = useMemo(() => {
@@ -29,7 +27,6 @@ export function SessionManageProvider({ sessionId, children }: Props) {
     };
   }, [sessionId, data]);
 
-  // 3. SAFE conditional rendering (hooks már lefutottak!)
   if (!sessionId) {
     return <Navigate to="/sessions/notFound" replace />;
   }

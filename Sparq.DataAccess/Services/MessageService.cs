@@ -15,7 +15,6 @@ namespace Sparq.DataAccess.Services
             _context = context;
         }
 
-        // CREATE (üzenet küldés)
         public async Task<Message> CreateAsync(Message message)
         {
             message.SentAt = DateTime.UtcNow;
@@ -26,7 +25,6 @@ namespace Sparq.DataAccess.Services
             return message;
         }
 
-        // READ by id
         public async Task<Message?> GetByIdAsync(string id)
         {
             return await _context.Messages
@@ -36,7 +34,6 @@ namespace Sparq.DataAccess.Services
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        // READ all
         public async Task<IReadOnlyCollection<Message>> GetAllAsync()
         {
             return await _context.Messages
@@ -45,7 +42,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // DELETE
         public async Task<bool> DeleteAsync(string id)
         {
             var message = await _context.Messages.FindAsync(id);
@@ -59,7 +55,6 @@ namespace Sparq.DataAccess.Services
             return true;
         }
 
-        // SESSION chat
         public async Task<IReadOnlyCollection<Message>> GetBySessionIdAsync(string sessionId)
         {
             return await _context.Messages
@@ -69,7 +64,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // PARTICIPANT chat history
         public async Task<IReadOnlyCollection<Message>> GetByParticipantIdAsync(string participantId)
         {
             return await _context.Messages

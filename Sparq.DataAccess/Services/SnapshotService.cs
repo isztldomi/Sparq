@@ -15,7 +15,6 @@ namespace Sparq.DataAccess.Services
             _context = context;
         }
 
-        // CREATE
         public async Task<Snapshot> CreateAsync(Snapshot snapshot)
         {
             var quiz = await _context.Quizzes.FindAsync(snapshot.QuizId);
@@ -48,7 +47,6 @@ namespace Sparq.DataAccess.Services
                 .FirstOrDefaultAsync(v => v.Id == id);
         }
 
-        // READ all
         public async Task<IReadOnlyCollection<Snapshot>> GetAllAsync()
         {
             return await _context.Snapshots
@@ -56,7 +54,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // UPDATE
         public async Task<Snapshot?> UpdateAsync(string id, Snapshot updatedSnapshot)
         {
             var existing = await _context.Snapshots
@@ -67,17 +64,14 @@ namespace Sparq.DataAccess.Services
             if (existing == null)
                 return null;
 
-            // egyszerű mezők
             existing.QuizId = updatedSnapshot.QuizId;
             existing.SnapshotNumber = updatedSnapshot.SnapshotNumber;
             existing.Title = updatedSnapshot.Title;
             existing.Description = updatedSnapshot.Description;
             existing.TimeLimit = updatedSnapshot.TimeLimit;
 
-            // navigation property-k
             existing.Quiz = updatedSnapshot.Quiz;
 
-            // egyszerű csere (nem mindig safe)
             existing.Questions = updatedSnapshot.Questions;
             existing.Sessions = updatedSnapshot.Sessions;
 
@@ -86,7 +80,6 @@ namespace Sparq.DataAccess.Services
             return existing;
         }
 
-        // DELETE
         public async Task<bool> DeleteAsync(string id)
         {
             var snapshot = await _context.Snapshots.FindAsync(id);

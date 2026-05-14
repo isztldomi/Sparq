@@ -125,9 +125,6 @@ export function QuizModifyPage() {
     });
   }
 
-  // ---------------------------
-  // QUESTION
-  // ---------------------------
   function updateQuestions(questions: QuestionUI[]) {
     setFormData((prev) => {
       if (!prev) return prev;
@@ -218,9 +215,6 @@ export function QuizModifyPage() {
     });
   }
 
-  // ---------------------------
-  // ANSWER
-  // ---------------------------
   function updateAnswers(questionId: string, answers: AnswerUI[]) {
     setFormData((prev) => {
       if (!prev) return prev;
@@ -310,9 +304,6 @@ export function QuizModifyPage() {
     });
   }
 
-  // ---------------------------
-  // TOGGLE OPEN
-  // ---------------------------
   function toggleOpen(id: string) {
     setFormData((prev) => {
       if (!prev) return prev;
@@ -330,9 +321,6 @@ export function QuizModifyPage() {
     });
   }
 
-  // ---------------------------
-  // DRAG END
-  // ---------------------------
   function handleDragEndQuestion(event: any) {
     const { active, over } = event;
 
@@ -357,9 +345,6 @@ export function QuizModifyPage() {
     });
   }
 
-  // ---------------------------
-  // DONE
-  // ---------------------------
   async function handleDone() {
     const result = snapshotSchema.safeParse(formData!.snapshots[0]);
 
@@ -374,7 +359,6 @@ export function QuizModifyPage() {
     try {
       const snapshot = formData!.snapshots[0];
 
-      // 1. ORDER FIX (QUESTION + ANSWER)
       const orderedQuestions = snapshot.questions.map((q, qIndex) => ({
         ...q,
         order: qIndex,
@@ -384,7 +368,6 @@ export function QuizModifyPage() {
         })),
       }));
 
-      // 2. MEDIA UPLOAD
       const questionsWithMedia = await Promise.all(
         orderedQuestions.map(async (q) => {
           if (!q.mediaFile) return q;
@@ -396,7 +379,6 @@ export function QuizModifyPage() {
         }),
       );
 
-      // 3. FINAL SNAPSHOT
       const finalSnapshotData = {
         ...snapshot,
         questions: questionsWithMedia,
@@ -412,9 +394,6 @@ export function QuizModifyPage() {
     }
   }
 
-  // ---------------------------
-  // Delete
-  // ---------------------------
   async function handleDeactivate() {
     try {
       await deactivateQuiz(quizId as string).unwrap();
@@ -426,9 +405,6 @@ export function QuizModifyPage() {
     }
   }
 
-  // ---------------------------
-  // FRONTEND ERRORS
-  // ---------------------------
   function getClientError(path: string) {
     return formErrors[path];
   }

@@ -33,7 +33,7 @@ export function registerSessionStartHandler({ connection }: Params) {
   connection.on("SessionStart", handler);
 
   /**
-   * 👉 Cleanup function
+   * Cleanup function
    * Fontos: reconnect / unmount esetén ne maradjon bent listener
    */
   return () => {
