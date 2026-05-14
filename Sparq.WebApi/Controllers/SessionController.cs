@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>Session</summary>
+    /// <summary>Session controller</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class SessionController : ControllerBase
@@ -39,7 +39,7 @@ namespace Sparq.WebApi.Controllers
         /// <param name="questionService">Question service dependency</param>
         /// <param name="sessionQuestionStateService">Session question state service dependency</param>
         /// <param name="participantAnswerService">Participant answer service dependency</param>
-        /// <param name="sessionsNotificationService">Session notifier dependency</param>
+        /// <param name="sessionsNotificationService">Session notification service dependency</param>
         public SessionController(IMapper mapper, ISessionService sessionService, IUsersService usersService, 
             IQuizService quizService, ISnapshotService snapshotService, IParticipantService participantService,
             IQuestionService questionService, ISessionQuestionStateService sessionQuestionStateService,
@@ -57,13 +57,11 @@ namespace Sparq.WebApi.Controllers
             _sessionsNotificationService = sessionsNotificationService;
         }
 
+
         /// <summary>Create session</summary>
-        /// <param name="createSessionRequestDto">Session creation request containing quiz identifier.</param>
-        /// <returns>The created session.</returns>
-        /// <remarks>
-        /// Creates a new session from the latest snapshot of the specified quiz.
-        /// Only the quiz owner is allowed to create sessions.
-        /// </remarks>
+        /// <param name="createSessionRequestDto">Session creation request</param>
+        /// <returns>Created session.</returns>
+        /// <remarks>Creates a session from the latest quiz snapshot. Only quiz owner allowed.</remarks>
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreateSessionResponseDto))]
@@ -138,6 +136,14 @@ namespace Sparq.WebApi.Controllers
             return NoContent();
         }
 
+        /// <summary>Get all public waiting sessions</summary>
+        /// <param name="page">Page number (starts from 1)</param>
+        /// <param name="pageSize">Page size (1–100)</param>
+        /// <returns>Paginated list of public sessions in waiting state.</returns>
+        /// <remarks>
+        /// Returns all sessions that are publicly available and currently in waiting state.
+        /// Results are paginated.
+        /// </remarks>
         [HttpGet("public-waiting")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResult<SessionPublicWaitingListDto>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -166,6 +172,12 @@ namespace Sparq.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>Get session by id</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <returns>Session details.</returns>
+        /// <remarks>
+        /// Returns session details only if the current user is the quiz owner.
+        /// </remarks>
         [HttpGet("{sessionId}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionListDto))]
@@ -197,7 +209,17 @@ namespace Sparq.WebApi.Controllers
             return Ok(mapped);
         }
 
+        /// <summary>Get public session data</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <returns>Public session information.</returns>
+        /// <remarks>
+        /// Returns public session data if the session is not in Created state.
+        /// No authentication required.
+        /// </remarks>
         [HttpGet("{sessionId}/public")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionPublicWaitingListDto))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetSessionPublicDataById([FromRoute] string sessionId)
         {
             var session = await _sessionService.GetByIdAsync(sessionId);
@@ -222,6 +244,13 @@ namespace Sparq.WebApi.Controllers
             return Ok(mapped);
         }
 
+        /// <summary>Join session</summary>
+        /// <param name="joinSessionRequestDto">Join session request containing session id, pin code and optional nickname.</param>
+        /// <returns>External user identifier if user joined as guest.</returns>
+        /// <remarks>
+        /// Allows a user (authenticated or external) to join a waiting session.
+        /// External users must provide a nickname and receive an external user id.
+        /// </remarks>
         [HttpPost("join")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JoinSessionExtUserResponseDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -276,6 +305,13 @@ namespace Sparq.WebApi.Controllers
             });
         }
 
+        /// <summary>Quit session</summary>
+        /// <param name="quitSessionRequestDto">Quit request containing session id and optional external user id.</param>
+        /// <returns>True if participant was successfully removed.</returns>
+        /// <remarks>
+        /// Removes a participant from a session.
+        /// Works for both authenticated and external users.
+        /// </remarks>
         [HttpPost("quit")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -328,6 +364,14 @@ namespace Sparq.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>Get session status</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="extUserId">Optional external user identifier</param>
+        /// <returns>Current session status.</returns>
+        /// <remarks>
+        /// Returns session status for participants or session owner.
+        /// Access is restricted to participants or the owner.
+        /// </remarks>
         [HttpGet("{sessionId}/status")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionStatusResponseDto))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -367,6 +411,12 @@ namespace Sparq.WebApi.Controllers
             });
         }
 
+        /// <summary>Delete session</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <returns>True if deletion succeeded.</returns>
+        /// <remarks>
+        /// Deletes a session only if it is in Created state and owned by the current user.
+        /// </remarks>
         [HttpDelete("{sessionId}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
@@ -395,6 +445,13 @@ namespace Sparq.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>Deactivate session</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <returns>True if deactivation succeeded.</returns>
+        /// <remarks>
+        /// Removes all participants and deactivates the session.
+        /// Only allowed for the quiz owner when session is in Waiting state.
+        /// </remarks>
         [HttpPatch("{sessionId}/deactivate")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
@@ -432,6 +489,13 @@ namespace Sparq.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>Start session</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <returns>True if session successfully started.</returns>
+        /// <remarks>
+        /// Starts a session if it is in Waiting state and has at least one participant.
+        /// Only the quiz owner can start the session.
+        /// </remarks>
         [HttpPatch("{sessionId}/start")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
@@ -466,7 +530,18 @@ namespace Sparq.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>Move to next question</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <returns>True if next question was loaded, false if session ended or no next question exists.</returns>
+        /// <remarks>
+        /// Advances the session to the next question.
+        /// Ends the session if no more questions exist.
+        /// </remarks>
         [HttpPatch("{sessionId}/nextQuestion")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> NextQuestionSession([FromRoute] string sessionId)
         {
             var user = await _usersService.GetCurrentUserAsync();
@@ -536,6 +611,14 @@ namespace Sparq.WebApi.Controllers
             }
         }
 
+        /// <summary>Get session leaderboard</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="extUserId">Optional external user id</param>
+        /// <returns>Leaderboard with participant rankings and scores.</returns>
+        /// <remarks>
+        /// Returns aggregated results for all participants in the session.
+        /// Access is allowed for participants or session owner.
+        /// </remarks>
         [HttpGet("{sessionId}/leaderboard")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SessionLeaderboardDto))]
         public async Task<IActionResult> GetSessionLeaderboard(string sessionId, string? extUserId)
@@ -582,7 +665,7 @@ namespace Sparq.WebApi.Controllers
 
                     return new LeaderboardEntryDto
                     {
-                        ParticipantId = g.Key,
+                        ParticipantId = g.Key!,
                         DisplayName = first.Participant!.DisplayName,
                         UserId = first.Participant?.UserId,
                         ExtUserId = first.Participant?.ExternalUserId,
@@ -602,6 +685,13 @@ namespace Sparq.WebApi.Controllers
             });
         }
 
+        /// <summary>Get session history</summary>
+        /// <param name="page">Page number (starts from 1)</param>
+        /// <param name="pageSize">Page size (1–100)</param>
+        /// <returns>Paginated list of sessions participated by the current user.</returns>
+        /// <remarks>
+        /// Returns historical sessions where the current user participated.
+        /// </remarks>
         [HttpGet("history")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResult<MySessionListDto>))]

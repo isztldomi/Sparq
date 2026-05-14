@@ -8,7 +8,7 @@ using Sparq.SignalR.Services;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>Media</summary>
+    /// <summary>Participant controller</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class ParticipantController : ControllerBase
@@ -19,7 +19,18 @@ namespace Sparq.WebApi.Controllers
         private readonly ISessionService _sessionService;
         private readonly ISessionsNotificationService _sessionsNotificationService;
 
-        public ParticipantController(IMapper mapper, IParticipantService participantService, IUsersService usersService, ISessionService sessionService, ISessionsNotificationService sessionsNotificationService)
+        /// <summary>Ctor</summary>
+        /// <param name="mapper">Mapper for DTO conversion</param>
+        /// <param name="participantService">Participant service dependency</param>
+        /// <param name="usersService">User service dependency</param>
+        /// <param name="sessionService">Session service dependency</param>
+        /// <param name="sessionsNotificationService">Session notification service dependency</param>
+        public ParticipantController(
+            IMapper mapper,
+            IParticipantService participantService,
+            IUsersService usersService,
+            ISessionService sessionService,
+            ISessionsNotificationService sessionsNotificationService)
         {
             _mapper = mapper;
             _participantService = participantService;
@@ -28,6 +39,11 @@ namespace Sparq.WebApi.Controllers
             _sessionsNotificationService = sessionsNotificationService;
         }
 
+        /// <summary>Check if user joined session</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="extUserId">External user identifier (optional)</param>
+        /// <returns>Join status of participant.</returns>
+        /// <remarks>Returns whether the current user or external user has joined the session.</remarks>
         [HttpGet("{sessionId}/is-joined")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ParticipantIsJoinedResponseDto))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -39,7 +55,7 @@ namespace Sparq.WebApi.Controllers
 
             bool isJoined = false;
 
-            // belső user
+            // internal user
             if (user != null)
             {
                 isJoined = await _participantService.IsUserJoinedAsync(user.Id, sessionId);
@@ -50,14 +66,20 @@ namespace Sparq.WebApi.Controllers
                 isJoined = await _participantService.IsExtUserJoinedAsync(extUserId, sessionId);
             }
 
-            var result = new ParticipantIsJoinedResponseDto
+            return Ok(new ParticipantIsJoinedResponseDto
             {
                 IsJoined = isJoined
-            };
-
-            return Ok(result);
+            });
         }
 
+        /// <summary>Get session participants</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="extUserId">External user identifier (optional)</param>
+        /// <returns>List of participants.</returns>
+        /// <remarks>
+        /// Returns all participants in a session.
+        /// Owners can always access the full list.
+        /// </remarks>
         [HttpGet("{sessionId}/participants")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ParticipantPublicListResponseDto>))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -73,19 +95,20 @@ namespace Sparq.WebApi.Controllers
             if (session == null)
                 return NotFound();
 
-            // owner mindig láthatja
-            if (user != null && session.Snapshot.Quiz.OwnerId == user.Id)
+            // owner always allowed
+            if (user != null && session.Snapshot!.Quiz!.OwnerId == user.Id)
             {
                 var ownerParticipants = await _participantService.GetBySessionIdAsync(sessionId);
 
-                var ownerResult = _mapper.Map<IReadOnlyCollection<ParticipantPublicListResponseDto>>(ownerParticipants);
+                var ownerResult =
+                    _mapper.Map<IReadOnlyCollection<ParticipantPublicListResponseDto>>(ownerParticipants);
 
                 return Ok(ownerResult);
             }
 
             bool isAllowed = false;
 
-            // belső user
+            // internal user
             if (user != null)
             {
                 isAllowed = await _participantService.IsUserJoinedAsync(user.Id, sessionId);
@@ -101,17 +124,28 @@ namespace Sparq.WebApi.Controllers
 
             var participants = await _participantService.GetBySessionIdAsync(sessionId);
 
-            var result = _mapper.Map<IReadOnlyCollection<ParticipantPublicListResponseDto>>(participants);
+            var result =
+                _mapper.Map<IReadOnlyCollection<ParticipantPublicListResponseDto>>(participants);
 
             return Ok(result);
         }
 
+        /// <summary>Delete participant from session</summary>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="participantId">Participant identifier</param>
+        /// <returns>Result of deletion.</returns>
+        /// <remarks>
+        /// Removes a participant from a session.
+        /// Only session owner can perform this action while session is in Waiting state.
+        /// </remarks>
         [HttpDelete("{sessionId}/{participantId}")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ParticipantPublicListResponseDto>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteParticipantFromSessionById([FromRoute] string sessionId, [FromRoute] string participantId)
+        public async Task<IActionResult> DeleteParticipantFromSessionById(
+            [FromRoute] string sessionId,
+            [FromRoute] string participantId)
         {
             var user = await _usersService.GetCurrentUserAsync();
 

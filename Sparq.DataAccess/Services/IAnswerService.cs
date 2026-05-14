@@ -1,5 +1,4 @@
-﻿using Sparq.DataAccess.Migrations;
-using Sparq.DataAccess.Models;
+﻿using Sparq.DataAccess.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace Sparq.WebApi.Controllers
 {
-    /// <summary>Media</summary>
+    /// <summary>Media controller</summary>
     [ApiController]
     [Route("api/[controller]")]
     public class MediaController : ControllerBase
@@ -21,7 +21,10 @@ namespace Sparq.WebApi.Controllers
         /// <param name="mediaService">Media service dependency</param>
         /// <param name="usersService">User service dependency</param>
         /// <param name="participantService">Participant service dependency</param>
-        public MediaController(IMediaService mediaService, IUsersService usersService, IParticipantService participantService)
+        public MediaController(
+            IMediaService mediaService,
+            IUsersService usersService,
+            IParticipantService participantService)
         {
             _mediaService = mediaService;
             _usersService = usersService;
@@ -34,6 +37,8 @@ namespace Sparq.WebApi.Controllers
         /// <remarks>Uploads a file for the authenticated user.</remarks>
         [HttpPost("upload")]
         [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MediaUploadResponseDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MediaUploadResponseDto>> Upload([FromForm] IFormFile file)
@@ -64,8 +69,9 @@ namespace Sparq.WebApi.Controllers
         /// <remarks>Returns a file by id for the authenticated user.</remarks>
         [HttpGet("{id}")]
         [Authorize]
-        [ProducesResponseType(typeof(MediaFileResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(string id)
         {
             var user = await _usersService.GetCurrentUserAsync();
@@ -90,7 +96,17 @@ namespace Sparq.WebApi.Controllers
 
             return File(result.Stream, dto.ContentType);
         }
+
+        /// <summary>Get file for session</summary>
+        /// <param name="id">Media identifier</param>
+        /// <param name="sessionId">Session identifier</param>
+        /// <param name="extUserId">External user identifier (optional)</param>
+        /// <returns>File stream</returns>
+        /// <remarks>Returns a media file accessible within a session context.</remarks>
         [HttpGet("{id}/session/{sessionId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetForSession(
             string id,
             string sessionId,
@@ -105,11 +121,13 @@ namespace Sparq.WebApi.Controllers
                 if (string.IsNullOrWhiteSpace(extUserId))
                     return Forbid();
 
-                participant = (await _participantService.GetIdByExtUserIdAndSessionIdAsync(extUserId, sessionId))!;
+                participant = (await _participantService
+                    .GetIdByExtUserIdAndSessionIdAsync(extUserId, sessionId))!;
             }
             else
             {
-                participant = (await _participantService.GetIdByUserIdAndSessionIdAsync(user.Id, sessionId))!;
+                participant = (await _participantService
+                    .GetIdByUserIdAndSessionIdAsync(user.Id, sessionId))!;
             }
 
             if (participant == null)
