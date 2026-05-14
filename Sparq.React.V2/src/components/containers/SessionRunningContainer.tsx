@@ -29,9 +29,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
 
   const [submitAnswer, { isLoading: isSubmitting }] = useSubmitAnswerMutation();
 
-  // ----------------------------
-  // QUERIES
-  // ----------------------------
   const withoutResultQuery = useGetCurrentQuestionWithoutResultQuery(
     { sessionId, extUserId },
     { skip: showResult },
@@ -60,9 +57,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
 
   const isError = withoutResultQuery.isError || withResultQuery.isError;
 
-  // ----------------------------
-  // IMAGE
-  // ----------------------------
   const mediaId = question?.mediaId;
 
   const { data: imageBlob } = useGetMediaBlobSessionQuery(
@@ -90,9 +84,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
     };
   }, [imageUrl]);
 
-  // ----------------------------
-  // CLOCK
-  // ----------------------------
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(Date.now());
@@ -101,9 +92,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
     return () => clearInterval(interval);
   }, []);
 
-  // ----------------------------
-  // TIMER
-  // ----------------------------
   useEffect(() => {
     if (!data?.endsAt) return;
     const remaining = new Date(data.endsAt).getTime() - Date.now();
@@ -120,9 +108,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
     return () => clearTimeout(timeout);
   }, [data?.endsAt]);
 
-  // ----------------------------
-  // ANSWER SUBMIT
-  // ----------------------------
   const handleAnswer = async (answerId: string) => {
     if (!question) return;
 
@@ -136,9 +121,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
     });
   };
 
-  // ----------------------------
-  // LOADING / ERROR
-  // ----------------------------
   if (isLoading) return <LoadingIndicator />;
 
   if (isError || !data) {
@@ -149,9 +131,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
     return <LoadingIndicator />;
   }
 
-  // ----------------------------
-  // TIMER CALCS
-  // ----------------------------
   const timeLeft = Math.max(0, new Date(data.endsAt).getTime() - now);
 
   const totalTime =
@@ -159,9 +138,6 @@ export function SessionRunningContainer({ sessionId, extUserId }: Props) {
 
   const progress = totalTime ? (timeLeft / totalTime) * 100 : 0;
 
-  // ----------------------------
-  // RENDER
-  // ----------------------------
   return (
     <div className="min-h-screen justify-center p-4">
       <h1 className="text-xl">Session Running</h1>

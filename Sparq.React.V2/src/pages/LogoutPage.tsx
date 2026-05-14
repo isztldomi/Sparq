@@ -11,13 +11,10 @@ export function LogoutPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // auth cleanup
     clearAuth();
 
-    // RTK Query cache cleanup
     dispatch(baseApi.util.resetApiState());
 
-    // redirect
     navigate("/profile", {
       replace: true,
     });

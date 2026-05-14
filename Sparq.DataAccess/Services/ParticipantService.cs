@@ -15,7 +15,6 @@ namespace Sparq.DataAccess.Services
             _context = context;
         }
 
-        // CREATE
         public async Task<Participant> CreateAsync(Participant participant)
         {
             participant.Score = 0;
@@ -28,7 +27,6 @@ namespace Sparq.DataAccess.Services
             return participant;
         }
 
-        // READ by id
         public async Task<Participant?> GetByIdAsync(string id)
         {
             return await _context.Participants
@@ -39,7 +37,6 @@ namespace Sparq.DataAccess.Services
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        // READ all
         public async Task<IReadOnlyCollection<Participant>> GetAllAsync()
         {
             return await _context.Participants
@@ -47,7 +44,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // UPDATE
         public async Task<Participant?> UpdateAsync(string id, Participant updatedParticipant)
         {
             var existing = await _context.Participants
@@ -58,21 +54,17 @@ namespace Sparq.DataAccess.Services
             if (existing == null)
                 return null;
 
-            // identity / kapcsolat
             existing.UserId = updatedParticipant.UserId;
             existing.SessionId = updatedParticipant.SessionId;
 
-            // basic adatok
             existing.DisplayName = updatedParticipant.DisplayName;
             existing.Score = updatedParticipant.Score;
             existing.Rank = updatedParticipant.Rank;
             existing.IsFinished = updatedParticipant.IsFinished;
 
-            // navigation property
             existing.User = updatedParticipant.User;
             existing.Session = updatedParticipant.Session;
 
-            // collections
             existing.ParticipantAnswers = updatedParticipant.ParticipantAnswers;
             existing.Messages = updatedParticipant.Messages;
 
@@ -81,7 +73,6 @@ namespace Sparq.DataAccess.Services
             return existing;
         }
 
-        // DELETE
         public async Task<bool> DeleteAsync(string id)
         {
             var participant = await _context.Participants.FindAsync(id);
@@ -95,7 +86,6 @@ namespace Sparq.DataAccess.Services
             return true;
         }
 
-        // SESSION alapú lekérés 
         public async Task<IReadOnlyCollection<Participant>> GetBySessionIdAsync(string sessionId)
         {
             return await _context.Participants

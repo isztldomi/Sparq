@@ -131,7 +131,7 @@ namespace Sparq.DataAccess
                 new Answer { Id = Guid.NewGuid().ToString(), Question = question3, QuestionId = question3.Id, Order = 4, Text = "CSS", IsCorrect = false }
             );
 
-            // -------------------- SAVE --------------------
+            
             context.SaveChanges();
         }
 

@@ -14,7 +14,7 @@ namespace Sparq.DataAccess.Services
         {
             _context = context;
         }
-        // CREATE
+
         public async Task<Quiz> CreateAsync(Quiz quiz)
         {
             quiz.CreatedAt = DateTime.UtcNow;
@@ -36,7 +36,6 @@ namespace Sparq.DataAccess.Services
             return quiz;
         }
 
-        // READ by id
         public async Task<Quiz?> GetByIdAsync(string id)
         {
             return await _context.Quizzes
@@ -48,7 +47,6 @@ namespace Sparq.DataAccess.Services
                 .FirstOrDefaultAsync(q => q.Id == id && q.IsActive);
         }
 
-        // READ all
         public async Task<IReadOnlyCollection<Quiz>> GetAllAsync()
         {
             return await _context.Quizzes
@@ -56,7 +54,6 @@ namespace Sparq.DataAccess.Services
                 .ToListAsync();
         }
 
-        // UPDATE (teljes objektum frissítés)
         public async Task<Quiz?> UpdateAsync(string id, Quiz updatedQuiz)
         {
             var existing = await _context.Quizzes
@@ -66,16 +63,13 @@ namespace Sparq.DataAccess.Services
             if (existing == null)
                 return null;
 
-            // Egyszerű mezők
             existing.OwnerId = updatedQuiz.OwnerId;
             existing.IsPublic = updatedQuiz.IsPublic;
             existing.IsActive = updatedQuiz.IsActive;
             existing.UpdatedAt = DateTime.UtcNow;
 
-            // Owner (ha explicit akarod frissíteni)
             existing.Owner = updatedQuiz.Owner;
 
-            // Snapshots kezelés (egyszerű csere)
             existing.Snapshots = updatedQuiz.Snapshots;
 
             await _context.SaveChangesAsync();
@@ -83,7 +77,6 @@ namespace Sparq.DataAccess.Services
             return existing;
         }
 
-        // DELETE (hard delete)
         public async Task<bool> DeleteAsync(string id)
         {
             var quiz = await _context.Quizzes.FindAsync(id);

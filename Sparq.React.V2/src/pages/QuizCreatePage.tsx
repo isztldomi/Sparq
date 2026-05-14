@@ -77,9 +77,6 @@ export function QuizCreatePage() {
     });
   }
 
-  // ---------------------------
-  // QUESTION
-  // ---------------------------
   function updateQuestions(questions: QuestionUI[]) {
     setFormData((prev) => ({
       ...prev,
@@ -160,9 +157,6 @@ export function QuizCreatePage() {
     }));
   }
 
-  // ---------------------------
-  // ANSWER
-  // ---------------------------
   function updateAnswers(questionId: string, answers: AnswerUI[]) {
     setFormData((prev) => {
       const questions = prev.snapshots[0].questions.map((q) =>
@@ -247,9 +241,6 @@ export function QuizCreatePage() {
     });
   }
 
-  // ---------------------------
-  // TOGGLE OPEN
-  // ---------------------------
   function toggleOpen(id: string) {
     setFormData((prev) => ({
       ...prev,
@@ -264,9 +255,6 @@ export function QuizCreatePage() {
     }));
   }
 
-  // ---------------------------
-  // DRAG END
-  // ---------------------------
   function handleDragEndQuestion(event: any) {
     const { active, over } = event;
 
@@ -290,9 +278,6 @@ export function QuizCreatePage() {
     });
   }
 
-  // ---------------------------
-  // DONE
-  // ---------------------------
   async function handleDone() {
     const snapshot = formData.snapshots[0];
 
@@ -364,9 +349,6 @@ export function QuizCreatePage() {
     }
   }
 
-  // ---------------------------
-  // FRONTEND ERRORS
-  // ---------------------------
   function getClientError(path: string) {
     return formErrors[path];
   }
