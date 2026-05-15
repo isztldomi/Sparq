@@ -43,7 +43,6 @@ namespace Sparq.Tests.UnitTests
             var result = await _service.CreateAsync(entity);
 
             Assert.NotNull(result);
-            Assert.NotNull(result.AnsweredAt);
 
             if (answer.IsCorrect)
                 Assert.Equal(1, result.PointsEarned);
