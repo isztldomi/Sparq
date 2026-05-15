@@ -14,7 +14,6 @@ namespace Sparq.WebApi.Infrastructure
         /// <returns>The updated service collection.</returns>
         public static IServiceCollection AddAutomapper(this IServiceCollection services)
         {
-            // 16.x helyes forma: Action<IMapperConfigurationExpression> lambda
             services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
             return services;
