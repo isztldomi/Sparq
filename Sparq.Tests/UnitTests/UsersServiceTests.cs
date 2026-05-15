@@ -176,14 +176,14 @@ namespace Sparq.Tests.UnitTests
 
             return new Mock<UserManager<User>>(
                 store.Object,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
+                null!,
+                null!,
+                null!,
+                null!,
+                null!,
+                null!,
+                null!,
+                null!);
         }
 
         private Mock<SignInManager<User>> MockSignInManager(
@@ -193,10 +193,10 @@ namespace Sparq.Tests.UnitTests
                 userManager.Object,
                 new Mock<IHttpContextAccessor>().Object,
                 new Mock<IUserClaimsPrincipalFactory<User>>().Object,
-                null,
-                null,
-                null,
-                null);
+                null!,
+                null!,
+                null!,
+                null!);
         }
 
         #endregion

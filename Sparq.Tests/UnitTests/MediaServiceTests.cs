@@ -152,7 +152,7 @@ namespace Sparq.Tests.UnitTests
 
             var db = await _context.Media.FindAsync(media.Id);
 
-            Assert.NotNull(db.DeletedAt);
+            Assert.NotNull(db!.DeletedAt);
         }
 
         [Fact]

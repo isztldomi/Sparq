@@ -43,8 +43,6 @@ namespace Sparq.Tests.UnitTests
 
             Assert.NotNull(result);
             Assert.True(result.IsActive);
-            Assert.NotNull(result.CreatedAt);
-            Assert.NotNull(result.UpdatedAt);
             Assert.NotNull(result.LastSnapshotId);
 
             var dbQuiz = await _context.Quizzes
