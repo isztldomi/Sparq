@@ -2,5 +2,6 @@
   <Project Path="Sparq.DataAccess/Sparq.DataAccess.csproj" />
   <Project Path="Sparq.Shared/Sparq.Shared.csproj" Id="e1dd25e6-df36-4ccc-b531-3e1cd737b7ea" />
   <Project Path="Sparq.SignalR/Sparq.SignalR.csproj" Id="d965e942-73fe-4d65-a512-3646e3d33afc" />
+  <Project Path="Sparq.Tests/Sparq.Tests.csproj" Id="adf5f6d6-0901-440d-acb2-e7fe73e2bc33" />
   <Project Path="Sparq.WebApi/Sparq.WebApi.csproj" />
 </Solution>
