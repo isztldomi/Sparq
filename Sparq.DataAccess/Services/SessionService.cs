@@ -130,11 +130,14 @@ namespace Sparq.DataAccess.Services
                     s.Snapshot.Quiz != null &&
                     s.Snapshot.Quiz.IsPublic &&
                     s.Snapshot.Quiz.IsActive);
-            var totalCount = query.Count();
-            var items = query
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
+                .ToListAsync();
+
             return (items, totalCount);
         }
 
